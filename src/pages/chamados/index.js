@@ -19,6 +19,8 @@ import UserContext from '../../UserContext';
 import MainContent from '../../components/MainContent';
 import AdminNavbar from '../../components/Navbar';
 import FloatingMenu from '../../components/FloatingMenu';
+import { dataHoraFormatada } from '../../services/dataHoraAtual';
+import moment from 'moment';
 
 export default class Index extends Component {
 	static contextType = UserContext;
@@ -181,6 +183,17 @@ export default class Index extends Component {
 	handlerShowModalCadastrarChamado() {
 		this.setModalShowCadastrarChamado(true);
 		localStorage.removeItem("@link");
+		this.setState({
+			descricao: '',
+			idTipoChamado: 0,
+			idPrioridade: 0,
+			valor: 0,
+			idSetorResponsavel: 0,
+			idResponsavel: 0,
+			arraySelectedParticipantes: [],
+			dataHoraFinalizacao: '',
+			link: ''
+		})
 		listaDeSetores(getToken()).then(result => {
 			let arraySetoresParticipantes = [];
 			if (result.length > 0) {
@@ -311,6 +324,7 @@ export default class Index extends Component {
 			);
 
 			const data = await response.json();
+			console.log(data);
 			if (data.status === 200) {
 				this.setState({ arrayTiposDeChamados: data.resultados });
 			}
@@ -404,19 +418,20 @@ export default class Index extends Component {
 					data.resultados.map((chamado, index) => {
 						if (chamado.id_status === 5) {
 							arrayChamadosRecebidosComOstatusSolicitados.push(
-								{ id: chamado.id, title: `Chamado ${chamado.id}`, description: chamado.tipo_chamado, label: chamado.dataHoraCriacao, metadata: chamado }
+								{ id: chamado.id, title: `Chamado ${chamado.id}`, description: chamado.tipo_chamado, label: chamado.dataHoraFinalizacao, metadata: chamado, style: { backgroundColor: 
+									moment(chamado.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ?  '' : '#F5C6CB' } }
 							)
 						}
 
 						if (chamado.id_status === 7) {
 							arrayChamadosRecebidosComOstatusFinalizados.push(
-								{ id: chamado.id, title: `Chamado ${chamado.id}`, description: chamado.tipo_chamado, label: chamado.dataHoraCriacao, metadata: chamado }
+								{ id: chamado.id, title: `Chamado ${chamado.id}`, description: chamado.tipo_chamado, label: chamado.dataHoraFinalizacao, metadata: chamado, style: { backgroundColor: moment(chamado.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ?  '' : '#F5C6CB' } }
 							)
 						}
 
 						if (chamado.id_status === 9) {
 							arrayChamadosRecebidosComOstatusEmProducao.push(
-								{ id: chamado.id, title: `Chamado ${chamado.id}`, description: chamado.tipo_chamado, label: chamado.dataHoraCriacao, metadata: chamado }
+								{ id: chamado.id, title: `Chamado ${chamado.id}`, description: chamado.tipo_chamado, label: chamado.dataHoraFinalizacao, metadata: chamado, style: { backgroundColor: moment(chamado.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ?  '' : '#F5C6CB' } }
 							)
 						}
 					});
@@ -472,6 +487,8 @@ export default class Index extends Component {
 					}
 
 				});
+
+				console.log(this.state.data);
 
 			}
 		} catch (error) {
@@ -862,194 +879,144 @@ export default class Index extends Component {
 								</ul>
 							</FloatingMenu>
 
-							<div className='container'>
-								<Tabs
-									defaultActiveKey="chamados_recebidos"
-									id="fill-tab-solicitacoes"
-									className="justify-content-center"
-									variant='pills'>
 
-									<Tab eventKey="chamados_recebidos" title={`Chamados recebidos`}>
-										<Board data={this.state.data}
-											style={{
-												overflow: 'auto',
-												backgroundColor: 'transparent', // Cor de fundo
-												marginTop: '10px', // Margem superior
-												marginBottom: '30px', // Margem inferior
-												display: 'flex', // Exibição em linha
-												justifyContent: 'center', // Alinhamento centralizado horizontalmente
-											}}
-											cardDraggable
-											handleDragEnd={this.handleDragEnd}
-											onCardClick={this.onCardClick} />
-									</Tab>
+							<Tabs
+								defaultActiveKey="chamados_recebidos"
+								id="fill-tab-solicitacoes"
+								className="justify-content-center"
+								variant='pills'>
 
-									<Tab eventKey="chamados_solicitados" title={`Chamados solicitados`}>
+								<Tab eventKey="chamados_recebidos" title={`Chamados recebidos`}>
+									<Board data={this.state.data}
+										style={{
+											overflow: 'auto',
+											backgroundColor: 'transparent', // Cor de fundo
+											marginTop: '10px', // Margem superior
+											marginBottom: '30px', // Margem inferior
+											display: 'flex', // Exibição em linha
+											justifyContent: 'center', // Alinhamento centralizado horizontalmente
+											
+										}}
+										cardDraggable
+										handleDragEnd={this.handleDragEnd}
+										onCardClick={this.onCardClick} />
+								</Tab>
 
-										{/* <div className="row" style={{ maxHeight: "800px", overflowY: "scroll", marginBottom: "300px", padding: "30px" }}>
-											{this.state.arrayChamadosSolicitados.length > 0 ? (
-												this.state.arrayChamadosSolicitados.map(item => (
-													<div className="col-sm-4">
-														<Card key={item.id} className="text-center zoom text-light" style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}>
-															<Card.Header className='font-weight-bold'>N° do chamado: {item.id} - {item.status}</Card.Header>
-															<Card.Body style={{ backgroundColor: "rgba(255, 255, 255, 0.3)", maxHeight: "240px", overflowY: "scroll" }}>
-																<Card.Text>Tipo: {item.tipo_chamado}</Card.Text>
-																<Card.Text>{parseInt(item.visualizado) === 1 ? <FaEye style={{ width: "200px" }} /> : <FaEyeSlash style={{ width: "200px" }} />}</Card.Text>
-																<Card.Text>Data de finalização: {item.dataHoraFinalizacao !== null ? item.dataHoraFinalizacao : "Em análise"}</Card.Text>
-																<div className='d-flex justify-content-center'>
-																	<button className='button d-block' onClick={() => this.handlerShowModalEditarChamadoSolicitado(item)}>Visualizar</button>
-																</div>
-															</Card.Body>
-														</Card>
-													</div>
-												))
-											) : (<Card style={{ width: '18rem' }}>
-												<Card.Body>
-													<Card.Title>Nenhum resultado encontrado</Card.Title>
-												</Card.Body>
-											</Card>)}
-										</div> */}
-										<div class="table-responsive table-sm mt-2">
-											<div class="table-wrapper">
-												<table class="table text-center table-hover mb-5 table-light">
-													<thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)', verticalAlign: 'middle' }}>
-														<tr>
-															<th scope="col" className="align-middle">N° do chamado:</th>
-															<th scope="col" className="align-middle">Tipo</th>
-															<th scope="col" className="align-middle">Descrição</th>
-															<th></th>
-															<th scope="col" className="align-middle">Data de finalização</th>
-															<th className="align-middle">Ações</th>
-														</tr>
-													</thead>
-													<tbody>
-														{this.state.arrayChamadosSolicitados.length > 0 ? (
-															this.state.arrayChamadosSolicitados.map((item, index) => (
-																<tr key={index} >
-																	<td>{item.id}</td>
-																	<td>{item.tipo_chamado}</td>
-																	<td>{item.descricao}</td>
-																	<td>{parseInt(item.visualizado) === 1 ? <FaEye style={{ width: "200px" }} /> : <FaEyeSlash style={{ width: "200px" }} />}</td>
-																	<td>{item.dataHoraFinalizacao}</td>
-																	<td><button className='button d-block' onClick={() => this.handlerShowModalEditarChamadoSolicitado(item)}>Visualizar</button></td>
-																</tr>
-															))
-														) : (<tr>
-															<td colSpan="12">Nenhum resultado encontrado</td>
-														</tr>)}
-													</tbody>
-												</table>
-											</div>
+								<Tab eventKey="chamados_solicitados" title={`Chamados solicitados`}>
+
+									<div class="table-responsive table-sm mt-2 container">
+										<div class="table-wrapper">
+											<table class="table text-center table-hover mb-5 table-light">
+												<thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)', verticalAlign: 'middle' }}>
+													<tr>
+														<th scope="col" className="align-middle">N° do chamado:</th>
+														<th scope="col" className="align-middle">Descrição</th>
+														<th className="align-middle">Visualização</th>
+														<th scope="col" className="align-middle">Data de finalização</th>
+														<th className="align-middle">Ações</th>
+													</tr>
+												</thead>
+												<tbody>
+													{this.state.arrayChamadosSolicitados.length > 0 ? (
+														this.state.arrayChamadosSolicitados.map((item, index) => (
+															<tr key={index} className={moment(item.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ?  '' : 'table-danger'}>
+																<td>{item.id}</td>
+																<td><p style={{ width: "300px", height: "50px", overflow: "scroll" }}>{item.descricao}</p></td>
+																<td>{parseInt(item.visualizado) === 1 ? <FaEye style={{ width: "200px" }} /> : <FaEyeSlash style={{ width: "200px" }} />}</td>
+																<td>{item.dataHoraFinalizacaoFormatado}</td>
+																<td><button className='button w-100' onClick={() => this.handlerShowModalEditarChamadoSolicitado(item)}>Visualizar</button></td>
+															</tr>
+														))
+													) : (<tr>
+														<td colSpan="12">Nenhum resultado encontrado</td>
+													</tr>)}
+												</tbody>
+											</table>
 										</div>
-									</Tab>
+									</div>
+								</Tab>
 
-									<Tab eventKey="chamadosSemAtribuicao" title={`Chamados sem atribuição`}>
-										{/* <div className="row mt-3" style={{ maxHeight: "600px", overflowY: "scroll", marginBottom: "300px", padding: "30px" }}>
-											{this.state.arrayChamadosSemAtribuicao.length > 0 ? (
-												this.state.arrayChamadosSemAtribuicao.map(item => (
-													<div className="col-sm-3">
-														<Card key={item.id} className="text-center zoom text-light" style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}>
-															<Card.Header className='font-weight-bold'>N° do chamado: {item.id} - {item.status}</Card.Header>
-															<Card.Body style={{ backgroundColor: "rgba(255, 255, 255, 0.3)", minHeight: "210px", overflowY: "scroll" }}>
-																<Card.Text>
-																	<div className="form-group">
-																		<label for="selectResponsavel">Responsável:</label>
-																		<select class="form-control form-control-sm" id="selectResponsavel"
-																			onChange={(e) => this.atribuirResponsavelDoChamado(item.id, parseInt(e.target.value))}>
-																			<option value="0">Selecione</option>
-																			{this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.length > 0 ?
-																				this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.map(setor => (
-																					<option value={setor.id}>{setor.nome}</option>
-																				))
-																				: (<option>0</option>)
-																			}
-																		</select>
-																	</div>
-																</Card.Text>
-																<Card.Text>Tipo: {item.tipo_chamado}</Card.Text>
-																<Card.Text>{parseInt(item.visualizado) === 1 ? <FaEye style={{ width: "200px" }} /> : <FaEyeSlash style={{ width: "200px" }} />}</Card.Text>
-															</Card.Body>
-														</Card>
-													</div>
-												))
-											) : (<Card style={{ width: '18rem' }}>
-												<Card.Body>
-													<Card.Title>Nenhum resultado encontrado</Card.Title>
-												</Card.Body>
-											</Card>)}
-										</div> */}
+								<Tab eventKey="chamadosSemAtribuicao" title={`Chamados sem atribuição`}>
+									
 
-										<div class="table-responsive table-sm mt-2">
-											<div class="table-wrapper">
-												<table class="table text-center table-hover mb-5 table-light">
-													<thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)', verticalAlign: 'middle' }}>
-														<tr>
-															<th scope="col" className="align-middle">N° do chamado:</th>
-															<th scope="col" className="align-middle">Tipo</th>
-															<th scope="col" className="align-middle">Descrição</th>
-															<th scope="col" className="align-middle">Data de finalização</th>
-															<th className="align-middle">Responsável</th>
-														</tr>
-													</thead>
-													<tbody>
-														{this.state.arrayChamadosSemAtribuicao.length > 0 ? (
-															this.state.arrayChamadosSemAtribuicao.map((item, index) => (
-																<tr key={index} >
-																	<td>{item.id}</td>
-																	<td>{item.tipo_chamado}</td>
-																	<td>{item.descricao}</td>
-																	<td>{item.dataHoraFinalizacao}</td>
-																	<td><div className="form-group">
-																		<select class="form-control form-control-sm" id="selectResponsavel"
-																			onChange={(e) => this.atribuirResponsavelDoChamado(item.id, parseInt(e.target.value))}>
-																			<option value="0">Selecione</option>
-																			{this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.length > 0 ?
-																				this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.map(setor => (
-																					<option value={setor.id}>{setor.nome}</option>
-																				))
-																				: (<option>0</option>)
-																			}
-																		</select>
-																	</div></td>
-																</tr>
-															))
-														) : (<tr>
-															<td colSpan="12">Nenhum resultado encontrado</td>
-														</tr>)}
-													</tbody>
-												</table>
-											</div>
+									<div class="table-responsive table-sm mt-2 container">
+										<div class="table-wrapper">
+											<table class="table text-center table-hover mb-5 table-light">
+												<thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)', verticalAlign: 'middle' }}>
+													<tr >
+														<th scope="col" className="align-middle">N° do chamado:</th>
+														<th scope="col" className="align-middle">Descrição</th>
+														<th scope="col" className="align-middle">Data de finalização</th>
+														<th className="align-middle">Responsável</th>
+													</tr>
+												</thead>
+												<tbody>
+													{this.state.arrayChamadosSemAtribuicao.length > 0 ? (
+														this.state.arrayChamadosSemAtribuicao.map((item, index) => (
+															<tr key={index} className={moment(item.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ?  '' : 'table-danger'}>
+																<td>{item.id}</td>
+																<td><p style={{ width: "300px", height: "80px", overflow: "scroll" }}>{item.descricao}</p></td>
+																<td>{item.dataHoraFinalizacaoFormatado}</td>
+																<td><div className="form-group">
+																	<select class="form-control form-control-sm" id="selectResponsavel"
+																		onChange={(e) => this.atribuirResponsavelDoChamado(item.id, parseInt(e.target.value))}>
+																		<option value="0">Selecione</option>
+																		{this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.length > 0 ?
+																			this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.map(setor => (
+																				<option value={setor.id}>{setor.nome}</option>
+																			))
+																			: (<option>0</option>)
+																		}
+																	</select>
+																</div></td>
+															</tr>
+														))
+													) : (<tr>
+														<td colSpan="12">Nenhum resultado encontrado</td>
+													</tr>)}
+												</tbody>
+											</table>
 										</div>
-									</Tab>
+									</div>
+								</Tab>
 
-									<Tab eventKey="participacoesEmChamados" title={`Participações em chamados`}>
-										<div className="row mt-3" style={{ maxHeight: "800px", overflowY: "scroll", marginBottom: "300px", padding: "30px" }}>
-											{this.state.arrayParticipacoesEmChamados.length > 0 ? (
-												this.state.arrayParticipacoesEmChamados.map(item => (
-													<div className="col-sm-4">
-														<Card key={item.id} className="text-center zoom text-light" style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}>
-															<Card.Header className='font-weight-bold'>N° do chamado: {item.id} - {item.status}</Card.Header>
-															<Card.Body style={{ backgroundColor: "rgba(255, 255, 255, 0.3)", maxHeight: "240px", overflowY: "scroll" }}>
-																<Card.Text>Setor solicitante: {item.setorSolicitante}</Card.Text>
-																<Card.Text>Tipo: {item.tipo_chamado}</Card.Text>
-																<Card.Text>Prioridade: {item.prioridade}</Card.Text>
-																<Card.Text>{parseInt(item.visualizado) === 1 ? <FaEye style={{ width: "200px" }} /> : <FaEyeSlash style={{ width: "200px" }} />}</Card.Text>
-																<div className='d-flex justify-content-center'>
-																	<button className='button' onClick={() => this.handlerShowModalEditarChamadoSolicitado(item)}>Visualizar</button>
-																</div>
-															</Card.Body>
-														</Card>
-													</div>
-												))
-											) : (<Card style={{ width: '18rem' }}>
-												<Card.Body>
-													<Card.Title>Nenhum resultado encontrado</Card.Title>
-												</Card.Body>
-											</Card>)}
+								<Tab eventKey="participacoesEmChamados" title={`Participações em chamados`}>
+									
+									<div class="table-responsive table-sm mt-2 container">
+										<div class="table-wrapper">
+											<table class="table text-center table-hover mb-5 table-light">
+												<thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)', verticalAlign: 'middle' }}>
+													<tr>
+														<th scope="col" className="align-middle">N° do chamado:</th>
+														<th scope="col" className="align-middle">Descrição</th>
+														<th className="align-middle">Visualização</th>
+														<th scope="col" className="align-middle">Data de finalização</th>
+														<th className="align-middle">Status</th>
+														<th className="align-middle">Ações</th>
+													</tr>
+												</thead>
+												<tbody>
+													{this.state.arrayParticipacoesEmChamados.length > 0 ? (
+														this.state.arrayParticipacoesEmChamados.map((item, index) => (
+															<tr key={index} className={moment(item.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ?  '' : 'table-danger'}>
+																<td>{item.id}</td>
+																<td><p style={{ width: "300px", height: "80px", overflow: "scroll" }}>{item.descricao}</p></td>
+																<td>{parseInt(item.visualizado) === 1 ? <FaEye style={{ width: "200px" }} /> : <FaEyeSlash style={{ width: "200px" }} />}</td>
+																<td>{item.dataHoraFinalizacaoFormatado}</td>
+																<td>{item.status}</td>
+																<td><button className='button w-100' onClick={() => this.handlerShowModalEditarChamadoSolicitado(item)}>Visualizar</button></td>
+															</tr>
+														))
+													) : (<tr>
+														<td colSpan="12">Nenhum resultado encontrado</td>
+													</tr>)}
+												</tbody>
+											</table>
 										</div>
-									</Tab>
-								</Tabs>
-							</div>
+									</div>
+								</Tab>
+							</Tabs>
+
 							{/* /.container-fluid */}
 							{/* /.content */}
 							<br />

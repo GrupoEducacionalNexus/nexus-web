@@ -504,6 +504,13 @@ Note: Beware of modifying this element as it can break the animations - you shou
   padding: 10px;
 }
 
-
+.hr {
+  width: 70%;
+  border: none;
+  height: 1px;
+  color: #333;  /* old IE */
+  background-color: #333;  /* Modern Browsers */
+  margin-top: 0px;
+}
 
 

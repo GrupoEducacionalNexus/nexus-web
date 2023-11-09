@@ -2,7 +2,7 @@ import { FaUserGraduate, FaLayerGroup, FaCalendarWeek, FaRegEdit, FaRegPlusSquar
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import api from '../../../services/api';
-import { getToken, logout } from '../../../services/auth';
+import { getToken } from '../../../services/auth';
 import Modal from 'react-bootstrap/Modal';
 import Logo_ATA from '../../../assets/logo_ata.jpg';
 import Accordion from 'react-bootstrap/Accordion';
@@ -18,7 +18,7 @@ import { uploadFile } from '../../../services/uploadFile';
 import { listaDeAnexos } from '../../../services/getListaDeAnexos';
 import { print } from '../../../services/print';
 import { AtaDefesa } from '../../../components/AtaDefesa';
-import { CartaDeAprovacao } from '../../../components/CartaDeAprovacao';
+import { FolhaDeAprovacao } from '../../../components/FolhaDeAprovacao';
 import Menu from '../../../components/Menu';
 import backgroundImage from '../../../assets/sistema_chamados.png';
 import MainContent from '../../../components/MainContent';
@@ -26,6 +26,12 @@ import FloatingMenu from '../../../components/FloatingMenu';
 import AdminNavbar from '../../../components/Navbar';
 import UserContext from '../../../UserContext';
 import Select from 'react-select';
+import RODAPE1 from '../../../assets/rodape1.png';
+import RODAPE2 from '../../../assets/rodape2.png';
+import RODAPE3 from '../../../assets/rodape3.png';
+import RODAPE4 from '../../../assets/rodape4.png';
+import BACKGROUND_ENBER from '../../../assets/background_enber.png';
+import ASSINATURA_JOSUE from '../../../assets/assinatura_josue.png'
 
 export default class Index extends Component {
 	static contextType = UserContext;
@@ -51,6 +57,7 @@ export default class Index extends Component {
 			modalShowCadastrarEAtualizarFolhaDeAprovacao: false,
 			modalShowVisualizarDeclaracaoDeOrientacao: false,
 			modalShowEmitirDeclaracaoDeOrientacao: false,
+			modalShowVisualizarCertificadoDeAprovacao: false,
 			keyTab: 'Checklist',
 			success: '',
 			error: '',
@@ -151,7 +158,8 @@ export default class Index extends Component {
 			sexo: "",
 			tipo_membro: 0,
 			orientador: [],
-			array_membrosBanca: [],
+			arrayMembrosDaDeclaracaoDeParticipacao: [],
+			arrayMembrosDaAtaDeDefesa: [],
 			id_membroDeclaracao: 0,
 			array_declaracoes: [],
 			membro: "",
@@ -178,7 +186,8 @@ export default class Index extends Component {
 			dataDeOrientacao: '',
 			title: "",
 
-			id_usuario: 0
+			id_usuario: 0,
+			documentoEmIngles: false
 		};
 	}
 
@@ -325,26 +334,19 @@ export default class Index extends Component {
 	}
 
 	handlerShowModalVisualizarAta(banca) {
-		console.log(banca);
 		this.setModalShowVisualizarAta(true);
+		this.listaDeMembrosDaBanca(banca.id);
 		this.setState({
-			presidente: banca.orientador,
-			membro_externo: banca.membro_externo,
-			membro_interno: banca.membro_interno,
-			titulo_teseOuDissertacao: banca.titulo_teseOuDissertacao,
+			titulo: banca.titulo,
 			quant_pag: banca.quant_pag,
 			status_ata: banca.status_ata,
 			nome: banca.orientando,
 			data_horaPrevistaAta: banca.data_horaPrevistaAta,
-			id_statusAta: banca.id_statusAta,
 			id_tipoBanca: banca.id_tipoBanca,
 			tipo_banca: banca.tipo_banca,
 			link_ata: banca.link,
-			assinatura_membroInterno: banca.assinatura_membroInterno,
-			assinatura_presidente: banca.assinatura_presidente,
-			assinatura_membroExterno: banca.assinatura_membroExterno,
 			id_curso: banca.id_curso,
-			data_horaPrevista: banca.data_horaPrevista,
+			data_horaPrevista: banca.dataHoraPrevistaAta,
 			dtCadAta: banca.dtCadAta,
 			dataFormatAmericano: banca.dataFormatAmericano
 		});
@@ -365,8 +367,6 @@ export default class Index extends Component {
 	handlerShowModalEmitirDeclaracao(banca) {
 		this.setModalShowEmitirDeclaracao(true);
 		this.listaDeMembrosDaBanca(banca.id);
-
-
 		// array_membrosBanca: [
 		// 	{ id: banca.id_orientador, nome: `${banca.orientador} - presidente`, tipo: 1 },
 		// 	{ id: banca.id_membroInterno, nome: `${banca.membro_interno} - membro interno`, tipo: 2 },
@@ -377,7 +377,7 @@ export default class Index extends Component {
 			id_banca: banca.id,
 			id_orientador: banca.id_orientador
 		});
-		this.listaDeDeclaracoes(banca.id);
+		this.listaDeDeclaracoesDeParticipacao(banca.id);
 	}
 
 	handlerCloseModalEmitirDeclaracao() {
@@ -398,6 +398,7 @@ export default class Index extends Component {
 			id_curso: declaracao.id_curso,
 			membro: declaracao.membro,
 			titulo_banca: declaracao.titulo_banca,
+			title: declaracao.title,
 			codigo_validacao: declaracao.codigo_validacao,
 			dataHoraCriacao: declaracao.dataHoraCriacao,
 			orientando: declaracao.orientando,
@@ -407,7 +408,9 @@ export default class Index extends Component {
 			dataDeclaracaoPtBr: declaracao.dataDeclaracaoPtBr,
 			data_horaPrevistaEnUs: declaracao.data_horaPrevistaEnUs,
 			data_horaPrevistaPtBr: declaracao.data_horaPrevistaPtBr,
-			sexo: declaracao.sexo
+			sexo: declaracao.sexo,
+			id_tipoBanca: declaracao.id_tipoBanca,
+			documentoEmIngles: declaracao.documentoEmIngles
 		});
 	}
 
@@ -443,13 +446,15 @@ export default class Index extends Component {
 				orientando: banca.orientando,
 				codigo_validacao: banca.codigoDeclaracaoDeOrientacao,
 				titulo: banca.titulo,
+				documentoEmIngles: banca.documentoEmIngles,
 				// dataHoraCriacao: banca.dataHoraCriacao,
 				// orientador: banca.orientando,
 				// 
-				// curso: banca.curso,
+				curso: banca.curso,
 				// data_horaPrevista: banca.data_horaPrevista,
 				// dataDeclaracaoEnUs: banca.dataDeclaracaoEnUs,
-				// dataDeclaracaoPtBr: banca.dataDeclaracaoPtBr,
+				dataDeclaracaoPtBr: banca.dataDeclaracaoDeOrientacaoPtBr,
+				dataDeclaracaoEnUs: banca.dataDeclaracaoDeOrientacaoEnUs
 				// data_horaPrevistaEnUs: banca.data_horaPrevistaEnUs,
 				// data_horaPrevistaPtBr: banca.data_horaPrevistaPtBr,
 				// sexo: banca.sexo
@@ -723,16 +728,11 @@ export default class Index extends Component {
 		this.setModalShowVisualizarFolhaDeAprovacao(true);
 		this.setState({
 			nome: banca.orientando,
-			idAreaConcentracao: banca.id_areaConcentracao,
-			presidente: banca.orientador,
-			membro_externo: banca.membro_externo,
-			membro_interno: banca.membro_interno,
-			assinatura_membroInterno: banca.assinatura_membroInterno,
-			assinatura_presidente: banca.assinatura_presidente,
-			assinatura_membroExterno: banca.assinatura_membroExterno,
-			titulo_teseOuDissertacao: banca.titulo_teseOuDissertacao,
-			dtFolhaAprovacaoFormatada: banca.dtFolhaAprovacaoFormatada
+			id_curso: banca.id_curso,
+			titulo: banca.titulo,
+			dtFolhaAprovacaoFormatada: banca.dtFolhaAprovacao
 		});
+		this.listaDeMembrosDaBanca(banca.id);
 	}
 
 	handlerCloseModalVisualizarFolhaDeAprovacao() {
@@ -743,13 +743,37 @@ export default class Index extends Component {
 		})
 	};
 
+	setModalShowVisualizarCertificadoDeAprovacao(valor) {
+		this.setState({ modalShowVisualizarCertificadoDeAprovacao: valor });
+	}
+
+	handlerShowModalVisualizarCertificadoDeAprovacao(banca) {
+		console.log(banca);
+		this.listaDeMembrosDaBanca(banca.id);
+		this.setModalShowVisualizarCertificadoDeAprovacao(true);
+		this.setState({
+			nome: banca.orientando,
+			presidente: banca.orientador,
+			membro_externo: banca.membro_externo,
+			membro_interno: banca.membro_interno,
+			assinatura_membroInterno: banca.assinatura_membroInterno,
+			assinatura_presidente: banca.assinatura_presidente,
+			assinatura_membroExterno: banca.assinatura_membroExterno,
+			titulo: banca.titulo,
+			orientador: banca.orientador
+		});
+	}
+
+	handlerCloseModalVisualizarCertificadoDeAprovacao() {
+		this.setModalShowVisualizarCertificadoDeAprovacao(false);
+	};
+
 	setModalShowCadastrarEAtualizarFolhaDeAprovacao(valor) {
 		this.setState({ modalShowCadastrarEAtualizarFolhaDeAprovacao: valor });
 	}
 
 	handlerShowModalCadastrarEAtualizarFolhaDeAprovacao(banca) {
 		this.setModalShowCadastrarEAtualizarFolhaDeAprovacao(true);
-		console.log(banca);
 
 		if (banca.idFolhaDeAprovacao !== null) {
 			this.setState({
@@ -1153,10 +1177,9 @@ export default class Index extends Component {
 		e.preventDefault();
 
 		try {
-			const { id_banca, titulo_teseOuDissertacao,
-				quant_pag, status_ata, link_ata } = this.state;
+			const { id_banca, status_ata } = this.state;
 
-			if (!titulo_teseOuDissertacao || !quant_pag || !status_ata) {
+			if (!status_ata) {
 				this.setState({ error: 'Por favor, preencher todos os campos!' });
 				return;
 			}
@@ -1170,11 +1193,8 @@ export default class Index extends Component {
 				},
 				body: JSON.stringify({
 					id_banca,
-					titulo_teseOuDissertacao,
-					quant_pag,
-					status: status_ata,
-					link_ata
-				}),
+					status: status_ata
+				})
 			});
 
 			const data = await response.json();
@@ -1197,10 +1217,9 @@ export default class Index extends Component {
 	atualizarATA = async (e) => {
 		e.preventDefault();
 		try {
-			const { id_banca, id_ata,
-				titulo_teseOuDissertacao, quant_pag, id_statusAta, link_ata } = this.state;
+			const { id_banca, id_ata, id_statusAta } = this.state;
 
-			if (!titulo_teseOuDissertacao || !quant_pag || !id_statusAta) {
+			if (!id_statusAta) {
 				this.setState({ error: 'Por favor, preencher todos os campos!' });
 				return;
 			}
@@ -1214,10 +1233,7 @@ export default class Index extends Component {
 				},
 				body: JSON.stringify({
 					id_banca,
-					titulo_teseOuDissertacao,
-					quant_pag,
-					status: id_statusAta,
-					link_ata
+					status: id_statusAta
 				})
 			});
 
@@ -1322,7 +1338,7 @@ export default class Index extends Component {
 
 			if (data.status === 200) {
 				this.setState({ success: data.msg });
-				this.listaDeDeclaracoes(this.state.id_banca);
+				this.listaDeDeclaracoesDeParticipacao(this.state.id_banca);
 			}
 
 			if (data.status === 400) {
@@ -1333,9 +1349,9 @@ export default class Index extends Component {
 		}
 	}
 
-	listaDeDeclaracoes = async (id_banca) => {
+	listaDeDeclaracoesDeParticipacao = async (id_banca) => {
 		try {
-			const response = await fetch(`${api.baseURL}/bancas/${id_banca}/declaracoes`, {
+			const response = await fetch(`${api.baseURL}/bancas/${id_banca}/declaracoes_participacao`, {
 				method: 'GET',
 				headers: {
 					Accept: 'application/json',
@@ -1368,28 +1384,37 @@ export default class Index extends Component {
 			const data = await response.json();
 
 			if (data.status === 200) {
-				const array_membrosBanca = [{ id: data.resultados[0].id_orientador, nome: data.resultados[0].orientador + " - presidente" }];
+				const arrayMembrosDaDeclaracaoDeParticipacao = [{ id: data.resultados[0].id_orientador, nome: data.resultados[0].orientador + " - presidente", assinatura: data.resultados[0].assinatura_orientador }];
+				const arrayMembrosDaAtaDeDefesa = [{ id: data.resultados[0].id_orientador, nome: data.resultados[0].orientador + " (Orientador(a) - Participação presencial)" }]
 
 				const id_membros_internos = data.resultados[0].id_usuarios_internos.split(",");
 				const id_membros_externos = data.resultados[0].id_usuarios_externos.split(",");
+				const ass_membros_internos = data.resultados[0].assinaturas_membros_internos.split(",");
+
 				const membros_internos = data.resultados[0].membros_internos.split(",");
 				const membros_externos = data.resultados[0].membros_externos.split(",");
-
+				const ass_membros_externos = data.resultados[0].assinaturas_membros_externos.split(",");
 
 				for (let index = 0; index < id_membros_internos.length; index++) {
-					array_membrosBanca.push(
-						{ id: id_membros_internos[index], nome: membros_internos[index] + " - membro interno" }
+					arrayMembrosDaDeclaracaoDeParticipacao.push(
+						{ id: id_membros_internos[index], nome: membros_internos[index] + " - membro interno", assinatura: ass_membros_internos[index] }
+					)
+
+					arrayMembrosDaAtaDeDefesa.push(
+						{ id: id_membros_internos[index], nome: membros_internos[index] + " (Participação Presencial)" }
 					)
 				}
 
 				for (let index = 0; index < id_membros_externos.length; index++) {
-					array_membrosBanca.push(
-						{ id: id_membros_externos[index], nome: membros_externos[index] + " - membro externo" }
+					arrayMembrosDaDeclaracaoDeParticipacao.push(
+						{ id: id_membros_externos[index], nome: membros_externos[index] + " - membro externo", assinatura: ass_membros_externos[index] }
+					)
+
+					arrayMembrosDaAtaDeDefesa.push(
+						{ id: id_membros_externos[index], nome: membros_externos[index] + " (Participação Virtual)" }
 					)
 				}
-				console.log(array_membrosBanca);
-
-				this.setState({ array_membrosBanca });
+				this.setState({ arrayMembrosDaDeclaracaoDeParticipacao, arrayMembrosDaAtaDeDefesa });
 			}
 		} catch (error) {
 			return error;
@@ -1568,9 +1593,9 @@ export default class Index extends Component {
 		this.setState({ success: "", Error: "" });
 
 		try {
-			const { id_banca, titulo_teseOuDissertacao, dataAprovacao, idFolhaDeAprovacao } = this.state;
+			const { id_banca, dataAprovacao, idFolhaDeAprovacao } = this.state;
 
-			if (!titulo_teseOuDissertacao || !dataAprovacao) {
+			if (!dataAprovacao) {
 				this.setState({ error: 'Por favor, preencher todos os campos!' });
 				return;
 			}
@@ -1586,10 +1611,8 @@ export default class Index extends Component {
 				},
 				body: JSON.stringify(idFolhaDeAprovacao === 0 ? {
 					id_banca,
-					titulo_teseOuDissertacao,
 					dataAprovacao
 				} : {
-					titulo_teseOuDissertacao,
 					dataAprovacao
 				})
 			});
@@ -1643,7 +1666,7 @@ export default class Index extends Component {
 
 			if (data.status === 200) {
 				this.setState({ success: data.msg });
-				this.listaDeDeclaracoes(this.state.id_banca);
+				this.listaDeDeclaracoesDeParticipacao(this.state.id_banca);
 			}
 
 			if (data.status === 400) {
@@ -1665,7 +1688,7 @@ export default class Index extends Component {
 		const arrayMembrosInternos = this.state.arrayMembrosInternos;
 		const arrayMembrosExternos = this.state.arrayMembrosExternos;
 		const arrayOrientacao = this.state.arrayOrientacao;
-		const array_membrosBanca = this.state.array_membrosBanca;
+		const arrayMembrosDaDeclaracaoDeParticipacao = this.state.arrayMembrosDaDeclaracaoDeParticipacao;
 		const array_declaracoes = this.state.array_declaracoes;
 		const arrayAnexosDaOrientacao = this.state.arrayAnexosDaOrientacao;
 		const arrayAnexosDoOrientando = this.state.arrayAnexosDoOrientando;
@@ -1729,7 +1752,7 @@ export default class Index extends Component {
 
 								<Tabs
 									variant="pills"
-									defaultActiveKey="orientandos"
+									defaultActiveKey="bancas"
 									transition={false}
 									id="panel-admin"
 									className="justify-content-center">
@@ -1861,7 +1884,7 @@ export default class Index extends Component {
 																		<h5><FaLayerGroup /> {banca.orientando.length > 0 ? banca.orientando.toLocaleUpperCase() : ""}</h5>
 																	</Accordion.Toggle>
 																	<Accordion.Collapse eventKey={banca.id}>
-																		<Card.Body style={{ overflowY: "scroll", height: "300px" }}>
+																		<Card.Body style={{ overflowY: "scroll", height: "450px" }}>
 																			<ul className="list-group list-group-blue">
 																				<li className={
 																					banca.status_confirmacaoBancaQ === "AGUARDANDO" ? `list-group-item font-weight-bold text-warning` : `list-group-item lead font-weight-bold text-success`}>Status: {banca.status_confirmacaoBancaQ === "AGUARDANDO" ? `aguardando` : banca.status_confirmacaoBancaQ === "FINALIZADA" ? "finalizada" : "confirmada"}</li>
@@ -1870,6 +1893,8 @@ export default class Index extends Component {
 																			</ul>
 
 																			<div className='d-flex flex-column' >
+																				<button className='button' onClick={() => this.handlerShowModalCadastrarBanca()}><FaRegPlusSquare /> Editar banca </button>
+
 																				{banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA" ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>Declaração de participação</button>) : ""}
 																				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata === null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirAta(banca)}>Emitir ATA</button>) : ""}
 																				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_ata !== null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalAtualizarAta(banca)}>Atualizar ATA</button>) : ""}
@@ -1909,15 +1934,17 @@ export default class Index extends Component {
 																		<h5><FaLayerGroup /> {banca.orientando.length > 0 ? banca.orientando.toLocaleUpperCase() : ""}</h5>
 																	</Accordion.Toggle>
 																	<Accordion.Collapse eventKey={banca.id}>
-																		<Card.Body style={{ overflowY: "scroll", height: "300px" }}>
+																		<Card.Body style={{ overflowY: "scroll", height: "450px" }}>
 																			<ul className="list-group list-group-blue">
 																				<li className={banca.status_confirmacaoBancaD === "AGUARDANDO" ? `list-group-item lead font-weight-bold text-warning` : `list-group-item lead font-weight-bold text-success`}>Status: {banca.status_confirmacaoBancaD === "AGUARDANDO" ? `aguardando` : banca.status_confirmacaoBancaD === "FINALIZADA" ? "finalizada" : "confirmada"}</li>
 																				<li className="list-group-item">Curso: {banca.curso}</li>
 																				<li className="list-group-item">Data e hora prevista: {banca.data_horaPrevista}</li>
 																			</ul>
 																			<div className='d-flex flex-column'>
+																				<button className='button' onClick={() => this.handlerShowModalCadastrarBanca()}><FaRegPlusSquare /> Editar banca </button>
 																				<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirDeclaracaoDeOrientacao(banca)}>Emitir declaração de orientação</button>
-																				<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao(banca)}>Declaração de orientação</button>
+																				<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao({ ...banca, documentoEmIngles: false })}>Declaração de orientação</button>
+																				<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao({ ...banca, documentoEmIngles: true })}>Guidance statement</button>
 																				{banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>Declaração de participação</button>) : ""}
 																				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata === null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirAta(banca)}>Emitir ATA</button>) : ""}
 																				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalAtualizarAta(banca)}>Atualizar ATA</button>) : ""}
@@ -1927,7 +1954,8 @@ export default class Index extends Component {
 																				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null && banca.id_fichaAvaliacao !== null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarFichaDeAvaliacao(banca)}>Visualizar ficha de avaliação</button>) : ""}
 																				{banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalCadastrarEAtualizarFolhaDeAprovacao(banca)}>Emitir folha de aprovação</button>) : ""}
 																				{banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarFolhaDeAprovacao(banca)}>Folha de aprovação</button>) : ""}
-																				<button className='btn btn-sm btn-outline-danger mt-2 mr-2' onClick={() => this.handlerShowModalExcluirBanca(banca)}>Excluir</button>
+																				{banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarCertificadoDeAprovacao(banca)}>Certificado de aprovação</button>) : ""}
+																				<button className='btn btn-sm btn-outline-danger mt-5 mr-2' onClick={() => this.handlerShowModalExcluirBanca(banca)}>Excluir</button>
 																				{banca.status_confirmacaoBancaD === "CONFIRMADO" ? (<button className='btn btn-sm btn-outline-success mt-2 mr-2' onClick={() => this.handlerShowModalFinalizarBanca(banca)}>Finalizar</button>) : ""}
 																			</div>
 																		</Card.Body>
@@ -2616,43 +2644,6 @@ export default class Index extends Component {
 										<h4 className='titulo'><FaUserGraduate /> Emitir ata de {this.state.tipo_banca.toLocaleLowerCase()}</h4>
 									</Modal.Header>
 									<Modal.Body>
-										<div className="form-group">
-											<label htmlFor="link">Link do meet:</label>
-											<input
-												type="text"
-												className="form-control form-control-sm"
-												id="link"
-												placeholder="Informe o link"
-												onChange={(e) =>
-													this.setState({ link_ata: e.target.value })
-												}
-												value={this.state.link_ata}
-											/>
-										</div>
-										<div class="form-group">
-											<label for="exampleFormControlTextarea1">Titulo da Tese ou dissertação:</label>
-											<textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="3"
-												onChange={(e) =>
-													this.setState({ titulo_teseOuDissertacao: e.target.value })
-												}
-												value={this.state.titulo_teseOuDissertacao}
-											></textarea>
-										</div>
-
-										<div className="form-group">
-											<label htmlFor="nome">Quantidade de páginas:</label>
-											<input
-												type="number"
-												className="form-control form-control-sm"
-												id="nome"
-												placeholder="Digite seu nome completo"
-												onChange={(e) =>
-													this.setState({ quant_pag: e.target.value })
-												}
-												value={this.state.quant_pag}
-											/>
-										</div>
-
 										<div class="form-group">
 											<label for="selectStatusBanca">Status:</label>
 											<select class="form-control form-control-sm" id="selectStatusAta"
@@ -2709,43 +2700,6 @@ export default class Index extends Component {
 										<h4 className='titulo'><FaUserGraduate /> Atualizar ata de {this.state.tipo_banca}</h4>
 									</Modal.Header>
 									<Modal.Body>
-										<div className="form-group">
-											<label htmlFor="link">Link:</label>
-											<input
-												type="text"
-												className="form-control"
-												id="link"
-												placeholder="Informe o link"
-												onChange={(e) =>
-													this.setState({ link_ata: e.target.value })
-												}
-												value={this.state.link_ata}
-											/>
-										</div>
-										<div class="form-group">
-											<label for="exampleFormControlTextarea1">Titulo da Tese ou dissertação:</label>
-											<textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
-												onChange={(e) =>
-													this.setState({ titulo_teseOuDissertacao: e.target.value })
-												}
-												value={this.state.titulo_teseOuDissertacao}
-											></textarea>
-										</div>
-
-										<div className="form-group">
-											<label htmlFor="nome">Quantidade de páginas:</label>
-											<input
-												type="number"
-												className="form-control"
-												id="nome"
-												placeholder="Digite seu nome completo"
-												onChange={(e) =>
-													this.setState({ quant_pag: e.target.value })
-												}
-												value={this.state.quant_pag}
-											/>
-										</div>
-
 										<div class="form-group">
 											<label for="selectStatusBanca">Status:</label>
 											<select class="form-control" id="selectStatusAta"
@@ -2798,59 +2752,17 @@ export default class Index extends Component {
 									<h4 className='titulo'><FaUserGraduate /> Visualizar ata de {this.state.tipo_banca}</h4>
 								</Modal.Header>
 								<Modal.Body>
-									{this.state.id_tipoBanca === 1 ? (
+									<div id='ata'>
 										<div className='container'>
-											<img style={{ width: '100%', marginBottom: '20px' }} src={Logo_ATA} />
-											<h6 className='text-center font-weight-bold'>IVY ENBER CHRISTIAN UNIVERSITY</h6>
-											<h6 className='text-center font-weight-bold'>CENTRO DE CIÊNCIAS HUMANAS</h6>
-											<h6 className='text-center font-weight-bold mt-5'>ATA DE QUALIFICAÇÃO</h6>
-
-											<p className='text-justify mt-5'>Ao(s) dia(s) {this.state.data_horaPrevistaAta}, por meio de videoconferência {this.state.link_ata}, às 10h30, foi realizada a
-												qualificação composta por:</p>
-
-											<ul class="list-group list-group-flush mb-3">
-												<li class="list-group-item"> presidente - {this.state.presidente}</li>
-												<li class="list-group-item"> membro-externo - {this.state.membro_externo}</li>
-												<li class="list-group-item"> membro-interno - {this.state.membro_interno}</li>
-											</ul>
-
-											<p className='text-justify '>A fim de analisar o material parcial da dissertação “{this.state.titulo_teseOuDissertacao}” elaborada e entregue pelo discente {this.state.nome}, com total de {this.state.quant_pag} páginas. À
-												comissão composta pelos professores convidados a esta banca declaram em comum acordo que esta dissertação foi {this.state.status_ata}, devendo o
-												discente {this.state.nome} considerar as observações realizadas pela banca.
-											</p>
-
-											<div className="row mt-5 text-center">
-												<div className="col border-bottom border-dark  mr-1">
-													<img className="img-fluid" src={this.state.assinatura_presidente} />
-												</div>
-												<div className="col border-bottom border-dark mr-1">
-													<img className="img-fluid" src={this.state.assinatura_membroExterno} />
-												</div>
-												<div className="col border-bottom border-dark">
-													<img className="img-fluid" src={this.state.assinatura_membroInterno} />
-												</div>
-											</div>
+											<AtaDefesa nome={this.state.nome}
+												id_curso={this.state.id_curso}
+												titulo={this.state.titulo}
+												data_horaPrevista={this.state.data_horaPrevista}
+												status_ata={this.state.status_ata}
+												arrayMembrosDaAtaDeDefesa={this.state.arrayMembrosDaAtaDeDefesa}
+												dataFormatAmericano={this.state.dataFormatAmericano} />
 										</div>
-									) : (
-										<div id='ata'>
-											<div className='container page'>
-												<AtaDefesa nome={this.state.nome}
-													id_curso={this.state.id_curso}
-													titulo_teseOuDissertacao={this.state.titulo_teseOuDissertacao}
-													data_horaPrevista={this.state.data_horaPrevista}
-													presidente={this.state.presidente}
-													membro_interno={this.state.membro_interno}
-													membro_externo={this.state.membro_externo}
-													id_statusAta={this.state.id_statusAta}
-													assinatura_presidente={this.state.assinatura_presidente}
-													assinatura_membroInterno={this.state.assinatura_membroInterno}
-													assinatura_membroExterno={this.state.assinatura_membroExterno}
-													dtCadAta={this.state.dtCadAta}
-													dataFormatAmericano={this.state.dataFormatAmericano} />
-											</div>
-
-										</div>
-									)}
+									</div>
 								</Modal.Body>
 								<Modal.Footer>
 									<button className='button' onClick={() => print('ata')}>Imprimir</button>
@@ -3893,75 +3805,232 @@ export default class Index extends Component {
 								</Modal.Header>
 								<Modal.Body>
 									<div id='declaracao'>
-										<div className='container'>
-											<img style={{ minWidth: '100%', marginBottom: '10px', }} src={Logo_ATA} />
-											<div className='row'>
-												<div className='col-sm-6 p-3'>
-													<h3 className='lead'>STATEMENT</h3>
-													<p style={{ fontFamily: "Montserrat, sans-serif", fontSize: "12pt", textAlign: "justify" }}>We declare for all intents and purposes that
-														{this.state.sexo === "M" ? " Prof.° Dr°." : " Profa.° Dra°."}
-														{this.state.membro.toLocaleUpperCase()} participated as a
-														member of the examining board of the course
-														qualification work, entitled: SCHOOL
-														CHAPTERIAL: SEWING HOPE IN SCHOOLS,
-														by student {this.state.orientando.toLocaleUpperCase()}, in the
-														course of
-														{this.state.id_curso === 1 ? ` Masters Program in EDUCATION SCIENCES` : ``}
-														{this.state.id_curso === 2 ? ` Doctoral Program in EDUCATIONAL SCIENCES` : ``}
-														{this.state_curso === 3 ? ` Master's Program in THEOLOGY` : ``}
-														{this.state.id_curso === 4 ? ` Doctoral Program in THEOLOGY` : ``}, held on {this.state.data_horaPrevistaEnUs}, in
-														Ivy Enber Christian University.
+										{this.state.documentoEmIngles ? (
+											<div className='container' style={{
+												background: `url(${BACKGROUND_ENBER})`,
+												backgroundRepeat: "no-repeat",
+												backgroundPosition: "center",
+												backgroundSize: "600px 600px"
+											}}>
+												<img style={{ minWidth: '100%', marginBottom: '10px', }} src={Logo_ATA} />
+												<div style={{ padding: "50px" }}>
+													<h4 className='text-center font-weight-bold mb-3'>CERTIFICATE OF PARTICIPATION</h4>
+
+													<p className='text-justify p-4'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;We hereby certify that {this.state.sexo === "M" ? " Prof. Dr. " : " Prof(a). Dr(a). "} <b>{this.state.membro.toLocaleUpperCase() + " "}</b>
+														participated on {this.state.data_horaPrevistaEnUs}, as an
+														{arrayMembrosDaDeclaracaoDeParticipacao.length > 0 ?
+															arrayMembrosDaDeclaracaoDeParticipacao.map(membro => (
+																membro.nome.slice(0, membro.nome.indexOf(' -')) === this.state.membro ?
+																	membro.nome.slice(membro.nome.indexOf('-') + 1, membro.nome.length).trim() === "presidente" ?
+																		" president".toUpperCase() : "" ||
+																			membro.nome.slice(membro.nome.indexOf('-') + 1, membro.nome.length).trim() === "membro externo" ?
+																			" external member".toUpperCase() : "" ||
+																				membro.nome.slice(membro.nome.indexOf('-') + 1, membro.nome.length).trim() === "membro interno" ?
+																				" internal member".toUpperCase() : ""
+																	: ""
+															))
+															: ("")} of the Examination Committee for the
+														{this.state.id_curso === 1 ? ` DISSERTATION` : ``}
+														{this.state.id_curso === 2 ? ` THESIS` : ``}
+														{this.state.id_curso === 3 ? ` DISSERTATION` : ``}
+														{this.state.id_curso === 4 ? ` THESIS` : ``} {this.state.id_tipoBanca === 1 ? `QUALIFICATION` : `DEFENSE`} of <b>{this.state.orientando.toLocaleUpperCase()}</b>,
+														a regular student in the Graduate <strong>
+															{this.state.id_curso === 1 ? `Masters Program in EDUCATION SCIENCES` : ``}
+															{this.state.id_curso === 2 ? `Doctoral Program in EDUCATIONAL SCIENCES` : ``}
+															{this.state.id_curso === 3 ? `Master's Program in THEOLOGY` : ``}
+															{this.state.id_curso === 4 ? `Doctoral Program in THEOLOGY` : ``}</strong>,
+														titled <b>{this.state.title.toLocaleUpperCase()}&nbsp;</b>
+														The Examination Committee was composed of the following members:
 													</p>
 
-													<p>{this.state.dataDeclaracaoEnUs}</p>
+													<ol className='mt-3' style={{ listStyle: 'lower-roman' }}>
+														{arrayMembrosDaDeclaracaoDeParticipacao.length > 0 ?
+															arrayMembrosDaDeclaracaoDeParticipacao.map(membro => (
+																membro.nome.slice(membro.nome.indexOf('-') + 1, membro.nome.length).trim() === "presidente" ?
+																	<li>{membro.nome.slice(0, membro.nome.indexOf(' -')) + " - president"}</li> : "" ||
+																		membro.nome.slice(membro.nome.indexOf('-') + 1, membro.nome.length).trim() === "membro externo" ?
+																		<li>{membro.nome.slice(0, membro.nome.indexOf(' -')) + " -  external member"}</li> : "" ||
+																			membro.nome.slice(membro.nome.indexOf('-') + 1, membro.nome.length).trim() === "membro interno" ?
+																			<li>{membro.nome.slice(0, membro.nome.indexOf(' -')) + " - internal member"}</li> : ""
+															))
+															: (<li></li>)
+														}
+													</ol>
 
-													<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
+													<p className='text-right p-3'>{this.state.dataDeclaracaoEnUs}</p>
 
-													<p className='border-top border-dark text-center'>Alcimar José da Silva<br />President</p>
+													<div class="row d-flex justify-content-center">
+														<div class="col-lg-6 col-lg-offset-6 text-center">
+															<div className="ml-auto">
+																<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
 
-													<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/josue.png' />
+																<p className='border-top border-dark' style={{ fontSize: "8pt" }}>Ivy Enber Christian University<br />Alcimar José da Silva<br />President</p>
 
-													<p className='border-top border-dark text-center'>IVY ENBER CHRISTIAN UNIVERSITY<br />JOSUÉ CLAUDIO DANTAS<br />RECTOR</p>
+																<img style={{ width: "100px", height: "100px", display: "block", margin: "0 auto" }} src={ASSINATURA_JOSUE} />
 
-													<p>Voucher Control Code:
-														{this.state.codigo_validacao}</p>
+																<p className='border-top border-dark' style={{ fontSize: "8pt" }}>Ivy Enber Christian University<br />Josué Claudio Dantas<br />Chancellor</p>
+															</div>
+														</div>
+													</div>
 
-													<p>The authenticity of this statement can be
-														confirmed at
-														https://www.gestorgruponexus.com.br/validacao</p>
-												</div>
-												<div className='col-sm-6 p-3'>
-													<h3 className='lead'>DECLARAÇÃO</h3>
-													<p style={{ fontSize: "12pt", textAlign: "justify" }}>Declaramos para todos os fins que a
-														{this.state.sexo === "M" ? " Prof.° Dr°." : " Profa.° Dra°."}
-														{this.state.membro.toLocaleUpperCase()} participou como membro
-														da banca examinadora do trabalho de
-														qualificação do curso, intitulado: {this.state.titulo_banca.toLocaleUpperCase()},
-														do aluno {this.state.orientando.toLocaleUpperCase()}, no curso de {this.state.curso.toLocaleUpperCase()}, realizada
-														no dia {this.state.data_horaPrevistaPtBr}, na Ivy Enber
-														Christian University.
-													</p>
+													<div className="row">
+														<div className="col-sm-6">
+															<p className='text-center' style={{ fontSize: "8pt" }}>Proof Control Code:
+																{this.state.codigo_validacao}</p>
+														</div>
+														<div className="col-sm-6">
+															<p className='text-center' style={{ fontSize: "8pt" }}>The authenticity of this certificate can be verified at
+																https://www.gestorgruponexus.com.br/validacao
+															</p>
+														</div>
+													</div>
 
-													<p className='mt-3'>{this.state.dataDeclaracaoPtBr}</p>
+													<div className="row">
+														<div className="col-sm-6">
+															<p style={{ fontSize: "8pt" }}>Register at the Secretoy of State of Florida - USA P19000042160 - EIN# 38-4120047
+																Section 1005.06 (1)(f). Florida Comission for independent Education</p>
+														</div>
+														<div className="col-sm-6 d-flex justify-content-center">
+															<img style={{ width: '50px', height: '50px' }} src={RODAPE1} />
+															<img style={{ width: '50px', height: '50px' }} src={RODAPE2} />
+															<img style={{ width: '50px', height: '50px' }} src={RODAPE3} />
+															<img style={{ width: '120px', height: '40px' }} src={RODAPE4} />
+														</div>
+													</div>
 
-													<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
-
-													<p className='border-top border-dark text-center'>Alcimar José da Silva<br />Presidente</p>
-
-													<img style={{ width: "100px", height: "100px", display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/josue.png' />
-
-													<p className='border-top border-dark text-center'>IVY ENBER CHRISTIAN UNIVERSITY<br />JOSUÉ CLAUDIO DANTAS<br />REITOR</p>
-
-													<p>Código de controle do comprovante:
-														{this.state.codigo_validacao}</p>
-
-													<p>A autenticidade desta declaração poderá ser
-														confirmada no endereço
-														https://www.gestorgruponexus.com.br/validacao
-													</p>
+													<p className='text-center mt-3' style={{ fontSize: "8pt" }}>7350 FUTURES DRIVE • ORLANDO • FL 32819 WWW.ENBER.EDUCATION • TEL.: +1 (321) 300-9710</p>
 												</div>
 											</div>
-										</div>
+										) : (
+											<div className='container' style={{
+												background: `url(${BACKGROUND_ENBER})`,
+												backgroundRepeat: "no-repeat",
+												backgroundPosition: "center",
+												backgroundSize: "600px 600px"
+											}}>
+												<img style={{ minWidth: '100%', marginBottom: '10px', }} src={Logo_ATA} />
+												<div style={{ padding: "50px" }}>
+
+													<h4 className='text-center font-weight-bold mb-3'>DECLARAÇÃO DE PARTICIPAÇÃO</h4>
+													<p className='text-justify p-4'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Atestamos que {this.state.sexo === "M" ? " o " : " a "}
+														{this.state.sexo === "M" ? " Prof. Dr. " : " Prof(a). Dr(a). "}<b>{this.state.membro.toUpperCase()}</b>, participou em {this.state.data_horaPrevistaPtBr},
+														como
+														{arrayMembrosDaDeclaracaoDeParticipacao.length > 0 ?
+															arrayMembrosDaDeclaracaoDeParticipacao.map(membro => (
+																membro.nome.slice(0, membro.nome.indexOf(' -')) === this.state.membro ?
+																	membro.nome.slice(membro.nome.indexOf('-') + 1, membro.nome.length).toUpperCase() + " " : ""
+															))
+															: ("")
+														}
+														da Comissão Examinadora da {this.state.id_tipoBanca === 1 ? `QUALIFICAÇÃO` : `DEFESA`}
+														{this.state.id_curso === 1 ? ` DA DISSERTAÇÃO ` : ``}
+														{this.state.id_curso === 2 ? ` DE TESE ` : ``}
+														{this.state.id_curso === 3 ? ` DA DISSERTAÇÃO ` : ``}
+														{this.state.id_curso === 4 ? ` DE TESE ` : ``}
+														de
+														<b>&nbsp;{this.state.orientando.toLocaleUpperCase()}</b>, discente regular do
+														{this.state.id_curso === 1 ? ` Programa de Pós Graduação em  Ciências da Educação` : ``}
+														{this.state.id_curso === 2 ? ` Programa de Pós Graduação em  Ciências da Educação` : ``}
+														{this.state.id_curso === 3 ? ` Programa de Pós Graduação em Teologia` : ``}
+														{this.state.id_curso === 4 ? ` Programa de Pós Graduação em Teologia` : ``}, Curso de {this.state.curso.split(" ", 1)[0]},
+														cujo trabalho se intitula <b>{this.state.titulo_banca.toLocaleUpperCase()}</b>. A Comissão Examinadora foi constituída pelos seguintes membros:</p>
+													<ol className=''>
+														{arrayMembrosDaDeclaracaoDeParticipacao.length > 0 ?
+															arrayMembrosDaDeclaracaoDeParticipacao.map(membro => (
+																<li>{membro.nome}</li>
+															))
+															: (<li></li>)
+														}
+													</ol>
+													<p className='mt-2 text-right p-4'>Orlando, {this.state.data_horaPrevistaPtBr}</p>
+
+													<div class="row d-flex justify-content-center">
+														<div class="col-lg-6 col-lg-offset-6 text-center">
+															<div className="ml-auto">
+																<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
+																<hr className='hr'/>
+																<p style={{ fontSize: "8pt" }}>Ivy Enber Christian University<br />Alcimar José da Silva<br />Presidente</p>
+																<img style={{ width: "100px", height: "100px", display: "block", margin: "0 auto" }} src={ASSINATURA_JOSUE} />
+																<hr className='hr'/>
+																<p style={{ fontSize: "8pt" }}>Ivy Enber Christian University<br />Josué Claudio Dantas<br />Reitor</p>
+															</div>
+														</div>
+													</div>
+
+													<div className="row">
+														<div className="col-sm-6">
+															<p className='text-center' style={{ fontSize: "8pt" }}>Código de controle do comprovante:
+																{this.state.codigo_validacao}</p>
+														</div>
+														<div className="col-sm-6 d-flex justify-content-center">
+															<p className='text-center' style={{ fontSize: "8pt" }}>A autenticidade desta declaração poderá ser
+																confirmada no endereço
+																https://www.gestorgruponexus.com.br/validacao
+															</p>
+														</div>
+													</div>
+
+													<div className="row">
+														<div className="col-sm-6">
+															<p style={{ fontSize: "8pt" }}>Register at the Secretoy of State of Florida - USA P19000042160 - EIN# 38-4120047
+																Section 1005.06 (1)(f). Florida Comission for independent Education</p>
+														</div>
+														<div className="col-sm-6 d-flex justify-content-center">
+															<img style={{ width: '50px', height: '50px' }} src={RODAPE1} />
+															<img style={{ width: '50px', height: '50px' }} src={RODAPE2} />
+															<img style={{ width: '50px', height: '50px' }} src={RODAPE3} />
+															<img style={{ width: '120px', height: '40px' }} src={RODAPE4} />
+														</div>
+													</div>
+
+													<p className='text-center mt-3' style={{ fontSize: "8pt" }}>7350 FUTURES DRIVE • ORLANDO • FL 32819 WWW.ENBER.EDUCATION • TEL.: +1 (321) 300-9710</p>
+												</div>
+											</div>
+										)}
+
+
+										{/* <div className='container '>
+											<img style={{ minWidth: '100%', marginBottom: '10px', }} src={Logo_ATA} />
+											<h4 className='text-center font-weight-bold mb-3'>DECLARAÇÃO DE PARTICIPAÇÃO</h4>
+											<p className='text-justify p-4'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Atestamos que {this.state.sexo === "M" ? " o " : " a "}
+												{this.state.sexo === "M" ? " Prof. Dr. " : " Prof(a). Dr(a). "} <b>{this.state.membro.toLocaleUpperCase()}</b>, participou em {this.state.data_horaPrevistaPtBr},
+												como
+												{array_membrosBanca.length > 0 ?
+													array_membrosBanca.map(membro => (
+														membro.nome.slice(0, membro.nome.indexOf(' -')) === this.state.membro ?
+															membro.nome.slice(membro.nome.indexOf('-') + 1, membro.nome.length) + " " : ""
+													))
+													: ("")
+												}
+												da Comissão Examinadora da DEFESA DE TESE de
+												<b>&nbsp;{this.state.orientando.toLocaleUpperCase()}</b>, discente regular do Programa de Pós-Graduação em Ciências
+												Sociais, Curso de Doutorado, cujo trabalho se intitula <b>{this.state.titulo_banca.toLocaleUpperCase()}</b>.A Comissão Examinadora foi constituída pelos seguintes membros:</p>
+											<ol className='mt-3'>
+												{array_membrosBanca.length > 0 ?
+													array_membrosBanca.map(membro => (
+														<li>{membro.nome}</li>
+													))
+													: (<li></li>)
+												}
+											</ol>
+											<p className='mt-4 text-center'>{this.state.dataDeclaracaoPtBr}</p>
+
+											<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
+
+											<p className='border-top border-dark text-center'>Alcimar José da Silva<br />Presidente</p>
+
+											<img style={{ width: "100px", height: "100px", display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/josue.png' />
+
+											<p className='border-top border-dark text-center'>IVY ENBER CHRISTIAN UNIVERSITY<br />JOSUÉ CLAUDIO DANTAS<br />REITOR</p>
+
+											<p className='text-center'>Código de controle do comprovante:
+												{this.state.codigo_validacao}</p>
+
+											<p className='text-center'>A autenticidade desta declaração poderá ser
+												confirmada no endereço
+												https://www.gestorgruponexus.com.br/validacao
+											</p>
+										</div> */}
 									</div>
 								</Modal.Body>
 								<Modal.Footer>
@@ -3987,15 +4056,14 @@ export default class Index extends Component {
 											<select class="form-control form-control-sm" id="selectMembro"
 												onChange={e => this.setState({ id_usuario: e.target.value })}>
 												<option value="0">Selecione</option>
-												{array_membrosBanca.length > 0 ?
-													array_membrosBanca.map(membro => (
+												{arrayMembrosDaDeclaracaoDeParticipacao.length > 0 ?
+													arrayMembrosDaDeclaracaoDeParticipacao.map(membro => (
 														<option value={membro.id}>{membro.nome}</option>
 													))
 													: (<option>0</option>)
 												}
 											</select>
 										</div>
-
 										<div className="row mt-2">
 											<div className="col-sm-12">
 												{this.state.success && (
@@ -4030,24 +4098,23 @@ export default class Index extends Component {
 										</div>
 									</div>
 									<hr />
-									<div className="table-responsive table-sm text-center">
+									<div className="table-responsive table-sm text-center" style={{ maxHeight: "300px", overflowY: "scroll", padding: "15px" }}>
 										<table className="table table-bordered table-striped table-hover custom-table bg-white">
 											<thead className="thead-light">
 												<tr>
 													<th scope="col">Membro</th>
 													<th>Código de validação</th>
-													<th>Data e hora de criação</th>
 													<th>Ações</th>
 												</tr>
 											</thead>
 											<tbody>
 												{array_declaracoes.length > 0 ? (
 													array_declaracoes.map(declaracao => (
-														<tr key={array_declaracoes.id} title="Clique aqui para obter mais informações sobre o orientando">
+														<tr key={array_declaracoes.id} title="Clique aqui para obter mais informações sobre a declaração">
 															<td>{declaracao.membro}</td>
 															<td>{declaracao.codigo_validacao}</td>
-															<td>{declaracao.dataHoraCriacao}</td>
-															<td><button className='button' onClick={() => this.handlerShowModalVisualizarDeclaracao(declaracao)}>Visualizar</button></td>
+															<td><button className='button w-100 mb-2' onClick={() => this.handlerShowModalVisualizarDeclaracao({ ...declaracao, documentoEmIngles: false })}>Declaração de Participação</button>
+																<button className='button w-100' onClick={() => this.handlerShowModalVisualizarDeclaracao({ ...declaracao, documentoEmIngles: true })}>Participation Declaration</button></td>
 														</tr>
 													))
 												) : (<tr className="text-center">
@@ -4305,18 +4372,18 @@ export default class Index extends Component {
 									<h4 className='titulo'><FaCalendarWeek /> Visualizar folha de aprovação</h4>
 								</Modal.Header>
 								<Modal.Body>
-									<CartaDeAprovacao
-										nome={this.state.nome}
-										idAreaConcentracao={this.state.idAreaConcentracao}
-										presidente={this.state.orientador}
-										membro_externo={this.state.membro_externo}
-										membro_interno={this.state.membro_interno}
-										assinatura_membroInterno={this.state.assinatura_membroInterno}
-										assinatura_presidente={this.state.assinatura_presidente}
-										assinatura_membroExterno={this.state.assinatura_membroExterno}
-										titulo_teseOuDissertacao={this.state.titulo_teseOuDissertacao}
-										dtFolhaAprovacaoFormatada={this.state.dtFolhaAprovacaoFormatada}
-									/>
+									<div id='folha_aprovacao' className='container'>
+										<FolhaDeAprovacao
+											nome={this.state.nome}
+											id_curso={this.state.idAreaConcentracao}
+											titulo={this.state.titulo}
+											arrayMembrosDaDeclaracaoDeParticipacao={this.state.arrayMembrosDaDeclaracaoDeParticipacao}
+											dtFolhaAprovacaoFormatada={this.state.dtFolhaAprovacaoFormatada}
+										/>
+									</div>
+									<div className='d-flex justify-content-center'>
+										<button className='button' onClick={() => print('folha_aprovacao')}>Imprimir</button>
+									</div>
 								</Modal.Body>
 							</Modal>
 
@@ -4332,15 +4399,6 @@ export default class Index extends Component {
 								</Modal.Header>
 								<Modal.Body>
 									<Form onSubmit={this.cadastrarEatualizarFolhaDeAprovacao}>
-										<div class="form-group">
-											<label for="exampleFormControlTextarea1">Titulo da tese ou dissertação:</label>
-											<textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="3"
-												onChange={(e) =>
-													this.setState({ titulo_teseOuDissertacao: e.target.value })
-												}
-												value={this.state.titulo_teseOuDissertacao}></textarea>
-										</div>
-
 										<div className="form-group">
 											<label for="dataHoraPrevista">Data de aprovação:</label>
 											<input class="form-control form-control-sm" type="date" id="dataAprovacao" name="start"
@@ -4371,10 +4429,8 @@ export default class Index extends Component {
 											</div>
 										</div>
 
-										<div className='row text-center'>
-											<div className='col-sm-12'>
-												<button className='button'><FaRegSave /> Salvar</button>
-											</div>
+										<div className='d-flex justify-content-center'>
+											<button className='button'><FaRegSave /> Salvar</button>
 										</div>
 									</Form>
 
@@ -4438,90 +4494,204 @@ export default class Index extends Component {
 								size='lg'
 								centered>
 								<Modal.Header closeButton>
-									<h4 className='titulo'><FaUserGraduate /> Declaração de orientação</h4>
+									<h4 className='titulo mb-3'><FaUserGraduate /> Declaração de orientação</h4>
 								</Modal.Header>
 								<Modal.Body>
-									<div id='declaracao'>
-										<div className='container'>
-											<img style={{ minWidth: '100%', marginBottom: '10px', }} src={Logo_ATA} />
-											<div className='row'>
-												<div className='col-sm-6 p-3'>
-													<h3 className='lead'>STATEMENT</h3>
-													<p style={{ fontFamily: "Montserrat, sans-serif", fontSize: "12pt", textAlign: "justify" }}>
-														STATEMENT
-														We declare for all due purposes that {this.state.sexo === "M" ? " Prof.° Dr°. " : " Profa.° Dra°. "}
-														{this.state.orientador} supervised the
-														dissertation of the student {this.state.orientando},
-														work entitled: {this.state.title.toUpperCase()}, in the course of
-														{this.state.id_curso === 1 ? ` Masters Program in EDUCATION SCIENCES` : ``}
-														{this.state.id_curso === 2 ? ` Doctoral Program in EDUCATIONAL SCIENCES` : ``}
-														{this.state_curso === 3 ? ` Master's Program in THEOLOGY` : ``}
-														{this.state.id_curso === 4 ? ` Doctoral Program in THEOLOGY` : ``},
-														from 2023 to the present moment, at Ivy Enber
-														Christian University
+									<div id='declaracao_participacao' className='container' style={{
+										background: `url(${BACKGROUND_ENBER})`,
+										backgroundRepeat: "no-repeat",
+										backgroundPosition: "center",
+										backgroundSize: "600px 600px"
+									}}>
+										{this.state.documentoEmIngles ? (
+											<div className='container' style={{
+												background: `url(${BACKGROUND_ENBER})`,
+												backgroundRepeat: "no-repeat",
+												backgroundPosition: "center",
+												backgroundSize: "600px 600px"
+											}}>
+
+												<img style={{ minWidth: '100%', marginBottom: '10px', }} src={Logo_ATA} />
+												<div style={{ padding: "50px" }}>
+													<h4 className='text-center font-weight-bold mb-3'>Guidance statement</h4>
+													<p style={{ fontFamily: "Montserrat, sans-serif", fontSize: "12pt", textAlign: "justify" }} className='p-3'>
+														&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;We hereby declare that {this.state.sexo === "M" ? " Prof.° Dr°. " : " Profa.° Dra°. "}
+														<b>{this.state.orientador}</b> from the
+														{this.state.id_curso === 1 ? ` Postgraduate Program in Educational Sciences` : ``}
+														{this.state.id_curso === 2 ? ` Postgraduate Program in Educational Sciences` : ``}
+														{this.state_curso === 3 ? ` Postgraduate Program in Theology` : ``}
+														{this.state.id_curso === 4 ? ` Postgraduate Program in Theology` : ``} supervised the
+														{this.state.id_curso === 1 ? ` Dissertation ` : ``}
+														{this.state.id_curso === 2 ? ` Dissertation ` : ``}
+														{this.state.id_curso === 3 ? ` Thesis ` : ``}
+														{this.state.id_curso === 4 ? ` Thesis ` : ``}
+														of {this.state.orientando}, a regular student
+														of the {this.state.id_curso === 1 ? ` Postgraduate Program in Educational Sciences` : ``}
+														{this.state.id_curso === 2 ? ` Postgraduate Program in Educational Sciences` : ``}
+														{this.state_curso === 3 ? ` Postgraduate Program in Theology` : ``}
+														{this.state.id_curso === 4 ? ` Postgraduate Program in Theology` : ``},
+														in the Master's course titled: <b>{this.state.title.toUpperCase()}</b>.
 													</p>
 
-													<p>{this.state.dataDeclaracaoEnUs}</p>
+													<p className='text-right p-3'>Orlando, {this.state.dataDeclaracaoEnUs}</p>
 
-													<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
+													<div class="row d-flex justify-content-center mt-2 mb-2">
+														<div class="col-lg-6 col-lg-offset-6 text-center">
+															<div className="ml-auto">
+																<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
 
-													<p className='border-top border-dark text-center'>Alcimar José da Silva<br />President</p>
+																<p className='border-top border-dark'>Ivy Enber Christian University<br />Alcimar José da Silva<br />President</p>
 
-													<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/josue.png' />
+																<img style={{ width: "100px", height: "100px", display: "block", margin: "0 auto" }} src={ASSINATURA_JOSUE} />
 
-													<p className='border-top border-dark text-center'>IVY ENBER CHRISTIAN UNIVERSITY<br />JOSUÉ CLAUDIO DANTAS<br />RECTOR</p>
+																<p className='border-top border-dark'>Ivy Enber Christian University<br />Josué Claudio Dantas<br />Chancellor</p>
+															</div>
+														</div>
+													</div>
 
-													<p>Voucher Control Code:
-														{this.state.codigo_validacao}</p>
+													<p className='text-center'>Proof Control Code: {this.state.codigo_validacao}</p>
 
-													<p>The authenticity of this statement can be
+													<p className='text-center' style={{ marginTop: "100px" }}>The authenticity of this statement can be
 														confirmed at
 														https://www.gestorgruponexus.com.br/validacao</p>
+
+													<div className="row" style={{ marginTop: "80px" }}>
+														<div className="col-sm-6">
+															<p style={{ fontSize: "8pt" }}>Register at the Secretoy of State of Florida - USA P19000042160 - EIN# 38-4120047
+																Section 1005.06 (1)(f). Florida Comission for independent Education</p>
+														</div>
+														<div className="col-sm-6 d-flex justify-content-center">
+															<img style={{ width: '50px', height: '50px' }} src={RODAPE1} />
+															<img style={{ width: '50px', height: '50px' }} src={RODAPE2} />
+															<img style={{ width: '50px', height: '50px' }} src={RODAPE3} />
+															<img style={{ width: '120px', height: '40px' }} src={RODAPE4} />
+														</div>
+													</div>
+													<p className='text-center mt-3' style={{ fontSize: "9pt" }}>7350 FUTURES DRIVE • ORLANDO • FL 32819 WWW.ENBER.EDUCATION • TEL.: +1 (321) 300-9710</p>
 												</div>
-												<div className='col-sm-6 p-3'>
-													<h3 className='lead'>DECLARAÇÃO</h3>
-													<p style={{ fontSize: "12pt", textAlign: "justify" }}>
-														Declaramos para os devidos fins que a {this.state.sexo === "M" ? " Prof.° Dr°." : " Profa.° Dra°."} {this.state.orientador} realizou a
-													orientação da dissertação do(a) discente
-													{" " + this.state.orientando.toLocaleUpperCase()}, trabalho intitulado: {this.state.titulo}, no curso de
-													{this.state.id_curso === 1 ? ` Programa de Mestrado em CIÊNCIAS DA EDUCAÇÃO` : ``}
-													{this.state.id_curso === 2 ? ` Programa de Doutoramento em CIÊNCIAS DA EDUCAÇÃO` : ``}
-													{this.state_curso === 3 ? ` Programa de Mestrado em TEOLOGIA` : ``}
-													{this.state.id_curso === 4 ? ` Programa de Doutorado em TEOLOGIA` : ``}, no período de 2023 até o
-													presente momento, na Ivy Enber Christian
-													University.</p>
+											</div>
+										) : (
+											<div className='container' style={{
+												background: `url(${BACKGROUND_ENBER})`,
+												backgroundRepeat: "no-repeat",
+												backgroundPosition: "center",
+												backgroundSize: "600px 600px"
+											}}>
+												<img style={{ minWidth: '100%', marginBottom: '10px', }} src={Logo_ATA} />
+												<div style={{ padding: "50px" }}>
+													<h4 className='text-center font-weight-bold mb-3'>DECLARAÇÃO DE ORIENTAÇÃO</h4>
 
-													<p className='mt-3'>{this.state.dataDeclaracaoPtBr}</p>
+													<p style={{ fontSize: "12pt", textAlign: "justify" }} className='p-3'>
+														&nbsp;&nbsp;&nbsp;&nbsp;Declaramos que a {this.state.sexo === "M" ? " Prof. Dr. " : " Prof(a). Dr(a). "} <b>{this.state.orientador +
+															' '}</b>
+														do(a) {this.state.id_curso === 1 ? ` Programa de Pós Graduação em  Ciências da Educação` : ``}
+														{this.state.id_curso === 2 ? ` Programa de Pós Graduação em  Ciências da Educação` : ``}
+														{this.state.id_curso === 3 ? ` Programa de Pós Graduação em Teologia` : ``}
+														{this.state.id_curso === 4 ? ` Programa de Pós Graduação em Teologia` : ``}, realizou a
+														orientação {this.state.id_curso === 1 ? ` da dissertação ` : ``}
+														{this.state.id_curso === 2 ? ` de tese ` : ``}
+														{this.state.id_curso === 3 ? ` da dissertação ` : ``}
+														{this.state.id_curso === 4 ? ` de tese ` : ``} de
+														{" " + this.state.orientando.toLocaleUpperCase()}, discente regular do
+														{this.state.id_curso === 1 ? ` Programa de Pós Graduação em  Ciências da Educação` : ``}
+														{this.state.id_curso === 2 ? ` Programa de Pós Graduação em  Ciências da Educação` : ``}
+														{this.state.id_curso === 3 ? ` Programa de Pós Graduação em Teologia` : ``}
+														{this.state.id_curso === 4 ? ` Programa de Pós Graduação em Teologia` : ``}, no curso de {this.state.curso.split(" ", 1)[0] + " "}
+														cujo trabalho se intitula: <b>{this.state.titulo}</b>
+													</p>
 
-													<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
+													<p className='mt-3 mb-3 text-right p-3'>Orlando, {this.state.dataDeclaracaoPtBr}</p>
 
-													<p className='border-top border-dark text-center'>Alcimar José da Silva<br />Presidente</p>
+													<div class="row d-flex justify-content-center mt-2 mb-2">
+														<div class="col-lg-6 col-lg-offset-6 text-center">
+															<div className="ml-auto">
+																<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
+																<hr className='hr'/>
+																<p>Ivy Enber Christian University<br />Alcimar José da Silva<br />Presidente</p>
+																<img style={{ width: "100px", height: "100px", display: "block", margin: "0 auto" }} src={ASSINATURA_JOSUE} />
+																<hr className='hr'/>
+																<p className=''>Ivy Enber Christian University<br />Josué Claudio Dantas<br />Reitor</p>
+															</div>
+														</div>
+													</div>
 
-													<img style={{ width: "100px", height: "100px", display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/josue.png' />
-
-													<p className='border-top border-dark text-center'>IVY ENBER CHRISTIAN UNIVERSITY<br />JOSUÉ CLAUDIO DANTAS<br />REITOR</p>
-
-													<p>Código de controle do comprovante:
+													<p className='text-center' style={{ marginTop: "100px" }}>Código de controle do comprovante:
 														{this.state.codigo_validacao}</p>
 
-													<p>A autenticidade desta declaração poderá ser
+													<p className='text-center'>A autenticidade desta declaração poderá ser
 														confirmada no endereço
 														https://www.gestorgruponexus.com.br/validacao
 													</p>
+
+													<div className="row" style={{ marginTop: "80px" }}>
+														<div className="col-sm-6">
+															<p style={{ fontSize: "8pt" }}>Register at the Secretoy of State of Florida - USA P19000042160 - EIN# 38-4120047
+																Section 1005.06 (1)(f). Florida Comission for independent Education</p>
+														</div>
+														<div className="col-sm-6 d-flex justify-content-center">
+															<img style={{ width: '50px', height: '50px' }} src={RODAPE1} />
+															<img style={{ width: '50px', height: '50px' }} src={RODAPE2} />
+															<img style={{ width: '50px', height: '50px' }} src={RODAPE3} />
+															<img style={{ width: '120px', height: '40px' }} src={RODAPE4} />
+														</div>
+													</div>
+													<p className='text-center mt-3' style={{ fontSize: "9pt" }}>7350 FUTURES DRIVE • ORLANDO • FL 32819 WWW.ENBER.EDUCATION • TEL.: +1 (321) 300-9710</p>
 												</div>
 											</div>
-										</div>
+										)}
 									</div>
 								</Modal.Body>
 								<Modal.Footer>
-									<button className='button' onClick={() => print('declaracao')}>Imprimir</button>
+									<button className='button' onClick={() => print('declaracao_participacao')}>Imprimir</button>
 								</Modal.Footer>
 							</Modal>
 
+							<Modal
+								show={this.state.modalShowVisualizarCertificadoDeAprovacao}
+								onHide={() => this.handlerCloseModalVisualizarCertificadoDeAprovacao()}
+								aria-labelledby="contained-modal-title-vcenter"
+								backdrop="static"
+								size='lg'
+								centered>
+								<Modal.Header closeButton>
+									<h4 className='titulo'><FaCalendarWeek /> Certificado de Aprovação</h4>
+								</Modal.Header>
+								<Modal.Body>
+									<div id='certificado_aprovacao'>
+										<div className='container'>
+											<img style={{ minWidth: '100%', marginBottom: '10px', }} src={Logo_ATA} />
+											<h4 className='font-weight-bold text-center mt-3 mb-5 p-3'>CERTIFICADO DE APROVAÇÃO</h4>
+
+											<p className='mt-3 p-3'>TÍTULO DA TESE: {this.state.titulo}</p>
+											<p className='font-weight-bold p-3'>AUTORA: {this.state.nome}</p>
+											<p className='font-weight-bold p-3'>ORIENTADOR(A): {this.state.orientador}</p>
+
+											<p className='p-3'>Aprovada como parte das exigências para obtenção do Título de Doutora em Ciências Sociais,
+												pela Comissão Examinadora:</p>
+
+											{/* <img className="img-fluid m-auto" src={this.state.assinatura_presidente} />
+											<hr /> */}
+
+											{arrayMembrosDaDeclaracaoDeParticipacao.length > 0 ?
+												arrayMembrosDaDeclaracaoDeParticipacao.map(membro => (
+													<div>
+														<img className="img-fluid" style={{ width: "220px", display: 'block', margin: '0 auto' }} src={membro.assinatura} />
+														<hr />
+														<p className="text-center">{membro.nome.toLocaleUpperCase()}</p>
+														{/* <p className="text-center">{membro.nome.slice(membro.nome.indexOf('-') + 1, membro.nome.length).toLocaleUpperCase()}</p> */}
+													</div>
+												))
+												: ("")
+											}
+											<h6 className='text-rodape p-3'>7350 FUTURES DRIVE,ORLANDO,FL 32819 WWW.ENBERUNIVERSITY.COM TEL : +1 321-300-9710</h6>
+										</div>
+									</div>
+								</Modal.Body>
+							</Modal>
 						</MainContent>
 					</Col>
 				</Row>
-			</Container>
+			</Container >
 		);
 	}
 }

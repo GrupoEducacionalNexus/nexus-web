@@ -1,10 +1,10 @@
-import { FaCalendarWeek, FaCheckSquare, FaClipboardList, FaDochub, FaFilter, FaListAlt, FaPlus, FaRegFolderOpen, FaRegSave, FaSchool, FaSearch, FaSpinner, FaUserEdit, FaUserTie, FaUsers, FaWpforms } from 'react-icons/fa';
+import { FaCalendarWeek, FaCheckSquare, FaClipboardList, FaDochub, FaFilter, FaListAlt, FaPlus, FaRegCreditCard, FaRegFolderOpen, FaRegSave, FaSchool, FaSearch, FaSpinner, FaUserEdit, FaUserGraduate, FaUserTie, FaUsers, FaWpforms } from 'react-icons/fa';
 import React, { Component } from 'react';
 import api from '../../services/api';
 import { getToken } from '../../services/auth';
 import backgroundImage from '../../assets/sistema_chamados.png';
 import { Tab } from 'bootstrap';
-import { Accordion, Button, Card, Col, Container, Modal, Row, Spinner, Tabs } from 'react-bootstrap';
+import { Card, Col, Container, Modal, Row, Tabs } from 'react-bootstrap';
 import Menu from '../../components/Menu';
 import AdminNavbar from '../../components/Navbar';
 import MainContent from '../../components/MainContent';
@@ -14,6 +14,8 @@ import { handleTelefone } from '../../services/mascaraTelefone';
 import { handleCpf } from '../../services/mascaraCpf';
 import { listaDeStatus } from '../../services/getListaDeStatus';
 import { listaDochecklistDoCredenciamento } from '../../services/getListaDochecklistDoCredenciamento';
+import Plot from 'react-plotly.js';
+
 
 export default class Index extends Component {
   constructor(props) {
@@ -44,6 +46,7 @@ export default class Index extends Component {
       arrayChecklistCredenciamento: [],
       arrayChecklistCredenciamentoDoEstado: [],
       arrayInstrucoesDoChecklist: [],
+      arrayCredenciamentoXanexosDoChecklist: [],
       modalShowCadastrarInstituicao: false,
       modalShowCredenciamento: false,
       modalShowVisualizarDocumentacao: false,
@@ -51,6 +54,7 @@ export default class Index extends Component {
       modalShowChecklistDoEstado: false,
       modalShowCadastrarItemDoChecklist: false,
       modalShowCadastrarInstrucaoDoChecklist: false,
+      modalShowDashboard: false,
       estado: '',
 
       //Dados do gestor
@@ -84,7 +88,18 @@ export default class Index extends Component {
       id_instrucao: 0,
       descricao_instrucao: '',
 
-      item_checklist: ''
+      item_checklist: '',
+      idAberturaTurma: 0,
+
+      arrayQuantidadeSolicitacoesPorEstado: [],
+      layoutQuantidadeSolicitacoesPorEstado: {},
+      arrayPercentualStatusSolicitacoes: [],
+      layoutPercentualStatusSolicitacoes: {},
+      arrayQuantidadeSolicitacoesDasInstituicoesPorEstado: [],
+      layoutQuantidadeSolicitacoesDasInstituicoesPorEstado: {},
+      arraySolicitacoesDeAberturaDeTurmaMensal: [],
+      layoutSolicitacoesDeAberturaDeTurmaMensal: {},
+      totInstituicoesQueEnviaramDocDoCredenciamento: 0
     }
   }
 
@@ -93,6 +108,8 @@ export default class Index extends Component {
       `${this.state.dataAtual.getFullYear()}-${this.state.dataAtual.getMonth() + 1}-${parseInt(this.state.dataAtual.getDate()) <= 9 ? `0${this.state.dataAtual.getDate()}` : this.state.dataAtual.getDate()}`}`);
     this.listaDeAberturaDeTurmas(getToken());
     this.listaDeEstados();
+    listaDeStatus(getToken()).then(result => result.length > 0 ?
+      this.setState({ arrayStatus: result }) : this.setState({ arrayStatus: [] }));
   }
 
   setModalShowCredenciamento(valor) {
@@ -103,7 +120,6 @@ export default class Index extends Component {
     this.setModalShowCredenciamento(true);
     this.setState({ estado: estado.nome });
     this.listaDeCredenciamentoPorEstado(getToken(), estado.id);
-
     // listaDochecklistDoCredenciamento(getToken()).then(result => this.setState({ arrayChecklistCredenciamento: result }));
   }
 
@@ -139,8 +155,11 @@ export default class Index extends Component {
       status: credenciamento.id_status
     });
 
-    listaDeStatus(getToken()).then(result => this.setState({ arrayStatus: result }));
+    //listaDeStatus(getToken()).then(result => this.setState({ arrayStatus: result }));
+
+    this.listaDoChecklistDoEstado(getToken(), credenciamento.id_estado);
     this.listaDeAnexosCredenciamento(getToken(), credenciamento.id_credenciamento);
+
   }
 
   handlerCloseModalVisualizarDocumentacao() {
@@ -187,6 +206,22 @@ export default class Index extends Component {
       successChecklistDoEstado: '',
       errorChecklistDoEstado: '',
     });
+  };
+
+  setModalShowDashboard(valor) {
+    this.setState({ modalShowDashboard: valor, success: '', error: '' });
+  }
+
+  handlerShowModalDashboard() {
+    this.setModalShowDashboard(true);
+    this.quantidadeDeSolicitacoesDeAberturaDeTurmaPorEstado(getToken());
+    this.percentualDoStatusDasSolicitacoesDeAberturaDeTurma(getToken());
+    this.solicitacoesDeAberturaDeTurmaMensal(getToken(), 0);
+  }
+
+  handlerCloseModalDashboard() {
+    this.setModalShowDashboard(false);
+
   };
 
   setModalShowCadastrarItemDoChecklist(valor) {
@@ -238,9 +273,9 @@ export default class Index extends Component {
     this.setModalShowCadastrarInstrucaoDoChecklist(false);
   };
 
-  listaDeAberturaDeTurmas = async (token, dataAtual = "", cnpj = "", nome_fantasia = "", data_solicitacao = "") => {
+  listaDeAberturaDeTurmas = async (token, dataAtual = "", cnpj = "", nome_fantasia = "", data_solicitacao = "", estado = "") => {
     try {
-      const response = await fetch(`${api.baseURL}/abertura_turma?dataAtual=${dataAtual}&cnpj=${cnpj}&nome_fantasia=${nome_fantasia}&data_solicitacao=${data_solicitacao}`,
+      const response = await fetch(`${api.baseURL}/abertura_turma?dataAtual=${dataAtual}&cnpj=${cnpj}&nome_fantasia=${nome_fantasia}&data_solicitacao=${data_solicitacao}&estado=${estado}`,
         {
           method: 'GET',
           headers: {
@@ -274,7 +309,7 @@ export default class Index extends Component {
         method: 'GET',
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         }
       });
 
@@ -288,6 +323,154 @@ export default class Index extends Component {
       console.log(error)
     }
 
+  }
+
+  quantidadeDeSolicitacoesDeAberturaDeTurmaPorEstado = async (token) => {
+    try {
+      const response = await fetch(`${api.baseURL}/abertura_turma/quantidade_solicitacoes`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'x-access-token': token
+        }
+      });
+
+      const data = await response.json();
+      console.log(data);
+      if (data.status === 200) {
+        this.setState({
+          layoutQuantidadeSolicitacoesPorEstado: {
+            title: 'Aberturas de turma por estado em 2023',
+            xaxis: { title: 'Estado' },
+            yaxis: { title: 'Quantidade de solicitações' },
+            width: 600
+          },
+          arrayQuantidadeSolicitacoesPorEstado: [
+            {
+              x: data.resultados[0],
+              y: data.resultados[1],
+              type: 'bar',
+              marker: { color: 'blue' },
+            },
+          ]
+        });
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  percentualDoStatusDasSolicitacoesDeAberturaDeTurma = async (token) => {
+    try {
+      const response = await fetch(`${api.baseURL}/abertura_turma/percentual_solicitacoes`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'x-access-token': token
+        }
+      });
+
+      const data = await response.json();
+      console.log(data);
+      if (data.status === 200) {
+        this.setState({
+          arrayPercentualStatusSolicitacoes: [
+            {
+              labels: data.resultados[0],
+              values: data.resultados[1],
+              type: 'pie',
+            },
+          ],
+
+          layoutPercentualStatusSolicitacoes: {
+            title: 'Status das solicitações de abertura de turma',
+            width: 600
+          }
+        });
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  quantidadeDeSolicitacoesDeAberturaDeTurmaDasInstituicoesPorEstado = async (token, estado) => {
+    try {
+      const response = await fetch(`${api.baseURL}/abertura_turma/quantidade_solicitacoes_instituicoes?estado=${estado}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'x-access-token': token
+        }
+      });
+
+      const data = await response.json();
+      console.log(data);
+      if (data.status === 200) {
+        this.setState({
+          layoutQuantidadeSolicitacoesDasInstituicoesPorEstado: {
+            title: 'Aberturas de turma por instituições em 2023',
+            xaxis: { title: 'Instituições' },
+            yaxis: { title: 'Quantidade de solicitações' },
+            width: 600
+          },
+          arrayQuantidadeSolicitacoesDasInstituicoesPorEstado: [
+            {
+              x: data.resultados[0],
+              y: data.resultados[1],
+              type: 'bar',
+              marker: { color: 'blue' },
+            },
+          ]
+        });
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  solicitacoesDeAberturaDeTurmaMensal = async (token, ano) => {
+    try {
+      const response = await fetch(`${api.baseURL}/abertura_turma/solicitacao_mensal?ano=${ano}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'x-access-token': token
+        }
+      });
+
+      const data = await response.json();
+      console.log(data);
+      if (data.status === 200) {
+        this.setState({
+          layoutSolicitacoesDeAberturaDeTurmaMensal: {
+            title: 'Aberturas de turma mensal',
+            xaxis: { title: 'Meses' },
+            yaxis: { title: 'Quantidade de solicitações' },
+            width: 600
+          },
+          arraySolicitacoesDeAberturaDeTurmaMensal: [
+            {
+              x: data.resultados[0],
+              y: data.resultados[1],
+              type: 'bar',
+              marker: { color: 'blue' },
+            },
+          ]
+        });
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   listaDeCredenciamentoPorEstado = async (token, idEstado) => {
@@ -328,6 +511,7 @@ export default class Index extends Component {
 
       const data = await response.json();
       if (data.status === 200) {
+
         this.setState({ arrayAnexosDoCredenciamento: data.resultados });
       }
     } catch (error) {
@@ -640,6 +824,42 @@ export default class Index extends Component {
     }
   }
 
+
+  alterarStatusDeAberturaDeTurma = async (idAberturaTurma, idStatus, email_solicitante,
+    razao_social, nome_fantasia, telefone, observacao, cnpj) => {
+    try {
+      const response = await fetch(`${api.baseURL}/abertura_turma/${idAberturaTurma}`, {
+        method: 'PUT',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'x-access-token': getToken()
+        },
+        body: JSON.stringify({
+          idStatus, email_solicitante,
+          razao_social, nome_fantasia,
+          telefone, observacao, cnpj
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.status === 200) {
+        this.listaDeAberturaDeTurmas(getToken(), `${parseInt(this.state.dataAtual.getMonth()) + 1 <= 9 ? `${this.state.dataAtual.getFullYear()}-0${this.state.dataAtual.getMonth() + 1}-${parseInt(this.state.dataAtual.getDate()) <= 9 ? `0${this.state.dataAtual.getDate()}` : this.state.dataAtual.getDate()}` :
+          `${this.state.dataAtual.getFullYear()}-${this.state.dataAtual.getMonth() + 1}-${parseInt(this.state.dataAtual.getDate()) <= 9 ? `0${this.state.dataAtual.getDate()}` : this.state.dataAtual.getDate()}`}`);
+        this.listaDeAberturaDeTurmas(getToken());
+      }
+
+      if (data.status === 400) {
+        this.setState({ error: data.msg });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+
+
   render() {
     const arrayAberturaDeTurmasDoDia = this.state.arrayAberturaDeTurmasDoDia;
     const arrayAberturaDeTurmas = this.state.arrayAberturaDeTurmas;
@@ -656,7 +876,8 @@ export default class Index extends Component {
         backgroundSize: "100% 100%",
         backgroundRepeat: 'no-repeat',
         padding: '0px',
-        minHeight: '100vh'}}>
+        minHeight: '100vh'
+      }}>
         <Menu />
         <Row>
           <Col xs={12}>
@@ -672,6 +893,9 @@ export default class Index extends Component {
               <FloatingMenu>
                 <ul className="dropdown-menu">
                   <li>
+                    <a onClick={() => this.handlerShowModalDashboard()}><FaPlus /> Dashboard</a>
+                  </li>
+                  <li>
                     <a onClick={() => this.handlerShowModalCadastrarInstituicao()}><FaPlus /> Adicionar estado</a>
                   </li>
                   <li>
@@ -680,56 +904,60 @@ export default class Index extends Component {
                 </ul>
               </FloatingMenu>
 
-              <div className='row justify-content-center text-center text-light mb-2'>
-                <div className='col-md-3 mb-2'>
-                  <FaUsers style={{ width: '30px', height: '30px', marginBottom: '10px' }} />
-                  <h5 className='titulo'>Total de abertura de turmas do dia</h5>
-                  <h6>{arrayAberturaDeTurmasDoDia.length}</h6>
-                </div>
-                <div className='col-md-3 mb-2'>
-                <FaClipboardList style={{ width: '30px', height: '30px', marginBottom: '10px' }} />
-                    <h5 className='titulo'>Total de abertura de turmas</h5>
-                    <h6>{arrayAberturaDeTurmas.length}</h6>
-                </div>
-              </div>
-
               <div className='container-fluid mb-5'>
                 <Tabs
-                  defaultActiveKey="credenciamento"
+                  defaultActiveKey="aberturaTurmasDiario"
                   id="justify-tab-example"
                   className="justify-content-center mb-3"
                   variant='pills'>
                   <Tab eventKey="aberturaTurmasDiario" title="Abertura de turmas do dia">
                     {/* <h4 className='text-light'><FaUserEdit /> Abertura de turmas</h4> */}
-                    <div class="table-responsive table-sm">
+                    <div class="table-responsive table-sm container">
                       <div class="table-wrapper">
-                        <table class="table text-center table-hover mb-5 table-light">
+                        <table class="table text-center table-hover mb-5 table-light" style={{ fontSize: "10pt" }}>
                           <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)' }}>
                             <tr>
                               <th scope="col">CNPJ</th>
                               <th scope="col">Nome fantasia</th>
                               <th scope="col">Razão social</th>
-                              <th scope="col">Email solicitante</th>
                               <th scope="col">Telefone</th>
                               <th scope="col">Observação</th>
                               <th scope="col">Metodologia</th>
                               <th scope="col">Curso</th>
                               <th scope="col">Data da solicitação</th>
+                              <th scope="col">Estado</th>
+                              <th scope="col">Status</th>
                             </tr>
                           </thead>
                           <tbody>
                             {arrayAberturaDeTurmasDoDia.length > 0 ? (
                               arrayAberturaDeTurmasDoDia.map((abertura_turma, index) => (
-                                <tr key={index} >
+                                <tr key={index} className={parseInt(abertura_turma.id_status) === 2 ? `table-success` : parseInt(abertura_turma.id_status) === 10 ? `table-danger` : ``}>
                                   <td>{abertura_turma.cnpj}</td>
                                   <td>{abertura_turma.nome_fantasia}</td>
                                   <td>{abertura_turma.razao_social}</td>
-                                  <td>{abertura_turma.email_solicitante}</td>
                                   <td>{abertura_turma.telefone}</td>
                                   <td>{abertura_turma.observacao}</td>
                                   <td>{abertura_turma.metodologia !== null ? abertura_turma.metodologia : "-"}</td>
                                   <td>{abertura_turma.curso !== null ? abertura_turma.curso : "-"}</td>
                                   <td>{abertura_turma.dataHoraCriacao}</td>
+                                  <td>{abertura_turma.estado}</td>
+                                  <td>
+                                    <select class="form-control form-control-sm" id="status"
+                                      value={abertura_turma.id_status}
+                                      onChange={e => this.alterarStatusDeAberturaDeTurma(abertura_turma.id_abertura_turma, e.target.value, abertura_turma.email_solicitante,
+                                        abertura_turma.razao_social, abertura_turma.nome_fantasia,
+                                        abertura_turma.telefone, abertura_turma.observacao, abertura_turma.cnpj)}
+                                      style={{ width: "200px" }}>
+                                      <option value="0">Selecionar</option>
+                                      {this.state.arrayStatus.length > 0 ? (
+                                        this.state.arrayStatus.map(item =>
+                                          parseInt(item.id) === 1 || parseInt(item.id) === 2 || parseInt(item.id) === 10 ? (<option value={item.id}>{item.nome}</option>) : "")
+                                      ) : (
+                                        <option value="0">Nenhum resultado encontrado</option>
+                                      )}
+                                    </select>
+                                  </td>
                                 </tr>
                               ))
                             ) : (<tr>
@@ -740,31 +968,48 @@ export default class Index extends Component {
                       </div>
                     </div>
                   </Tab>
+
                   <Tab eventKey="profile" title="Abertura de turmas gerais">
-                    <div className='row justify-content-center text-light'>
-                      <div className='col-md-3 mb-2'>
-                        <div className="form-group">
-                          <label for="staticEmail2">CNPJ</label>
-                          <input class="form-control form-control-sm" type="text" id="cnpj" name="start" placeholder='CNPJ'
-                            onChange={e => this.setState({ cnpj: e.target.value.trim() })}
-                          />
+                    <div className='container'>
+                      <div className='row justify-content-center text-light'>
+                        <div className='col-md-3 mb-2'>
+                          <div className="form-group">
+                            <label for="staticEmail2">CNPJ</label>
+                            <input class="form-control form-control-sm" type="text" id="cnpj" name="start" placeholder='CNPJ'
+                              onChange={e => this.setState({ cnpj: e.target.value.trim() })}
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <div className='col-md-3 mb-2'>
-                        <div className="form-group">
-                          <label for="staticEmail2">Nome fantasia</label>
-                          <input class="form-control form-control-sm" type="text" id="nome_fanstasia" name="start" placeholder='Nome fantasia'
-                            onChange={e => this.setState({ nome_fantasia: e.target.value.trim() })}
-                          />
+                        <div className='col-md-3 mb-2'>
+                          <div className="form-group">
+                            <label for="staticEmail2">Nome fantasia</label>
+                            <input class="form-control form-control-sm" type="text" id="nome_fanstasia" name="start" placeholder='Nome fantasia'
+                              onChange={e => this.setState({ nome_fantasia: e.target.value.trim() })}
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <div className='col-md-3 mb-2'>
-                        <div className="form-group">
-                          <label for="staticEmail2">Data de solicitação</label>
-                          <input class="form-control form-control-sm" type="date" id="data_diario" name="start"
-                            min="2022-01" value={this.state.data_solicitacao}
-                            onChange={e => this.setState({ data_solicitacao: e.target.value })}
-                          />
+                        <div className='col-md-3 mb-2'>
+                          <div className="form-group">
+                            <label for="staticEmail2">Data de solicitação</label>
+                            <input class="form-control form-control-sm" type="date" id="data_diario" name="start"
+                              min="2022-01" value={this.state.data_solicitacao}
+                              onChange={e => this.setState({ data_solicitacao: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                        <div className='col-md-3 mb-2'>
+                          <div class="form-group">
+                            <label htmlFor="selectEstado">Estado:</label>
+                            <select className="form-control form-control-sm" id="selectEstado"
+                              onChange={e => this.setState({ id_estado: e.target.value })}>
+                              <option value={0}>Selecione um estado</option>
+                              {arrayEstados.length > 0 ?
+                                arrayEstados.map(item => (
+                                  <option value={item.id}>{item.nome}</option>
+                                ))
+                                : (<option value="">Nenhum resultado foi encontrado</option>)}
+                            </select>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -772,13 +1017,13 @@ export default class Index extends Component {
                     <div class="row d-flex justify-content-center mt-4 mb-4">
                       <div class="col-lg-12 col-lg-offset-6 text-center">
                         <div className="ml-auto">
-                          <button className='btn btn-sm btn-outline-light mr-2' onClick={() => this.listaDeAberturaDeTurmas(getToken(), "", this.state.cnpj !== "" ? this.state.cnpj : "", this.state.nome_fantasia !== "" ? this.state.nome_fantasia : "", this.state.data_solicitacao !== "" ? this.state.data_solicitacao : "")}>Buscar <FaSearch /> </button>
+                          <button className='btn btn-sm btn-outline-light mr-2' onClick={() => this.listaDeAberturaDeTurmas(getToken(), "", this.state.cnpj !== "" ? this.state.cnpj : "", this.state.nome_fantasia !== "" ? this.state.nome_fantasia : "", this.state.data_solicitacao !== "" ? this.state.data_solicitacao : "", this.state.id_estado !== "" ? this.state.id_estado : "")}>Buscar <FaSearch /> </button>
                           <button className='btn btn-sm btn-outline-light mr-2' onClick={() => this.listaDeAberturaDeTurmas(getToken(), ``)}><FaFilter /> Limpar filtro</button>
                         </div>
                       </div>
                     </div>
-                  
-                    <div class="table-responsive table-sm mb-5">
+
+                    <div class="table-responsive table-sm mb-5 container">
                       <div class="table-wrapper">
                         <table class="table text-center table-hover mb-5 table-light">
                           <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)' }}>
@@ -789,18 +1034,36 @@ export default class Index extends Component {
                               <th scope="col">Metodologia</th>
                               <th scope="col">Curso</th>
                               <th scope="col">Data de solicitação</th>
+                              <th scope="col">Estado</th>
+                              <th scope="col">Status</th>
                             </tr>
                           </thead>
                           <tbody>
                             {arrayAberturaDeTurmas.length > 0 ? (
                               arrayAberturaDeTurmas.map((abertura_turma, index) => (
-                                <tr key={index} >
+                                <tr key={index} className={parseInt(abertura_turma.id_status) === 2 ? `table-success` : parseInt(abertura_turma.id_status) === 10 ? `table-danger` : ``}>
                                   <td>{abertura_turma.cnpj}</td>
                                   <td>{abertura_turma.nome_fantasia}</td>
                                   <td>{abertura_turma.razao_social}</td>
                                   <td>{abertura_turma.metodologia !== null ? abertura_turma.metodologia : "-"}</td>
                                   <td>{abertura_turma.curso !== null ? abertura_turma.curso : "-"}</td>
                                   <td>{abertura_turma.dataHoraCriacao}</td>
+                                  <td>{abertura_turma.estado}</td>
+                                  <td><select class="form-control form-control-sm" id="status"
+                                    value={abertura_turma.id_status}
+                                    onChange={e => this.alterarStatusDeAberturaDeTurma(abertura_turma.id_abertura_turma, e.target.value, abertura_turma.email_solicitante,
+                                      abertura_turma.razao_social, abertura_turma.nome_fantasia,
+                                      abertura_turma.telefone, abertura_turma.observacao, abertura_turma.cnpj)}
+                                    style={{ width: "150px" }}>
+                                    <option value="0">Selecionar</option>
+                                    {this.state.arrayStatus.length > 0 ? (
+                                      this.state.arrayStatus.map(item =>
+                                        parseInt(item.id) === 1 || parseInt(item.id) === 2 || parseInt(item.id) === 10 ? (<option value={item.id}>{item.nome}</option>) : "")
+                                    ) : (
+                                      <option value="0">Nenhum resultado encontrado</option>
+                                    )}
+                                  </select>
+                                  </td>
                                 </tr>
                               ))
                             ) : (<tr>
@@ -812,7 +1075,7 @@ export default class Index extends Component {
                     </div>
                   </Tab>
                   <Tab eventKey="credenciamento" title="Credenciamento">
-                    <div style={{ height: "500px", overflowY: "scroll", padding: "10px" }}>
+                    <div className='container' style={{ height: "500px", overflowY: "scroll", padding: "10px" }}>
                       <div className="row">
                         {arrayEstados.length > 0 ? (
                           arrayEstados.map(estado => (
@@ -838,7 +1101,7 @@ export default class Index extends Component {
                 onHide={() => this.handlerCloseModalVisualizarDocumentacao()}
                 aria-labelledby="contained-modal-title-vcenter"
                 backdrop="static"
-                size="xl">
+                className='modal-fullscreen'>
                 <Modal.Header closeButton>
                   <Modal.Title id="contained-modal-title-vcenter" className='text-center'>
                     <FaCalendarWeek /> Detalhes do credenciamento
@@ -847,7 +1110,7 @@ export default class Index extends Component {
                 <Modal.Body>
                   <Form onSubmit={this.atualizarCredenciamento}>
                     <div className="row">
-                      <div className="col-sm-6">
+                      <div className="col-sm-5" style={{ maxHeight: "500px", overflowY: "scroll", padding: "10px" }}>
                         <h4 className='titulo text-center'><FaUserTie /> Dados do gestor</h4>
                         <hr />
                         <div className="row">
@@ -943,9 +1206,7 @@ export default class Index extends Component {
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="col-sm-6">
                         <h4 className='titulo text-center'><FaSchool /> Dados da instituição</h4>
                         <hr />
                         <div className='row'>
@@ -1019,48 +1280,77 @@ export default class Index extends Component {
                             )}
                           </div>
                         </div>
+
+                        <div className='d-flex justify-content-center'>
+                          <button className='button' type='submit'>Atualizar</button>
+                        </div>
                       </div>
-                    </div>
-                    <div className='float-right'>
-                      <button className='button' type='submit'>Atualizar</button>
+
+                      <div className="col-sm-7">
+                        <div className='container' style={{ maxHeight: "400px", overflowY: "scroll", padding: "10px" }}>
+                          <h4><FaDochub /> Anexos do checklist</h4>
+                          <hr />
+                          <div class="table-responsive table-sm">
+                            <div class="table-wrapper">
+                              <table class="table text-center table-hover table-light">
+                                <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)' }}>
+                                  <tr>
+                                    <th scope="col">Item do checklist</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Anexo</th>
+                                    <th scope="col">Observação</th>
+                                    <th scope="col">Data do envio</th>
+                                    <th scope="col">Ações</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {arrayAnexosDoCredenciamento.length > 0 ? (
+                                    arrayAnexosDoCredenciamento.map((documento, index) => (
+                                      <tr className={documento.id_status === 4 ? 'table-danger' : documento.id_status === 3 ? 'table-success' : ''}>
+                                        <td>{documento.item_checklist}</td>
+                                        <td>{documento.status}</td>
+                                        <td><a href={documento.anexo}>visualizar</a></td>
+                                        <td>{parseInt(documento.observacao) !== 0 ? documento.observacao : ``}</td>
+                                        <td>{documento.dataHoraCriacao}</td>
+                                        <td><button className='button' onClick={() => this.handlerShowModalAvaliacaoDoAnexoDoCredenciamento(documento)}>Avaliar</button></td>
+                                      </tr>
+                                    ))
+                                  ) : (
+                                    <tr>
+                                      <td colSpan="12">Nenhum solicitacão encontrado</td>
+                                    </tr>)}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                        <hr />
+                        <h4><FaDochub />Checklist da documentação enviada</h4>
+                        <hr />
+                        <div className="row" style={{ maxHeight: "400px", overflowY: "scroll", padding: "10px" }}>
+                          {arrayChecklistCredenciamentoDoEstado.length > 0 ? (
+                            arrayChecklistCredenciamentoDoEstado.map(item => {
+                              const item_checklist = arrayAnexosDoCredenciamento.find(doc => doc.id_checklist === item.id_checklist && doc.id_status === 3);
+                              return (
+                                <div className="col-sm-4">
+                                  <div className="form-group">
+                                    <div className="form-check">
+                                      <input className="form-check-input" type="checkbox" checked={item_checklist !== undefined} id="item_checklist" />
+                                      <label className="form-check-label" for="gridCheck">
+                                        {item.nome}
+                                      </label>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            })
+                          ) : ("")}
+                        </div>
+                      </div>
                     </div>
                   </Form>
 
-                  <h4 className='mt-5'><FaDochub /> Anexos do checklist</h4>
 
-                  <div class="table-responsive-sm mb-5">
-                    <div class="table-wrapper">
-                      <table class="table table-borderless text-center table-hover mb-5 table-light">
-                        <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)' }}>
-                          <tr>
-                            <th scope="col">Item do checklist</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Anexo</th>
-                            <th scope="col">Observação</th>
-                            <th scope="col">Data do envio</th>
-                            <th scope="col">Ações</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {arrayAnexosDoCredenciamento.length > 0 ? (
-                            arrayAnexosDoCredenciamento.map((documento, index) => (
-                              <tr className={documento.id_status === 4 ? 'table-danger' : documento.id_status === 3 ? 'table-success' : ''}>
-                                <td>{documento.item_checklist}</td>
-                                <td>{documento.status}</td>
-                                <td><a href={documento.anexo}>visualizar</a></td>
-                                <td>{parseInt(documento.observacao) !== 0 ? documento.observacao : ``}</td>
-                                <td>{documento.dataHoraCriacao}</td>
-                                <td><button className='button' onClick={() => this.handlerShowModalAvaliacaoDoAnexoDoCredenciamento(documento)}>Avaliar</button></td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td colSpan="12">Nenhum solicitacão encontrado</td>
-                            </tr>)}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
                 </Modal.Body>
               </Modal>
 
@@ -1077,7 +1367,13 @@ export default class Index extends Component {
                   </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-
+                  <div className="row d-flex justify-content-center text-center" style={{ marginBottom: "10px", color: "#000233" }}>
+                    <div className="col-sm-2 mb-3">
+                      <FaSchool style={{ width: '30px', height: '30px', marginBottom: '10px' }} />
+                      <h5 style={{ fontSize: "15px" }}>Total de Instituições</h5>
+                      <h6>{arrayCredenciamento.length}</h6>
+                    </div>
+                  </div>
                   <h4 className=''><FaUserEdit /> Instituições</h4>
                   <hr />
                   <div class="table-responsive-sm mb-5">
@@ -1086,10 +1382,9 @@ export default class Index extends Component {
                         <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)' }}>
                           <tr>
                             <th scope="col">CNPJ</th>
-                            <th scope="col">Nome fantasia</th>
                             <th scope="col">Razão social</th>
                             <th scope="col">Status</th>
-                            <th scope="col">Documentação</th>
+                            <th scope="col">Qtd. de documentos enviada</th>
                             {/* <th scope="col">Protocolado</th> */}
                           </tr>
                         </thead>
@@ -1098,10 +1393,11 @@ export default class Index extends Component {
                             arrayCredenciamento.map((credenciamento, index) => (
                               <tr>
                                 <td>{credenciamento.cnpj}</td>
-                                <td>{credenciamento.razao_social}</td>
                                 <td>{credenciamento.nome_fantasia}</td>
                                 <td>{credenciamento.status}</td>
-                                <td><button className='button' onClick={() => this.handlerShowModalVisualizarDocumentacao(credenciamento)}>Documentação</button></td>
+                                <td>Foram enviados {credenciamento.qtdDocEnviados} de um total de {credenciamento.totDocDoEstado}</td>
+
+                                <td><button className='btn btn-sm btn-outline-primary' onClick={() => this.handlerShowModalVisualizarDocumentacao(credenciamento)}>Documentação</button></td>
                               </tr>
                             ))
                           ) : (
@@ -1415,6 +1711,77 @@ export default class Index extends Component {
                     </div>
                   </Form>
 
+                </Modal.Body>
+              </Modal>
+
+
+              <Modal
+                show={this.state.modalShowDashboard}
+                onHide={() => this.handlerCloseModalDashboard()}
+                aria-labelledby="contained-modal-title-vcenter"
+                backdrop="static"
+                className='modal-fullscreen'>
+
+                <Modal.Header closeButton>
+                  <Modal.Title id="contained-modal-title-vcenter" className='text-center'>
+                    <FaCalendarWeek /> Dashboard
+                  </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <div className='row justify-content-center text-center mb-2 '>
+                    <div className='col-md-3 mb-2 border mr-2 p-3'>
+                      <FaUsers style={{ width: '30px', height: '30px', marginBottom: '10px' }} />
+                      <h5 className='titulo'>Total de abertura de turmas do dia</h5>
+                      <h6>{arrayAberturaDeTurmasDoDia.length}</h6>
+                    </div>
+                    <div className='col-md-3 mb-2 border p-3'>
+                      <FaClipboardList style={{ width: '30px', height: '30px', marginBottom: '10px' }} />
+                      <h5 className='titulo'>Total de abertura de turmas</h5>
+                      <h6>{arrayAberturaDeTurmas.length}</h6>
+                    </div>
+                  </div>
+                  <hr />
+                  <div className='row'>
+                    <div className='col-sm-6'>
+                      <Plot data={this.state.arrayQuantidadeSolicitacoesPorEstado}
+                        layout={this.state.layoutQuantidadeSolicitacoesPorEstado} />
+                    </div>
+                    <div className='col-sm-6'>
+                      <Plot data={this.state.arrayPercentualStatusSolicitacoes} layout={this.state.layoutPercentualStatusSolicitacoes} />
+                    </div>
+                  </div>
+
+                  <div className='row mt-3'>
+                    <div className='col-sm-6'>
+                      <div class="form-group">
+                        <label htmlFor="selectEstado">Estado:</label>
+                        <select className="form-control form-control-sm" id="selectEstado"
+                          onChange={e => this.quantidadeDeSolicitacoesDeAberturaDeTurmaDasInstituicoesPorEstado(getToken(), e.target.value)}>
+                          <option value={0}>Selecione um estado</option>
+                          {arrayEstados.length > 0 ?
+                            arrayEstados.map(item => (
+                              <option value={item.id}>{item.nome}</option>
+                            ))
+                            : (<option value="">Nenhum resultado foi encontrado</option>)}
+                        </select>
+                      </div>
+                      <Plot data={this.state.arrayQuantidadeSolicitacoesDasInstituicoesPorEstado}
+                        layout={this.state.layoutQuantidadeSolicitacoesDasInstituicoesPorEstado} />
+                    </div>
+
+                    <div className='col-sm-6'>
+                      <label htmlFor="ano">Selecione um ano:</label>
+                      <select className="form-control form-control-sm" id="ano" name="ano" onChange={e => this.solicitacoesDeAberturaDeTurmaMensal(getToken(), e.target.value)}>
+                        <option value="0">0</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                      </select>
+                      <Plot data={this.state.arraySolicitacoesDeAberturaDeTurmaMensal}
+                        layout={this.state.layoutSolicitacoesDeAberturaDeTurmaMensal} />
+                    </div>
+                  </div>
                 </Modal.Body>
               </Modal>
             </MainContent>

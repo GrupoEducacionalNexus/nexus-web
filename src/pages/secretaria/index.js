@@ -3387,9 +3387,10 @@ export default class Index extends Component {
 													<tr>
 														<th>Nome Completo</th>
 														<th>E-mail</th>
-														<th>CPF</th>
+														<th>Telefone</th>
+														<th>Vinculo Institucional</th>
 														<th>Data e hora da inscrição</th>
-														<th>Certificado</th>
+														{/* <th>Certificado</th> */}
 													</tr>
 												</thead>
 												<tbody>
@@ -3398,9 +3399,11 @@ export default class Index extends Component {
 															<tr key={membro.id} title="Clique aqui para obter mais informações sobre o evento">
 																<td>{membro.nome_completo}</td>
 																<td>{membro.email}</td>
-																<td>{membro.cpf}</td>
+																<td>{membro.telefone}</td>
+																<td>{membro.vinculo_institucional}</td>
 																<td>{membro.dataHoraCriacao}</td>
-																<td><button className='button' onClick={() => this.handlerShowModalEditarCertificado(membro)}>Certificado</button></td>
+																
+																{/* <td><button className='button' onClick={() => this.handlerShowModalEditarCertificado(membro)}>Certificado</button></td> */}
 															</tr>
 														))
 													) : (<tr className="text-center">

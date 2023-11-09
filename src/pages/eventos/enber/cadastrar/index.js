@@ -59,12 +59,12 @@ export default class Index extends Component {
     const telefone = this.state.telefone;
     const vinculo_institucional = this.state.vinculo_institucional;
     const id_permissao = 4;
-    const id_evento = this.state.id_evento;
+    const id_evento = 9;
     const tipo_membro = this.state.tipo_membro;
     const id_grupo_trabalho = this.state.id_grupo_trabalho;
     const comoSoube = this.state.comoSoube;
 
-    if (!nome || !email || !cpf_cnpj || !id_evento || !tipo_membro) {
+    if (!nome || !email || !telefone || !vinculo_institucional) {
       this.setState({ error: 'Por favor, preencher todos os campos.' });
     } else {
       try {
@@ -96,7 +96,6 @@ export default class Index extends Component {
 
         if (data.status === 200) {
           this.setState({ success: data.msg });
-          window.location.replace('https://congresso.enberuniversity.com/index.php/obrigado');
         }
 
         if (data.status === 400) {
@@ -203,20 +202,17 @@ export default class Index extends Component {
         <Form onSubmit={this.cadastrarMembro}>
 
           <div className='row'>
-            <div className='col-sm-4 text-center'>
-              <img src={Logo} style={{ display: 'block', margin: '0 auto', width: '90px' }} />
-              <h3 id='titulo'> Eventos</h3>
-
-              <p className='font-weight-bold text-danger text-uppercase'>Após concluir sua inscrição no evento, é necessário acessar o sistema para submeter o arquivo:<br />
-                <a className='text-light' href='https://scribehow.com/shared/Manual_de_envio_do_resumo_ou_arquivo_final_do_evento__Y13ZD7B6QLqNIsO-QMQJtQ' target={`_blank`}>
-                  <br />INSTRUÇÕES DE ACESSO </a> <a className='text-light' href='http://www.gestorgruponexus.com.br' target={`_blank`}>
-                  <br />CLIQUE AQUI PARA ACESSAR O SISTEMA</a><br /><br /> O envio do resumo até 31 de março de 2023<br /> A  entrega do trabalho final até 31 de julho 2023</p>
+            <div className='col-sm-4'>
+              <div style={{height: "350px", display: "flex", justifyContent: "center", alignItems: 'center', flexDirection: 'column'}}>
+                <img src={Logo} style={{ width: '90px' }} />
+                <h3 id='titulo'> Eventos</h3>
+              </div>
+             
             </div>
 
             <div className='col-sm-8'>
               <h4 className='text-center mb-4'><FaUserEdit /> INSCRIÇÃO</h4>
-              <div className='row'>
-                <div className='col-sm-6'>
+             
                   <div className="form-group">
                     <label htmlFor="nome">NOME:</label>
                     <input
@@ -229,21 +225,40 @@ export default class Index extends Component {
                       }
                     />
                   </div>
+                  <div className='row'>
+                    <div className='col-sm-8'>
+                      <div className="form-group">
+                        <label htmlFor="email">EMAIL:</label>
+                        <input
+                          type="email"
+                          className="form-control form-control-sm"
+                          id="email"
+                          placeholder="INFORME O SEU E-MAIL"
+                          onChange={(e) =>
+                            this.setState({ email: e.target.value })
+                          }
+                        />
+                    </div>
+                    </div>
 
-                  <div className="form-group">
-                    <label htmlFor="email">EMAIL:</label>
-                    <input
-                      type="email"
-                      className="form-control form-control-sm"
-                      id="email"
-                      placeholder="INFORME O SEU E-MAIL"
-                      onChange={(e) =>
-                        this.setState({ email: e.target.value })
-                      }
-                    />
+                    <div className='col-sm-4'>
+                      <div class="form-group">
+                        <label htmlFor="telefone">TELEFONE:</label>
+                        <input
+                          className="form-control form-control-sm"
+                          type="text"
+                          placeholder="TELEFONE"
+                          name="telefone"
+                          id='telefone'
+                          onChange={(e) => this.handleTelefone(e.target.value)}
+                          value={this.state.telefone}
+                      />
+                    </div>
+                    </div>
                   </div>
+                  
 
-                  <div class="form-group">
+                  {/* <div class="form-group">
                     <label htmlFor="cpf">CPF:</label>
                     <input
                       className="form-control form-control-sm"
@@ -254,23 +269,10 @@ export default class Index extends Component {
                       onChange={(e) => handleCpf(e.target.value).then(result => this.setState({cpf_cnpj: result}))}
                       value={this.state.cpf_cnpj}
                     />
-                  </div>
+                  </div> */}
 
-                  <div class="form-group">
-                    <label htmlFor="telefone">TELEFONE:</label>
-                    <input
-                      className="form-control form-control-sm"
-                      type="text"
-                      placeholder="INFORME O SEU TELEFONE"
-                      name="telefone"
-                      id='telefone'
-                      onChange={(e) => this.handleTelefone(e.target.value)}
-                      value={this.state.telefone}
-                    />
-                  </div>
-                </div>
-
-                <div className='col-sm-6'>
+                 
+               
                   <div class="form-group">
                     <label htmlFor="vinculo_institucional">VINCULO INSTITUCIONAL:</label>
                     <select class="form-control form-control-sm" id="vinculo_institucional"
@@ -284,7 +286,7 @@ export default class Index extends Component {
                     </select>
                   </div>
 
-                  <div class="form-group">
+                  {/* <div class="form-group">
                     <label htmlFor="selectEvento">EVENTO:</label>
                     <select class="form-control form-control-sm" id="selectEvento"
                       onChange={(e) => this.listaDeGruposDeTrabalho(e.target.value)}>
@@ -325,9 +327,8 @@ export default class Index extends Component {
                     <label for="inputComoSoube">{"Como soube do evento?".toLocaleUpperCase()}</label>
                     <textarea class="form-control" rows="2" id="comment"
                       onChange={e => this.setState({ comoSoube: e.target.value })}></textarea>
-                  </div>
-                </div>
-              </div>
+                        </div>*/}
+              
 
               <div className="row">
                 <div className="col-sm-12">
@@ -350,13 +351,13 @@ export default class Index extends Component {
                 </div>
               </div>
 
-              <div className="row">
-                <div className="col-md-12 text-center">
+             
+                <div className="d-flex justify-content-center">
                   <button className="button" type="submit">
                     Cadastrar
                   </button>
                 </div>
-              </div>
+              
             </div>
           </div>
         </Form>

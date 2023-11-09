@@ -71,7 +71,7 @@ export default class Index extends Component {
 
   componentDidMount() {
     const userContext = this.context;
-    this.buscaSolicitacaoDeCredenciamento(getToken(), userContext.user.id_setor);
+    this.buscaSolicitacaoDeCredenciamento(getToken(), userContext.user.id);
     listaDeStatus(getToken()).then(result => this.setState({ arrayStatus: result }));
     // listaDochecklistDoCredenciamento(getToken()).then(result => this.setState({ arrayChecklistCredenciamento: result }));
   }
@@ -305,18 +305,16 @@ export default class Index extends Component {
           <Col xs={12} id="main">
             <MainContent>
               <div className='container'>
-                <Accordion>
-                  <Card style={{ backgroundColor: "#000233" }}>
+                <Accordion >
+                  <Card>
                     <Card.Header>
-                      <Accordion.Toggle as={Button} variant="link" eventKey="0" style={{ color: "#ffffff" }}>
+                      <Accordion.Toggle as={Button} variant="link" eventKey="0" style={{}}>
                         <FaUsers /> Informações da solicitação
                       </Accordion.Toggle>
                     </Card.Header>
                     <Accordion.Collapse eventKey="0">
                       <Card.Body>
-
                         <Card className='h-100'>
-
                           <Card.Body>
                             <div className="row">
                               <div className="col-sm-6">
@@ -457,26 +455,25 @@ export default class Index extends Component {
                 </Accordion>
 
                 <Accordion >
-                  <Card style={{ backgroundColor: "#000233" }}>
+                  <Card>
                     <Card.Header>
-                      <Accordion.Toggle as={Button} variant="link" eventKey="0" style={{ color: "#ffffff" }}>
+                      <Accordion.Toggle as={Button} variant="link" eventKey="0">
                         <FaCheckSquare /> Checkist do credenciamento
                       </Accordion.Toggle>
                     </Card.Header>
                     <Accordion.Collapse eventKey="0">
                       <Card.Body>
-
-                        <div style={{ height: "600px", overflowY: "scroll", padding: "30px" }}>
+                        <div style={{ height: "350px", overflowY: "scroll", padding: "30px" }}>
                           <div className="row">
                             {arrayChecklistCredenciamento.length > 0 ? (
                               arrayChecklistCredenciamento.map((checklistCredenciamento, index) => (
                                 <div className="col-sm-4">
-                                  <Card key={checklistCredenciamento.id_checklist} className="text-light text-center font-weight-bold zoom" style={{ backgroundColor: "rgba(255, 255, 255, 0.3)", height: "200px" }}>
-                                    <Card.Header style={{height: "60px"}}>{alfabeto()[index]} - {checklistCredenciamento.nome}</Card.Header>
+                                  <Card key={checklistCredenciamento.id_checklist} className="text-center font-weight-bold zoom"
+                                  style={{ backgroundColor: "rgba(255, 255, 255, 0.3)", height: "200px", border: "1px solid #000233" }}>
+                                    <Card.Header style={{ height: "60px" }}>{alfabeto()[index]} - {checklistCredenciamento.nome}</Card.Header>
                                     <Card.Body>
-                                      
                                       <div className='d-flex justify-content-center mt-3'>
-                                        <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}><FaFolderOpen/> Instruções e anexos</button>
+                                        <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}><FaFolderOpen /> Instruções e anexos</button>
                                       </div>
                                     </Card.Body>
                                   </Card>
@@ -485,549 +482,6 @@ export default class Index extends Component {
                             ) : ("")}
                           </div>
                         </div>
-                        {/* <div class="table-responsive-sm mb-5">
-                          <div class="table-wrapper">
-                            <table class="table table-hover mb-5 table-light text-center">
-                              <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)' }}>
-                                <tr>
-                                  <th scope="col">Item</th>
-                                  <th scope="col">Ação</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {arrayChecklistCredenciamento.length > 0 ? (
-                                  arrayChecklistCredenciamento.map(checklistCredenciamento => (
-                                    <tr>
-                                      <td>{checklistCredenciamento.nome}</td>
-                                      <td> <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button></td>
-                                    </tr>
-                                  ))
-                                ) : (<tr>
-                                  <td colSpan="12">Nenhuma instrução adicionada</td>
-                                </tr>)}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div> */}
-                        {/* 
-                        {arrayChecklistCredenciamento.length > 0 ? (
-                          arrayChecklistCredenciamento.map((checklistCredenciamento, index) => (
-                            checklistCredenciamento.id_checklist >= 15 && checklistCredenciamento.id_checklist <= 20 ?
-                              ("") :
-                              (<Accordion className='mt-2'>
-                                <Card>
-                                  <Card.Header>
-                                    <Accordion.Toggle as={Button} variant="link" eventKey="0" style={{ color: "#000233" }}>
-                                      <FaRegFolderOpen /> {checklistCredenciamento.nome}
-                                    </Accordion.Toggle>
-                                  </Card.Header>
-                                  <Accordion.Collapse eventKey="0">
-                                    <Card.Body>
-
-                                    </Card.Body>
-                                  </Accordion.Collapse>
-                                </Card>
-                              </Accordion>) &&
-                                checklistCredenciamento.id_checklist >= 21 && checklistCredenciamento.id_checklist <= 25 ?
-                                ("") : (
-                                  <Accordion className='mt-2'>
-                                    <Card>
-                                      <Card.Header>
-                                        <Accordion.Toggle as={Button} variant="link" eventKey="0" style={{ color: "#000233" }}>
-                                          <FaRegFolderOpen /> {checklistCredenciamento.nome}
-                                        </Accordion.Toggle>
-                                      </Card.Header>
-                                      <Accordion.Collapse eventKey="0">
-                                        <Card.Body>
-                                          {checklistCredenciamento.id_checklist === 1 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">Informa que a unidade possui capacidade financeira suficiente
-                                                  para manutenção do estabelecimento e do(s) curso(s) supracitado(s),
-                                                  bem como capacidade técnico- administrativa para manter arquivos e
-                                                  registros dos documentos escolares regularmente expedidos.</li>
-                                                <li className="list-group-item text-dark">Declaração Redigida e Assinada Pelo Contador</li>
-                                                <li className="list-group-item text-dark">Modelo do documento</li>
-                                              </ul>
-
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>
-                                          ) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 2 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">Assinada por Engenheiro ou arquiteto Habilitado Pelo Crea ou CAU</li>
-                                                <li className="list-group-item text-dark">O Laudo Técnico de Acessibilidade, também conhecido como Laudo para Portadores de Deficiências,
-                                                  visa demonstrar que a empresa gerencia adequadamente o ambiente de trabalho,especificamente
-                                                  com relação às adequações  necessárias para acessibilidade das pessoas portadoras de
-                                                  deficiência e/ou com mobilidade reduzida.</li>
-                                                <li className="list-group-item text-dark">Os profissionais que podem emitir esse documento são os engenheiros ou arquitetos</li>
-                                              </ul>
-
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>
-                                          ) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 3 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">É o desenho de uma construção que específica o posicionamento e
-                                                  tamanho de cada ambiente em uma área.</li>
-                                                <li className="list-group-item text-dark">O profissional responsável arquiteto.</li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>
-                                          ) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 4 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <p>O Contrato Social é a certidão de nascimento da empresa. Nele que irão
-                                                constar todos os dados básicos do negócio, como: quem são os sócios, qual o endereço da sede, quais os deveres de
-                                                cada sócio com o empreendimento e qual o ramo de atuação, entre várias outras coisas!</p>
-
-                                              <h6 className='font-weight-bold'>Os tipos de Contrato Social</h6>
-                                              <p> O contrato social tem variações de formato, dependendo da natureza jurídica da empresa.
-                                                É que cada tipo de empresa tem uma versão do contrato social. Vamos à elas:</p>
-
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark"><b>Contrato Social da Sociedade Limitada – LTDA - </b>
-                                                  Na verdade, contrato social é o nome da certidão de nascimento de uma sociedade limitada.
-                                                  Ele leva em consideração as regras deste regime, podendo ser alterado,
-                                                  se necessário. Isso é importante caso a sua empresa esteja definindo as atividades ainda ou precise de
-                                                  constante atualização do ramo de atuação.
-                                                </li>
-                                                <li className="list-group-item text-dark"><b>Contrato Social do EI – Empresário Individual - </b>
-                                                  O contrato social do Empresário Individual chama-se Requerimento de Empresário, e nada mais é do que um formulário estabelecido pelo Governo Federal, para ser utilizado como um substituto do Contrato Social
-                                                  nas empresas que forem abertas na modalidade de Empresário Individual. O Requerimento tem uma desvantagem, não podendo ser alterado – nada de cláusulas extras e alterações.
-                                                  É um formato mais recomendado para empresas que possuem uma atividade já estabelecida no mercado,
-                                                  sem previsões de mudanças a médio prazo pelo menos.
-                                                </li>
-                                                <li className="list-group-item text-dark"><b>Contrato Social para EIRELI - </b>
-                                                  Já o contrato social para empresas EIRELI chama-se Ato Constitutivo e serve aos mesmos propósitos dos já citados Contrato Social e Requerimento de Empresário.
-                                                  Neste documento será possível incluir cláusulas extras e adequá-lo para o melhor uso da empresa. A sua diferença em
-                                                  relação ao contrato social está nas cláusulas padrões, que são alteradas para se adequar a legislação da EIRELI.
-                                                </li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>
-                                          ) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 5 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">Esse documento pode ser emitido através do site da Receita Federal</li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>
-                                          ) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 6 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">Um contrato de aluguel estabelecimento</li>
-                                                <li className="list-group-item text-dark">Esse documento pode ser emitido através do site da Receita Federal</li>
-                                                <li className="list-group-item text-dark">Esse documento pode ser emitido através do site da Receita Federal</li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>
-                                          ) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 7 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">Breve histórico desde a fundação, informando as modalidades oferecidas e os tipos de cursos. Com fotos e descrição detalhadas das
-                                                  instalações físicas e tecnológicas</li>
-                                                <li className="list-group-item text-dark">Em papel timbrado.</li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 8 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">É um documento que autoriza a empresa exercer as suas atividades em determinados
-                                                  locais de acordo com as normas estabelecidas.</li>
-                                                <li className="list-group-item text-dark">Ele é concedido pela Prefeitura</li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 9 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">
-                                                  O documento emitido pelo Corpo de Bombeiros do seu estado ou município, assegurando que foram cumpridas todas as condições de segurança contra incêndio e pânico, após uma vistoria
-                                                  realizada para garantir a efetivação das normas previstas na legislação.
-                                                </li>
-                                                <li className="list-group-item text-dark">OBS: Caso a sua região não tenha corpo de bombeiro é necessário solicitar na cidade vizinha.</li>
-                                                <li className="list-group-item text-dark">Como é um local de trabalho e está dentro das especificações de uso coletivo essa
-                                                  documentação não é dispensado para MEI, é de caráter obrigatório
-                                                </li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 10 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">Foto da biblioteca física (Não enviar em JPG/ Renomear em PDF)</li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 11 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">
-                                                  Foto das salas de aula, coordenação, banheiros etc..
-                                                </li>
-                                                <li className="list-group-item text-dark">Não enviar em JPG/ Renomear em PDF</li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 12 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">
-                                                  Foto do laboratório de Informática.
-                                                </li>
-                                                <li className="list-group-item text-dark">Não enviar em JPG/ Renomear em PDF</li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 13 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">
-                                                  (Não enviar em JPG/ Renomear em PDF)
-                                                </li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 14 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">
-                                                  Declaração de idoneidade moral, documento que determinada a formalidade e responsabilidade quanto a um histórico de vida idôneo
-                                                </li>
-                                                <li className="list-group-item text-dark">Esse documento pode ser emitido através do site do tribunal de justiça do estado <a target='blank' href='https://www.tjdft.jus.br'>tjdft</a></li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 15 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">
-                                                  Declaração de idoneidade moral, documento que determinada a formalidade e responsabilidade quanto a um histórico de vida idôneo
-                                                </li>
-                                                <li className="list-group-item text-dark">Esse documento pode ser emitido através do site do tribunal de justiça do estado <a href='https://www.tjdft.jus.br'>tjdft</a></li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 26 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">
-                                                  É um documento emitido pela autoridade sanitária do município (Vigilância Sanitária) após
-                                                  vistoria e análise das condições sanitárias dos estabelecimentos município.
-                                                </li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>
-                                          ) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 27 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">
-                                                  Esse documento pode ser emitido através do site da Receita Federal -
-                                                  <a target='blank' href='http://servicos.receita.fazenda.gov.br/Servicos/cnpjreva/cnpjreva_solicitacao.asp'> QSA</a>
-                                                </li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>
-                                          ) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 28 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">
-                                                  Comprovantes de endereço do proprietário
-                                                </li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>
-                                          ) : ("")}
-
-                                          {checklistCredenciamento.id_checklist === 29 ? (
-                                            <div className='container'>
-                                              <h5><FaWpforms /> Instruções</h5>
-                                              <ul className="list-group list-group-flush">
-                                                <li className="list-group-item text-dark">
-                                                  É o documento específico para demonstrar as experiências profissionais para o mercado de trabalho, ou seja,
-                                                  resumo de toda a trajetória profissional da pessoa.
-                                                </li>
-                                                <li className="list-group-item text-dark">Enviar de todos da equipe sócio administrativa</li>
-                                              </ul>
-                                              <div className='d-flex justify-content-center mt-2'>
-                                                <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                              </div>
-                                            </div>) : ("")}
-                                        </Card.Body>
-                                      </Accordion.Collapse>
-                                    </Card>
-                                  </Accordion>)
-                          ))
-                        ) : ("")}
-
-                        <Accordion className='mt-2'>
-                          <Card>
-                            <Card.Header>
-                              <Accordion.Toggle as={Button} variant="link" eventKey="0" style={{ color: "#000233" }}>
-                                <FaRegFolderOpen /> Quadro da Equipe Sócio Administrativa.
-                              </Accordion.Toggle>
-                            </Card.Header>
-                            <Accordion.Collapse eventKey="0">
-                              <Card.Body>
-                                {arrayChecklistCredenciamento.length > 0 ? (
-                                  arrayChecklistCredenciamento.map((checklistCredenciamento, index) => (
-                                    checklistCredenciamento.id_checklist >= 17 && checklistCredenciamento.id_checklist <= 20 ?
-                                      (<Accordion className='mt-2'>
-                                        <Card>
-                                          <Card.Header>
-                                            <Accordion.Toggle as={Button} variant="link" eventKey="0" style={{ color: "#000233" }}>
-                                              <FaRegFolderOpen /> {checklistCredenciamento.nome}
-                                            </Accordion.Toggle>
-                                          </Card.Header>
-                                          <Accordion.Collapse eventKey="0">
-                                            <Card.Body>
-                                              {checklistCredenciamento.id_checklist === 17 ? (
-                                                <div className='container'>
-                                                  <h5><FaWpforms /> Instruções</h5>
-                                                  <ul className="list-group list-group-flush">
-                                                    <li className="list-group-item text-dark">
-                                                      Documentação necessária: Diploma de Pedagogia ou Especialização em Gestão Escolar
-                                                    </li>
-                                                  </ul>
-                                                  <div className='d-flex justify-content-center mt-2'>
-                                                    <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                                  </div>
-                                                </div>) : ("")}
-
-                                              {checklistCredenciamento.id_checklist === 18 ? (
-                                                <div className='container'>
-                                                  <h5><FaWpforms /> Instruções</h5>
-                                                  <ul className="list-group list-group-flush">
-                                                    <li className="list-group-item text-dark">
-                                                      Diploma de Licenciatura em Português ou Matemática
-                                                    </li>
-                                                  </ul>
-                                                  <div className='d-flex justify-content-center mt-2'>
-                                                    <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                                  </div>
-                                                </div>) : ("")}
-
-                                              {checklistCredenciamento.id_checklist === 19 ? (
-                                                <div className='container'>
-                                                  <h5><FaWpforms /> Instruções</h5>
-                                                  <ul className="list-group list-group-flush">
-                                                    <li className="list-group-item text-dark">
-                                                      Diploma de Curso Técnico ou áreas afins
-                                                    </li>
-                                                  </ul>
-                                                  <div className='d-flex justify-content-center mt-2'>
-                                                    <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                                  </div>
-                                                </div>) : ("")}
-
-                                              {checklistCredenciamento.id_checklist === 20 ? (
-                                                <div className='container'>
-                                                  <h5><FaWpforms /> Instruções</h5>
-                                                  <ul className="list-group list-group-flush">
-                                                    <li className="list-group-item text-dark">
-                                                      Diploma de Curso Técnico em Secretariado
-                                                    </li>
-                                                  </ul>
-                                                  <div className='d-flex justify-content-center mt-2'>
-                                                    <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                                  </div>
-                                                </div>) : ("")}
-                                            </Card.Body>
-                                          </Accordion.Collapse>
-                                        </Card>
-                                      </Accordion>) : ("")
-                                  ))
-                                ) : (<tr>
-                                  <td colSpan="12">Nenhum resultado encontrado</td>
-                                </tr>)}
-                              </Card.Body>
-                            </Accordion.Collapse>
-                          </Card>
-                        </Accordion>
-
-                        <Accordion className='mt-2'>
-                          <Card>
-                            <Card.Header>
-                              <Accordion.Toggle as={Button} variant="link" eventKey="0" style={{ color: "#000233" }}>
-                                11- <FaRegFolderOpen /> Certidão
-                              </Accordion.Toggle>
-                            </Card.Header>
-                            <Accordion.Collapse eventKey="0">
-                              <Card.Body>
-                                {arrayChecklistCredenciamento.length > 0 ? (
-                                  arrayChecklistCredenciamento.map((checklistCredenciamento, index) => (
-                                    checklistCredenciamento.id >= 21 && checklistCredenciamento.id <= 25 ?
-                                      (<Accordion className='mt-2'>
-                                        <Card>
-                                          <Card.Header>
-                                            <Accordion.Toggle as={Button} variant="link" eventKey="0" style={{ color: "#000233" }}>
-                                              <FaRegFolderOpen /> {checklistCredenciamento.nome}
-                                            </Accordion.Toggle>
-                                          </Card.Header>
-                                          <Accordion.Collapse eventKey="0">
-                                            <Card.Body>
-                                              {checklistCredenciamento.id === 21 ? (
-                                                <div className='container'>
-                                                  <h5><FaWpforms /> Instruções</h5>
-                                                  <ul className="list-group list-group-flush">
-                                                    <li className="list-group-item text-dark">
-                                                      Para a consulta da CND pessoa física, basta acessar o portal da receita e informar o seu CPF.
-                                                      Caso não haja pendências, será gerada a certidão negativa. Para a consulta da CND à pessoa jurídica, basta acessar o portal da receita e informar o seu CNPJ.
-                                                      Caso não haja pendências, será gerada a certidão negativa
-                                                    </li>
-                                                  </ul>
-                                                  <div className='d-flex justify-content-center mt-2'>
-                                                    <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                                  </div>
-                                                </div>) : ("")}
-                                              {checklistCredenciamento.id_checklist === 22 ? (
-                                                <div className='container'>
-                                                  <h5><FaWpforms /> Instruções</h5>
-                                                  <ul className="list-group list-group-flush">
-                                                    <li className="list-group-item text-dark">
-                                                      Em caso de CND relativa a débitos e tributos vinculados ao estado ou município,
-                                                      o contribuinte deve acessar o site da Secretaria de Fazenda do Estado e o site da Prefeitura.
-                                                      Para emitir a certidão, basta informar o número do CNPJ e em segundos a terá detalhada à disposição
-                                                    </li>
-                                                  </ul>
-                                                  <div className='d-flex justify-content-center mt-2'>
-                                                    <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                                  </div>
-                                                </div>) : ("")}
-
-                                              {checklistCredenciamento.id_checklist === 23 ? (
-                                                <div className='container'>
-                                                  <h5><FaWpforms /> Instruções</h5>
-                                                  <ul className="list-group list-group-flush">
-                                                    <li className="list-group-item text-dark">
-                                                      Em caso de CND relativa a débitos e tributos vinculados ao estado ou município, o contribuinte deve acessar o site da Secretaria de Fazenda do Estado e o site da Prefeitura. Para emitir a certidão, basta informar o número do CNPJ e em segundos a terá detalhada
-                                                    </li>
-                                                  </ul>
-                                                  <div className='d-flex justify-content-center mt-2'>
-                                                    <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                                  </div>
-                                                </div>) : ("")}
-
-                                              {checklistCredenciamento.id_checklist === 24 ? (
-                                                <div className='container'>
-                                                  <h5><FaWpforms /> Instruções</h5>
-                                                  <ul className="list-group list-group-flush">
-                                                    <li className="list-group-item text-dark">
-                                                      Acesse o site Consulta Regularidade do Empregador clicando aqui e preencha com o CNPJ da sua empresa.
-                                                      É só clicar em consultar que irá aparecer as informações da sua empresa e a informação se ela está regular com o FGTS
-                                                    </li>
-                                                  </ul>
-                                                  <div className='d-flex justify-content-center mt-2'>
-                                                    <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                                  </div>
-                                                </div>) : ("")}
-
-                                              {checklistCredenciamento._checklist === 25 ? (
-                                                <div className='container'>
-                                                  <h5><FaWpforms /> Instruções</h5>
-                                                  <ul className="list-group list-group-flush">
-                                                    <li className="list-group-item text-dark">
-                                                      O usuário precisará ir até o site da Previdência Social, descer a barra de rolagem e no canto esquerdo da página
-                                                      clicar no link do Certificado de Regularidade Previdenciária. Depois,
-                                                      ele será encaminhado para uma nova página e deverá informar o nome do ente federativo.
-                                                    </li>
-                                                  </ul>
-                                                  <div className='d-flex justify-content-center mt-2'>
-                                                    <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}> Adicionar anexo</button>
-                                                  </div>
-                                                </div>) : ("")}
-                                            </Card.Body>
-                                          </Accordion.Collapse>
-                                        </Card>
-                                      </Accordion>) : ("")
-                                  ))
-                                ) : (<tr>
-                                  <td colSpan="12">Nenhum resultado encontrado</td>
-                                </tr>)}
-                              </Card.Body>
-                            </Accordion.Collapse>
-                          </Card>
-                        </Accordion> */}
                       </Card.Body>
                     </Accordion.Collapse>
                   </Card>
@@ -1118,7 +572,7 @@ export default class Index extends Component {
                       </Form>
 
                       <hr />
-                      <h4><FaFileAlt/> Anexos</h4>
+                      <h4><FaFileAlt /> Anexos</h4>
                       <hr />
 
                       <div className="table-responsive table-sm text-center">

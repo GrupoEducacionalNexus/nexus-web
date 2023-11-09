@@ -112,6 +112,11 @@ export default class Login extends Component {
                     if (data.permissao === "ALUNOS") {
                         this.props.history.push("/alunos");
                     }
+
+                    if (data.permissao === "GESTOR DE INSTITUICAO") {
+                        this.props.history.push("/processo_credenciamento");
+                    }
+                    
                 }
 
                 if (data.status === 400) {

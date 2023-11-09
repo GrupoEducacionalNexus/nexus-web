@@ -56,7 +56,6 @@ export default class Index extends Component {
 
 	componentDidMount() {
 		const user = this.context
-		console.log(user) // { name: 'Tania', loggedIn: true }
 		this.listaDeUsuarios(getToken());
 		this.listaDeTiposDeChamados(getToken());
 		this.listaPermissoes();
@@ -73,11 +72,11 @@ export default class Index extends Component {
 	handlerShowModalAtualizarUsuario(usuario = null) {
 		this.setModalShowAtualizarUsuario(true);
 		this.setState({
-			id_usuario: usuario.id, permissoes_usuario: usuario.permissoes !== null ?
-				usuario.permissoes.split(",").map(Number) : [], nome: usuario.nome, email: usuario.email,
+			id_usuario: usuario.id, nome: usuario.nome, email: usuario.email,
 			cpf_cnpj: usuario.cpf_cnpj, senha: usuario.senha, confirmarSenha: usuario.senha, id_setor: usuario.id_setor
 		});
 		listaDeSetores(getToken()).then(result => this.setState({ arraySetores: result }));
+		this.listaPermissoesDoUsuario(usuario.id);
 	}
 
 	handlerCloseModalAtualizarUsuario() {
@@ -155,6 +154,29 @@ export default class Index extends Component {
 		}
 	};
 
+	listaPermissoesDoUsuario = async (id_usuario) => {
+		try {
+			const response = await fetch(`${api.baseURL}/usuarios/${id_usuario}/permissoes`, {
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'x-access-token': getToken()
+				}
+			});
+
+			const data = await response.json();
+			console.log(data);
+			if (data.status === 200) {
+				this.setState({ permissoes_usuario: data.resultados });
+			}
+
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+
 	definirPermissao = async (id_usuario, id_permissao) => {
 		try {
 			const response = await fetch(`${api.baseURL}/permissoes/${id_permissao}/usuarios`, {
@@ -162,7 +184,7 @@ export default class Index extends Component {
 				headers: {
 					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'x-access-token': getToken(),
+					'x-access-token': getToken()
 				},
 				body: JSON.stringify({
 					id_usuario
@@ -195,8 +217,9 @@ export default class Index extends Component {
 
 	marcarPermissoes() {
 		if (this.state.permissoes_usuario.length > 0) {
-			this.state.permissoes_usuario.map(valor => {
-				document.getElementById(`checkPermissao_${valor}`).checked = true;
+			this.state.permissoes_usuario.map(permissao => {
+				document.getElementById(`checkPermissao_${permissao.id_permissao}`).checked = true;
+				console.log(permissao);
 			});
 
 		}

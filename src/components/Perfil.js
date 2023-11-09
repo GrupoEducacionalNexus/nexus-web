@@ -82,6 +82,7 @@ export default class Perfil extends Component {
 
   atualizarPerfil = async (e) => {
     e.preventDefault();
+    console.log("Atualizar Perfil");
     this.setState({ sucess: '', error: '' });
     const id_usuario = this.state.id_usuario;
     const nome = this.state.nome;
@@ -98,7 +99,7 @@ export default class Perfil extends Component {
       this.setState({ error: 'Por favor, informe senhas iguais.' });
     } else {
       try {
-        const response = await fetch(`${api.baseURL}/usuarios/${id_usuario}`, {
+        const response = await fetch(`${api.baseURL}/usuarios/${this.context.user.id}`, {
           method: 'PUT',
           headers: {
             Accept: 'application/json',
@@ -145,7 +146,7 @@ export default class Perfil extends Component {
             <h4 className='titulo'>Meu perfil</h4>
           </Modal.Header>
           <Modal.Body>
-            <Form onSubmit={this.atualizarPerfil}>
+            <Form>
               <div className="form-group">
                 <label htmlFor="nome">Nome</label>
                 <input
@@ -227,8 +228,6 @@ export default class Perfil extends Component {
                   {this.state.error}
                 </div>
               )}
-
-              <div className="d-flex justify-content-center"> <button className="button btn-block w-50" type="submit">Atualizar</button></div>
             </Form>
           </Modal.Body>
 
@@ -239,4 +238,4 @@ export default class Perfil extends Component {
 }
 
 
-const Form = styled.form``;
+export const Form = styled.form``;
