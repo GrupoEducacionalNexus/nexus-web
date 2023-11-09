@@ -1,98 +1,109 @@
-import { FaHouseDamage, FaUserEdit } from 'react-icons/fa';
-import React, { Component } from 'react';
-import styled from 'styled-components';
-import api from '../../../../services/api';
-import Logo from '../../../../assets/enber.png';
-import { listaDeEventos } from '../../../../services/getListaDeEventos';
-import { getToken } from '../../../../services/auth';
-import BackgroundEnber from '../../../../assets/background_blue.jpeg';
-import { handleCpf } from '../../../../services/mascaraCpf';
+import { FaHouseDamage, FaUserEdit } from "react-icons/fa";
+import React, { Component } from "react";
+import styled from "styled-components";
+import api from "../../../../services/api";
+import Logo from "../../../../assets/enber.png";
+import { listaDeEventos } from "../../../../services/getListaDeEventos";
+import { getToken } from "../../../../services/auth";
+import BackgroundEnber from "../../../../assets/background_blue.jpeg";
+import { handleCpf } from "../../../../services/mascaraCpf";
+import EstadosCidadesJson from "../../../../services/estados-cidades.json";
 
 export default class Index extends Component {
   constructor(props) {
     super();
     this.state = {
-      success: '',
-      error: '',
+      success: "",
+      error: "",
 
       //Informações do usuário
-      nome: '',
-      email: '',
-      cpf_cnpj: '',
+      nome: "",
+      email: "",
+      cpf_cnpj: "",
       telefone: "",
       vinculo_institucional: "",
-      cep: '',
-      estado: '',
-      cidade: '',
-      bairro: '',
-      logradouro: '',
-      complemento: '',
+      cep: "",
+      estado: "",
+      cidade: "",
+      bairro: "",
+      logradouro: "",
+      complemento: "",
       id_evento: 0,
       array_eventos: [],
       arquivo: null,
-      descricaoDoArquivo: '',
-      url: '',
+      descricaoDoArquivo: "",
+      url: "",
       tipo_membro: 0,
       array_gruposTrabalho: [],
       id_grupo_trabalho: 0,
       array_vinculoInstitucional: [],
-      comoSoube: ""
-    }
+      comoSoube: "",
+      arrayEstados: [],
+      arrayCidades: [],
+      id_estado: 0,
+      instituicao_estado: "",
+    };
   }
 
   componentDidMount() {
-    listaDeEventos(getToken()).then(result => this.setState({ array_eventos: result }));
+    listaDeEventos(getToken()).then((result) =>
+      this.setState({ array_eventos: result })
+    );
     this.listaDeVinculoInstitucional();
+    this.listaDeEstados();
   }
 
   uuid = () => {
-    return Date.now().toString().substring(16, 20) + Math.random().toString().substring(10);
-  }
+    return (
+      Date.now().toString().substring(16, 20) +
+      Math.random().toString().substring(10)
+    );
+  };
 
   cadastrarMembro = async (e) => {
     e.preventDefault();
-    this.setState({ success: '', error: '' });
+    this.setState({ success: "", error: "" });
 
     const nome = this.state.nome;
     const email = this.state.email;
-    const cpf_cnpj = this.state.cpf_cnpj;
+    // const cpf_cnpj = this.state.cpf_cnpj;
     const telefone = this.state.telefone;
-    const vinculo_institucional = this.state.vinculo_institucional;
+    // const vinculo_institucional = this.state.vinculo_institucional;
     const id_permissao = 4;
-    const id_evento = 9;
+    const id_evento = 10;
     const tipo_membro = this.state.tipo_membro;
-    const id_grupo_trabalho = this.state.id_grupo_trabalho;
+    // const id_grupo_trabalho = this.state.id_grupo_trabalho;
     const comoSoube = this.state.comoSoube;
+    const id_estado = this.state.id_estado;
+    const cidade = this.state.cidade;
+    const instituicao_empresa = this.state.instituicao_empresa;
 
-    if (!nome || !email || !telefone || !vinculo_institucional) {
-      this.setState({ error: 'Por favor, preencher todos os campos.' });
+    if (!nome || !email || !telefone || !id_estado || !cidade || !instituicao_empresa) {
+      this.setState({ error: "Por favor, preencher todos os campos." });
     } else {
       try {
         const response = await fetch(`${api.baseURL}/membros`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            Accept: "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             nome,
-            cpf_cnpj,
             telefone,
-            vinculo_institucional,
             email,
             id_permissao,
             id_evento,
-            faco_parte: 0,
             codigo_validacao: this.uuid(),
             tipo_membro,
-            id_grupo_trabalho,
-            comoSoube
-          })
-
+            id_estado,
+            cidade,
+            instituicao_empresa
+          }),
         });
 
         const data = await response.json();
-        console.log(data)
+        console.log(data);
 
         if (data.status === 200) {
           this.setState({ success: data.msg });
@@ -102,7 +113,7 @@ export default class Index extends Component {
           this.setState({ error: data.msg });
         }
       } catch (error) {
-        this.setState({ error: 'Ocorreu um erro' });
+        this.setState({ error: "Ocorreu um erro" });
       }
     }
   };
@@ -142,10 +153,10 @@ export default class Index extends Component {
       const response = await fetch(
         `${api.baseURL}/eventos/${id_evento}/grupos_trabalho`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
+            Accept: "application/json",
+            "Content-Type": "application/json",
           },
         }
       );
@@ -155,7 +166,7 @@ export default class Index extends Component {
       if (data.status === 200) {
         if (data.resultados.length > 0) {
           this.setState({ array_gruposTrabalho: data.resultados });
-          return
+          return;
         }
         this.setState({ array_gruposTrabalho: [] });
       }
@@ -164,19 +175,15 @@ export default class Index extends Component {
     }
   };
 
-
   listaDeVinculoInstitucional = async () => {
     try {
-      const response = await fetch(
-        `${api.baseURL}/vinculo_institucional`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-        }
-      );
+      const response = await fetch(`${api.baseURL}/vinculo_institucional`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
 
       const data = await response.json();
       if (data.status === 200) {
@@ -189,76 +196,155 @@ export default class Index extends Component {
 
   handleTelefone = (e) => {
     let str = e.replace(/[^0-9]/g, "").slice(0, 11);
-    this.setState({ telefone: str.replace(/^([0-9]{2})([0-9]{4,5})([0-9]{4})$/, "($1)$2-$3") });
-  }
+    this.setState({
+      telefone: str.replace(/^([0-9]{2})([0-9]{4,5})([0-9]{4})$/, "($1)$2-$3"),
+    });
+  };
+
+  buscarCidades = (estado) => {
+    const id_estado = estado.split(",")[0];
+    const sigla = estado.split(",")[1];
+    const estadosCidades = EstadosCidadesJson.estados;
+    for (let index = 0; index < estadosCidades.length; index++) {
+      if (estadosCidades[index].sigla === sigla) {
+        this.setState({
+          id_estado,
+          arrayCidades: estadosCidades[index].cidades,
+        });
+      }
+    }
+  };
+
+  listaDeEstados = async () => {
+    try {
+      const response = await fetch(`${api.baseURL}/estados`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.status === 200) {
+        this.setState({ arrayEstados: data.resultados });
+      }
+
+      if (data.status === 400) {
+        this.setState({ error: data.msg });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   render() {
     const array_eventos = this.state.array_eventos;
     const array_gruposTrabalho = this.state.array_gruposTrabalho;
     const array_vinculoInstitucional = this.state.array_vinculoInstitucional;
+    const arrayEstados = this.state.arrayEstados;
+    const arrayCidades = this.state.arrayCidades;
     return (
       <Container>
-
         <Form onSubmit={this.cadastrarMembro}>
-
-          <div className='row'>
-            <div className='col-sm-4'>
-              <div style={{height: "350px", display: "flex", justifyContent: "center", alignItems: 'center', flexDirection: 'column'}}>
-                <img src={Logo} style={{ width: '90px' }} />
-                <h3 id='titulo'> Eventos</h3>
+          <div className="row">
+            <div className="col-sm-4">
+              <div
+                style={{
+                  height: "350px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "column",
+                }}
+              >
+                <img src={Logo} style={{ width: "90px" }} />
+                <h3 id="titulo"> Eventos</h3>
               </div>
-             
             </div>
 
-            <div className='col-sm-8'>
-              <h4 className='text-center mb-4'><FaUserEdit /> INSCRIÇÃO</h4>
-             
+            <div className="col-sm-8">
+              <h4 className="text-center mb-4">
+                <FaUserEdit /> INSCRIÇÃO
+              </h4>
+
+              <div className="form-group">
+                <label htmlFor="nome">NOME:</label>
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  id="nome"
+                  placeholder="INFORME O SEU NOME"
+                  onChange={(e) => this.setState({ nome: e.target.value })}
+                />
+              </div>
+              <div className="row">
+                <div className="col-sm-8">
                   <div className="form-group">
-                    <label htmlFor="nome">NOME:</label>
+                    <label htmlFor="email">EMAIL:</label>
                     <input
-                      type="text"
+                      type="email"
                       className="form-control form-control-sm"
-                      id="nome"
-                      placeholder="INFORME O SEU NOME"
-                      onChange={(e) =>
-                        this.setState({ nome: e.target.value })
-                      }
+                      id="email"
+                      placeholder="INFORME O SEU E-MAIL"
+                      onChange={(e) => this.setState({ email: e.target.value })}
                     />
                   </div>
-                  <div className='row'>
-                    <div className='col-sm-8'>
-                      <div className="form-group">
-                        <label htmlFor="email">EMAIL:</label>
-                        <input
-                          type="email"
-                          className="form-control form-control-sm"
-                          id="email"
-                          placeholder="INFORME O SEU E-MAIL"
-                          onChange={(e) =>
-                            this.setState({ email: e.target.value })
-                          }
-                        />
-                    </div>
-                    </div>
+                </div>
 
-                    <div className='col-sm-4'>
-                      <div class="form-group">
-                        <label htmlFor="telefone">TELEFONE:</label>
-                        <input
-                          className="form-control form-control-sm"
-                          type="text"
-                          placeholder="TELEFONE"
-                          name="telefone"
-                          id='telefone'
-                          onChange={(e) => this.handleTelefone(e.target.value)}
-                          value={this.state.telefone}
-                      />
-                    </div>
-                    </div>
+                <div className="col-sm-4">
+                  <div class="form-group">
+                    <label htmlFor="telefone">TELEFONE:</label>
+                    <input
+                      className="form-control form-control-sm"
+                      type="text"
+                      placeholder="TELEFONE"
+                      name="telefone"
+                      id="telefone"
+                      onChange={(e) => this.handleTelefone(e.target.value)}
+                      value={this.state.telefone}
+                    />
                   </div>
-                  
+                </div>
+              </div>
+              <div class="form-group">
+                <label htmlFor="selectEstado">Estado:</label>
+                <select
+                  className="form-control form-control-sm"
+                  id="selectEstado"
+                  onChange={(e) => this.buscarCidades(e.target.value)}
+                >
+                  <option value={0}>Selecione um estado</option>
+                  {arrayEstados.length > 0 ? (
+                    arrayEstados.map((item) => (
+                      <option value={[item.id, item.sigla]}>{item.nome}</option>
+                    ))
+                  ) : (
+                    <option value="">Nenhum resultado foi encontrado</option>
+                  )}
+                </select>
+              </div>
 
-                  {/* <div class="form-group">
+              <div class="form-group">
+                <label htmlFor="selectEstado">Cidade:</label>
+                <select
+                  className="form-control form-control-sm"
+                  id="selectEstado"
+                  onChange={(e) => this.setState({ cidade: e.target.value })}
+                >
+                  <option value={0}>Selecione um estado</option>
+                  {arrayCidades.length > 0 ? (
+                    arrayCidades.map((item) => (
+                      <option value={[item]}>{item}</option>
+                    ))
+                  ) : (
+                    <option value="">Nenhum resultado foi encontrado</option>
+                  )}
+                </select>
+              </div>
+
+              {/* <div class="form-group">
                     <label htmlFor="cpf">CPF:</label>
                     <input
                       className="form-control form-control-sm"
@@ -271,22 +357,20 @@ export default class Index extends Component {
                     />
                   </div> */}
 
-                 
-               
-                  <div class="form-group">
-                    <label htmlFor="vinculo_institucional">VINCULO INSTITUCIONAL:</label>
-                    <select class="form-control form-control-sm" id="vinculo_institucional"
-                      onChange={e => this.setState({ vinculo_institucional: e.target.value })}>
-                      <option value={0}>{"Selecione uma opção".toLocaleUpperCase()}</option>
-                      {array_vinculoInstitucional.length > 0 ?
-                        array_vinculoInstitucional.map(vinculo_institucional => (
-                          <option value={vinculo_institucional.id}>{vinculo_institucional.nome}</option>
-                        ))
-                        : (<option>0</option>)}
-                    </select>
-                  </div>
+              <div className="form-group">
+                <label htmlFor="nome">INSTITUIÇÃO OU EMPRESA:</label>
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  id="instituicao_empresa"
+                  placeholder="INFORME A SUA INSTITUIÇÃO OU EMPRESA"
+                  onChange={(e) =>
+                    this.setState({ instituicao_empresa: e.target.value })
+                  }
+                />
+              </div>
 
-                  {/* <div class="form-group">
+              {/* <div class="form-group">
                     <label htmlFor="selectEvento">EVENTO:</label>
                     <select class="form-control form-control-sm" id="selectEvento"
                       onChange={(e) => this.listaDeGruposDeTrabalho(e.target.value)}>
@@ -328,7 +412,6 @@ export default class Index extends Component {
                     <textarea class="form-control" rows="2" id="comment"
                       onChange={e => this.setState({ comoSoube: e.target.value })}></textarea>
                         </div>*/}
-              
 
               <div className="row">
                 <div className="col-sm-12">
@@ -351,17 +434,15 @@ export default class Index extends Component {
                 </div>
               </div>
 
-             
-                <div className="d-flex justify-content-center">
-                  <button className="button" type="submit">
-                    Cadastrar
-                  </button>
-                </div>
-              
+              <div className="d-flex justify-content-center">
+                <button className="button" type="submit">
+                  Cadastrar
+                </button>
+              </div>
             </div>
           </div>
         </Form>
-      </Container >
+      </Container>
     );
   }
 }
