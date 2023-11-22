@@ -96,7 +96,7 @@ export default class Index extends Component {
                         telefone,
                         observacao,
                         metodologia: "Turma de certificação",
-                        curso: '105 - (1° ao 3°)'
+                        curso: 'CBIE 105 - (1° AO 3°)'
                     })
                 });
 

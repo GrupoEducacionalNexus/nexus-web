@@ -68,7 +68,7 @@ export default class Index extends Component {
     const email = this.state.email;
     // const cpf_cnpj = this.state.cpf_cnpj;
     const telefone = this.state.telefone;
-    // const vinculo_institucional = this.state.vinculo_institucional;
+    const vinculo_institucional = this.state.vinculo_institucional;
     const id_permissao = 4;
     const id_evento = 10;
     const tipo_membro = this.state.tipo_membro;
@@ -98,7 +98,10 @@ export default class Index extends Component {
             tipo_membro,
             id_estado,
             cidade,
-            instituicao_empresa
+            instituicao_empresa,
+            vinculo_institucional,
+            comoSoube,
+            cpf_cnpj: 0,
           }),
         });
 
@@ -280,7 +283,7 @@ export default class Index extends Component {
                 />
               </div>
               <div className="row">
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="form-group">
                     <label htmlFor="email">EMAIL:</label>
                     <input
@@ -293,7 +296,7 @@ export default class Index extends Component {
                   </div>
                 </div>
 
-                <div className="col-sm-4">
+                <div className="col-sm-5">
                   <div class="form-group">
                     <label htmlFor="telefone">TELEFONE:</label>
                     <input
@@ -333,7 +336,7 @@ export default class Index extends Component {
                   id="selectEstado"
                   onChange={(e) => this.setState({ cidade: e.target.value })}
                 >
-                  <option value={0}>Selecione um estado</option>
+                  <option value={0}>Selecione uma cidade</option>
                   {arrayCidades.length > 0 ? (
                     arrayCidades.map((item) => (
                       <option value={[item]}>{item}</option>
@@ -472,7 +475,7 @@ const Container = styled.div`
 }`;
 
 const Form = styled.form`
-  max-width: 900px;
+  max-width: 920px;
   background: rgba(255, 255, 255, 0.06);
   padding: 30px;
   margin-top: 15px;

@@ -25,7 +25,6 @@ import { uuid } from '../../services/uuid';
 import { CertificadoPosGraduacao } from '../../components/CertificadoPosGraduacao';
 import Menu from '../../components/Menu';
 import backgroundImage from '../../assets/sistema_chamados.png';
-import Perfil from '../../components/Perfil';
 import MainContent from '../../components/MainContent';
 import FloatingMenu from '../../components/FloatingMenu';
 import AdminNavbar from '../../components/Navbar';
@@ -3388,7 +3387,9 @@ export default class Index extends Component {
 														<th>Nome Completo</th>
 														<th>E-mail</th>
 														<th>Telefone</th>
-														<th>Vinculo Institucional</th>
+														<th>Empresa ou Instituição</th>
+														<th>Estado</th>
+														<th>Cidade</th>
 														<th>Data e hora da inscrição</th>
 														{/* <th>Certificado</th> */}
 													</tr>
@@ -3400,7 +3401,9 @@ export default class Index extends Component {
 																<td>{membro.nome_completo}</td>
 																<td>{membro.email}</td>
 																<td>{membro.telefone}</td>
-																<td>{membro.vinculo_institucional}</td>
+																<td>{membro.instituicao_empresa}</td>
+																<td>{membro.estado}</td>
+																<td>{membro.cidade}</td>
 																<td>{membro.dataHoraCriacao}</td>
 																
 																{/* <td><button className='button' onClick={() => this.handlerShowModalEditarCertificado(membro)}>Certificado</button></td> */}
