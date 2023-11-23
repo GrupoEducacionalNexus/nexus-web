@@ -72,13 +72,24 @@ export default class Index extends Component {
     const id_permissao = 4;
     const id_evento = 10;
     const tipo_membro = this.state.tipo_membro;
-    // const id_grupo_trabalho = this.state.id_grupo_trabalho;
+    const id_grupo_trabalho = this.state.id_grupo_trabalho;
     const comoSoube = this.state.comoSoube;
     const id_estado = this.state.id_estado;
     const cidade = this.state.cidade;
     const instituicao_empresa = this.state.instituicao_empresa;
+    const grau_escolaridade = this.state.grau_escolaridade;
+    const participacao = this.state.participacao;
 
-    if (!nome || !email || !telefone || !id_estado || !cidade || !instituicao_empresa) {
+    if (
+      !nome ||
+      !email ||
+      !telefone ||
+      !id_estado ||
+      !cidade ||
+      !grau_escolaridade ||
+      !id_grupo_trabalho ||
+      !participacao
+    ) {
       this.setState({ error: "Por favor, preencher todos os campos." });
     } else {
       try {
@@ -100,6 +111,9 @@ export default class Index extends Component {
             cidade,
             instituicao_empresa,
             vinculo_institucional,
+            grau_escolaridade,
+            id_grupo_trabalho,
+            participacao,
             comoSoube,
             cpf_cnpj: 0,
           }),
@@ -360,17 +374,51 @@ export default class Index extends Component {
                     />
                   </div> */}
 
-              <div className="form-group">
-                <label htmlFor="nome">INSTITUIÇÃO OU EMPRESA:</label>
-                <input
-                  type="text"
+              <div class="form-group">
+                <label htmlFor="selectEstado">Grau de Escolaridade:</label>
+                <select
                   className="form-control form-control-sm"
-                  id="instituicao_empresa"
-                  placeholder="INFORME A SUA INSTITUIÇÃO OU EMPRESA"
+                  id="grau_escolaridade"
                   onChange={(e) =>
-                    this.setState({ instituicao_empresa: e.target.value })
+                    this.setState({ grau_escolaridade: e.target.value })
                   }
-                />
+                >
+                  <option value={0}>Selecione seu grau de escolaridade</option>
+                  <option value={1}>Médio Incompleto</option>
+                  <option value={2}>Médio Completo</option>
+                  <option value={3}>Superior</option>
+                  <option value={4}>Mestrado</option>
+                  <option value={5}>Doutorado</option>
+                </select>
+              </div>
+
+              {array_gruposTrabalho.length > 0 ? (<div class="form-group">
+                    <label htmlFor="selectGrupoDeTrabalho">GRUPO :</label>
+                    <select class="form-control form-control-sm" id="selectGrupoDeTrabalho"
+                      onChange={e => this.setState({ id_grupo_trabalho: parseInt(e.target.value) })}>
+                      <option value={0}>{"Selecione uma opção".toLocaleUpperCase()}</option>
+                      {array_gruposTrabalho.length > 0 ?
+                        array_gruposTrabalho.map(grupo => (
+                          <option value={grupo.id}>{grupo.nome}</option>
+                        ))
+                        : (<option>0</option>)}
+                    </select>
+                  </div>
+                  ) : ("")}
+
+              <div class="form-group">
+                <label htmlFor="selectEstado">Participação:</label>
+                <select
+                  className="form-control form-control-sm"
+                  id="participacao"
+                  onChange={(e) =>
+                    this.setState({ participacao: e.target.value })
+                  }
+                >
+                  <option value={0}>Selecione sua participação</option>
+                  <option value={1}>Ouvinte</option>
+                  <option value={2}>Irei submeter artigos</option>
+                </select>
               </div>
 
               {/* <div class="form-group">
@@ -386,19 +434,7 @@ export default class Index extends Component {
                     </select>
                   </div>
 
-                  {array_gruposTrabalho.length > 0 ? (<div class="form-group">
-                    <label htmlFor="selectGrupoDeTrabalho">GRUPO :</label>
-                    <select class="form-control form-control-sm" id="selectGrupoDeTrabalho"
-                      onChange={e => this.setState({ id_grupo_trabalho: parseInt(e.target.value) })}>
-                      <option value={0}>{"Selecione uma opção".toLocaleUpperCase()}</option>
-                      {array_gruposTrabalho.length > 0 ?
-                        array_gruposTrabalho.map(grupo => (
-                          <option value={grupo.id}>{grupo.nome}</option>
-                        ))
-                        : (<option>0</option>)}
-                    </select>
-                  </div>
-                  ) : ("")}
+                  
 
                   <div class="form-group">
                     <label htmlFor="selectEvento">TIPO DE MEMBRO:</label>
