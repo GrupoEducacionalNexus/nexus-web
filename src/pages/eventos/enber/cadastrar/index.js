@@ -34,7 +34,7 @@ export default class Index extends Component {
       descricaoDoArquivo: "",
       url: "",
       tipo_membro: 0,
-      array_gruposTrabalho: [],
+      arrayGruposTrabalho: [],
       id_grupo_trabalho: 0,
       array_vinculoInstitucional: [],
       comoSoube: "",
@@ -51,6 +51,7 @@ export default class Index extends Component {
     );
     this.listaDeVinculoInstitucional();
     this.listaDeEstados();
+    this.listaDeGruposDeTrabalho(10);
   }
 
   uuid = () => {
@@ -182,10 +183,10 @@ export default class Index extends Component {
       console.log(data);
       if (data.status === 200) {
         if (data.resultados.length > 0) {
-          this.setState({ array_gruposTrabalho: data.resultados });
+          this.setState({ arrayGruposTrabalho: data.resultados });
           return;
         }
-        this.setState({ array_gruposTrabalho: [] });
+        this.setState({ arrayGruposTrabalho: [] });
       }
     } catch (error) {
       console.log(error);
@@ -258,7 +259,7 @@ export default class Index extends Component {
 
   render() {
     const array_eventos = this.state.array_eventos;
-    const array_gruposTrabalho = this.state.array_gruposTrabalho;
+    const arrayGruposTrabalho = this.state.arrayGruposTrabalho;
     const array_vinculoInstitucional = this.state.array_vinculoInstitucional;
     const arrayEstados = this.state.arrayEstados;
     const arrayCidades = this.state.arrayCidades;
@@ -392,13 +393,13 @@ export default class Index extends Component {
                 </select>
               </div>
 
-              {array_gruposTrabalho.length > 0 ? (<div class="form-group">
-                    <label htmlFor="selectGrupoDeTrabalho">GRUPO :</label>
+              {arrayGruposTrabalho.length > 0 ? (<div class="form-group">
+                    <label htmlFor="selectGrupoDeTrabalho">Grupo:</label>
                     <select class="form-control form-control-sm" id="selectGrupoDeTrabalho"
                       onChange={e => this.setState({ id_grupo_trabalho: parseInt(e.target.value) })}>
                       <option value={0}>{"Selecione uma opção".toLocaleUpperCase()}</option>
-                      {array_gruposTrabalho.length > 0 ?
-                        array_gruposTrabalho.map(grupo => (
+                      {arrayGruposTrabalho.length > 0 ?
+                        arrayGruposTrabalho.map(grupo => (
                           <option value={grupo.id}>{grupo.nome}</option>
                         ))
                         : (<option>0</option>)}
