@@ -11,8 +11,8 @@ export const AtaDefesa = (props) => {
   return (
     <Container>
       <img style={{ width: '100%' }} src={HEADER_ATA} />
-      <p className='font-weight-bold p-5 text-justify'>
-        ATA DA DEFESA PÚBLICA 
+      <p className='font-weight-bold p-4 text-justify'>
+        ATA DA DEFESA PÚBLICA
         {props.id_curso === 1 ? ` DA DISSERTAÇÃO` : ``}
         {props.id_curso === 2 ? ` DE TESE` : ``}
         {props.id_curso === 3 ? ` DA DISSERTAÇÃO` : ``}
@@ -23,7 +23,7 @@ export const AtaDefesa = (props) => {
         {props.id_curso === 4 ? ` Programa de Doutorado em TEOLOGIA`.toUpperCase() : ``}, DA IVY ENBER CHRISTIAN UNIVERSITY.
       </p>
 
-      <p className='text-justify p-5'>
+      <p className='text-justify p-4'>
         {props.data_horaPrevista}, no(a) Sala de bancas examinadoras e
         sincronicamente via ferramentas de comunicação a distância, realizou-se a defesa
         {props.id_curso === 1 ? ` DA DISSERTAÇÃO ` : ``}
@@ -34,7 +34,7 @@ export const AtaDefesa = (props) => {
         pelos seguintes membros: {" "}
 
         {props.arrayMembrosDaAtaDeDefesa.map((item, index) => index === props.arrayMembrosDaAtaDeDefesa.length - 2 ? item.nome + " e " : index === props.arrayMembrosDaAtaDeDefesa.length - 1 ? item.nome : item.nome + ", ")}.
-        Após a exposição pelo(a) 
+        Após a exposição pelo(a)
         {props.id_curso === 1 ? ` mestrando(a) ` : ``}
         {props.id_curso === 2 ? ` doutorando(a) ` : ``}
         {props.id_curso === 3 ? ` mestrando(a) ` : ``}
@@ -43,7 +43,21 @@ export const AtaDefesa = (props) => {
         foi assinada pelo(a) Presidente(a) da Comissão Examinadora.
       </p>
 
-      <div className="row" style={{ marginTop: "200px" }}>
+      {props.arrayMembrosDaAtaDeDefesa.map(item => (
+        <div class="row d-flex justify-content-center mt-2 mb-2">
+          <div class="col-lg-6 col-lg-offset-6 text-center">
+            <div className="ml-auto">
+              <img style={{ display: "block", margin: "0 auto" }} src={item.assinatura} />
+              <hr className='hr' />
+              <p>{item.nome}<br />{item.tipo}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+
+
+
+      <div className="row" style={{ marginTop: "100px" }}>
         <div className="col-sm-6 p-5">
           <p style={{ fontSize: "8pt" }}>Register at the Secretoy of State of Florida - USA P19000042160 - EIN# 38-4120047
             Section 1005.06 (1)(f). Florida Comission for independent Education</p>

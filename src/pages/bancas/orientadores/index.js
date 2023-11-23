@@ -181,6 +181,7 @@ export default class Index extends Component {
 			dtFolhaAprovacaoFormatada: "",
 			arraySelectedMembrosExternos: [],
 			arraySelectedMembrosInternos: [],
+			arraySelectedMembrosDaBanca: [],
 
 			idDeclaracaoDeOrientacao: 0,
 			dataDeOrientacao: '',
@@ -216,9 +217,9 @@ export default class Index extends Component {
 			let arrayMembrosInternos = [];
 			if (result.length > 0) {
 				result.map((item, index) => {
-					console.log(item.id);
+					console.log(item.id_usuario);
 					if (item.id_usuario !== this.context.user.id) {
-						arrayMembrosInternos.push({ value: item.id, label: item.nome });
+						arrayMembrosInternos.push({ value: item.id_usuario, label: item.nome });
 					}
 
 				});
@@ -230,7 +231,7 @@ export default class Index extends Component {
 			let arrayMembrosExternos = [];
 			if (result.length > 0) {
 				result.map((item, index) => {
-					arrayMembrosExternos.push({ value: item.id, label: item.nome });
+					arrayMembrosExternos.push({ value: item.id_usuario, label: item.nome });
 				});
 				this.setState({ arrayMembrosExternos });
 			}
@@ -1320,8 +1321,6 @@ export default class Index extends Component {
 
 			const codigo_validacao = this.uuid();
 
-			console.log(id_usuario, codigo_validacao);
-
 			const response = await fetch(`${api.baseURL}/declaracao_participacao`, {
 				method: 'POST',
 				headers: {
@@ -1384,37 +1383,40 @@ export default class Index extends Component {
 			const data = await response.json();
 
 			if (data.status === 200) {
-				const arrayMembrosDaDeclaracaoDeParticipacao = [{ id: data.resultados[0].id_orientador, nome: data.resultados[0].orientador + " - presidente", assinatura: data.resultados[0].assinatura_orientador }];
-				const arrayMembrosDaAtaDeDefesa = [{ id: data.resultados[0].id_orientador, nome: data.resultados[0].orientador + " (Orientador(a) - Participação presencial)" }]
+				console.log(data.resultados);
+				this.setState({arrayMembrosDaDeclaracaoDeParticipacao: data.resultados, arrayMembrosDaAtaDeDefesa: data.resultados});
 
-				const id_membros_internos = data.resultados[0].id_usuarios_internos.split(",");
-				const id_membros_externos = data.resultados[0].id_usuarios_externos.split(",");
-				const ass_membros_internos = data.resultados[0].assinaturas_membros_internos.split(",");
+				// const arrayMembrosDaDeclaracaoDeParticipacao = [{ id: data.resultados[0].id_orientador, nome: data.resultados[0].orientador + " - presidente", assinatura: data.resultados[0].assinatura_orientador }];
+				// const arrayMembrosDaAtaDeDefesa = [{ id: data.resultados[0].id_orientador, nome: data.resultados[0].orientador + " (Orientador(a) - Participação presencial)" }]
 
-				const membros_internos = data.resultados[0].membros_internos.split(",");
-				const membros_externos = data.resultados[0].membros_externos.split(",");
-				const ass_membros_externos = data.resultados[0].assinaturas_membros_externos.split(",");
+				// const id_membros_internos = data.resultados[0].id_usuarios_internos.split(",");
+				// const id_membros_externos = data.resultados[0].id_usuarios_externos.split(",");
+				// const ass_membros_internos = data.resultados[0].assinaturas_membros_internos.split(",");
 
-				for (let index = 0; index < id_membros_internos.length; index++) {
-					arrayMembrosDaDeclaracaoDeParticipacao.push(
-						{ id: id_membros_internos[index], nome: membros_internos[index] + " - membro interno", assinatura: ass_membros_internos[index] }
-					)
+				// const membros_internos = data.resultados[0].membros_internos.split(",");
+				// const membros_externos = data.resultados[0].membros_externos.split(",");
+				// const ass_membros_externos = data.resultados[0].assinaturas_membros_externos.split(",");
 
-					arrayMembrosDaAtaDeDefesa.push(
-						{ id: id_membros_internos[index], nome: membros_internos[index] + " (Participação Presencial)" }
-					)
-				}
+				// for (let index = 0; index < id_membros_internos.length; index++) {
+				// 	arrayMembrosDaDeclaracaoDeParticipacao.push(
+				// 		{ id: id_membros_internos[index], nome: membros_internos[index] + " - membro interno", assinatura: ass_membros_internos[index] }
+				// 	)
 
-				for (let index = 0; index < id_membros_externos.length; index++) {
-					arrayMembrosDaDeclaracaoDeParticipacao.push(
-						{ id: id_membros_externos[index], nome: membros_externos[index] + " - membro externo", assinatura: ass_membros_externos[index] }
-					)
+				// 	arrayMembrosDaAtaDeDefesa.push(
+				// 		{ id: id_membros_internos[index], nome: membros_internos[index] + " (Participação Presencial)" }
+				// 	)
+				// }
 
-					arrayMembrosDaAtaDeDefesa.push(
-						{ id: id_membros_externos[index], nome: membros_externos[index] + " (Participação Virtual)" }
-					)
-				}
-				this.setState({ arrayMembrosDaDeclaracaoDeParticipacao, arrayMembrosDaAtaDeDefesa });
+				// for (let index = 0; index < id_membros_externos.length; index++) {
+				// 	arrayMembrosDaDeclaracaoDeParticipacao.push(
+				// 		{ id: id_membros_externos[index], nome: membros_externos[index] + " - membro externo", assinatura: ass_membros_externos[index] }
+				// 	)
+
+				// 	arrayMembrosDaAtaDeDefesa.push(
+				// 		{ id: id_membros_externos[index], nome: membros_externos[index] + " (Participação Virtual)" }
+				// 	)
+				// }
+				// this.setState({ arrayMembrosDaDeclaracaoDeParticipacao, arrayMembrosDaAtaDeDefesa });
 			}
 		} catch (error) {
 			return error;
@@ -4058,7 +4060,7 @@ export default class Index extends Component {
 												<option value="0">Selecione</option>
 												{arrayMembrosDaDeclaracaoDeParticipacao.length > 0 ?
 													arrayMembrosDaDeclaracaoDeParticipacao.map(membro => (
-														<option value={membro.id}>{membro.nome}</option>
+														<option value={membro.id}>{membro.nome + ` - ` + membro.tipo}</option>
 													))
 													: (<option>0</option>)
 												}
