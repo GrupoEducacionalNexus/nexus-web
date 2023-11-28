@@ -40,6 +40,7 @@ export default class Index extends Component {
 
 		this.state = {
 			modalShowCadastrarBanca: false,
+			modalShowAtualizarBanca: false,
 			modalShowExcluirBanca: false,
 			modalShowFinalizarBanca: false,
 			modalShowEmitirAta: false,
@@ -205,7 +206,6 @@ export default class Index extends Component {
 	}
 
 	handlerShowModalCadastrarBanca() {
-		console.log(this.context.user.id)
 		this.setModalShowCadastrarBanca(true);
 		this.listaDeTiposDeBanca(getToken());
 		listaDeAreasConcentracao().then(result => this.setState({ arrayAreaConcentracao: result }));
@@ -213,7 +213,6 @@ export default class Index extends Component {
 			.then(result => this.setState({ arrayLinhasDePesquisas: result }));
 
 		listaDeOrientadores(0).then(result => {
-			console.log(result);
 			let arrayMembrosInternos = [];
 			if (result.length > 0) {
 				result.map((item, index) => {
@@ -235,13 +234,69 @@ export default class Index extends Component {
 				});
 				this.setState({ arrayMembrosExternos });
 			}
-
 		});
 	}
 
 	handlerCloseModalCadastrarBanca() {
 		this.setModalShowCadastrarBanca(false);
 		this.setState({ success: '', error: '', id_orientando: '', id_tipoBanca: '', data_horaPrevista: '' });
+	};
+
+
+	setModalShowAtualizarBanca(valor) {
+		this.setState({ modalShowAtualizarBanca: valor });
+	}
+
+	handlerShowModalAtualizarBanca(banca) {
+		this.setModalShowAtualizarBanca(true);
+		console.log(banca);
+
+		this.setState({
+			id_banca: banca.id,
+			id_orientador: banca.id_orientador,
+			id_orientando: banca.id_orientando,
+			id_tipoBanca: banca.id_tipoBanca,
+			idAreaConcentracao: banca.id_areaConcentracao,
+			idLinhaPesquisa: banca.id_linhaPesquisa,
+			data_horaPrevista: banca.dataHoraPrevista,
+			titulo: banca.titulo,
+			title: banca.title,
+			resumo: banca.resumo,
+			palavra_chave: banca.palavra_chave
+		});
+
+		this.listaDeMembrosDaBanca(banca.id);
+		this.listaDeTiposDeBanca(getToken());
+		listaDeAreasConcentracao().then(result => this.setState({ arrayAreaConcentracao: result }));
+		listaDeLinhasDePesquisas(this.state.idAreaConcentracao).then(result => this.setState({ arrayLinhasDePesquisas: result }));
+
+		listaDeOrientadores(0).then(result => {
+			console.log(result);
+			let arrayMembrosInternos = [];
+			if (result.length > 0) {
+				result.map((item, index) => {
+					if (item.id_usuario !== this.context.user.id) {
+						arrayMembrosInternos.push({ value: item.id_usuario, label: item.nome });
+					}
+				});
+				this.setState({ arrayMembrosInternos });
+			}
+		});
+
+		listaDeMembrosExternos().then(result => {
+			let arrayMembrosExternos = [];
+			if (result.length > 0) {
+				result.map((item, index) => {
+					arrayMembrosExternos.push({ value: item.id_usuario, label: item.nome });
+				});
+				this.setState({ arrayMembrosExternos });
+			}
+		});
+	}
+
+	handlerCloseModalAtualizarBanca() {
+		this.setModalShowAtualizarBanca(false);
+		this.setState({ success: '', error: '', id_orientando: '', id_tipoBanca: '', data_horaPrevista: '', arraySelectedMembrosInternos: [], arraySelectedMembrosExternos: [] });
 	};
 
 	setModalShowExcluirBanca(valor) {
@@ -368,12 +423,6 @@ export default class Index extends Component {
 	handlerShowModalEmitirDeclaracao(banca) {
 		this.setModalShowEmitirDeclaracao(true);
 		this.listaDeMembrosDaBanca(banca.id);
-		// array_membrosBanca: [
-		// 	{ id: banca.id_orientador, nome: `${banca.orientador} - presidente`, tipo: 1 },
-		// 	{ id: banca.id_membroInterno, nome: `${banca.membro_interno} - membro interno`, tipo: 2 },
-		// 	{ id: banca.id_membroExterno, nome: `${banca.membro_externo} - membro externo`, tipo: 3 }
-		// ]
-
 		this.setState({
 			id_banca: banca.id,
 			id_orientador: banca.id_orientador
@@ -670,7 +719,7 @@ export default class Index extends Component {
 	}
 
 	handlerShowModalEditarFichaDeAvaliacao(banca) {
-		console.log(banca)
+		console.log(banca);
 		this.setModalShowEditarFichaDeAvaliacao(true);
 		this.listaDeCursos(getToken());
 		listaDeAreasConcentracao().then(result => this.setState({ arrayAreaConcentracao: result }));
@@ -875,46 +924,45 @@ export default class Index extends Component {
 				this.listaDeBancas(getToken(), 2);
 				this.handlerCloseModalExcluirBanca();
 			}
-
 			//console.log(data);
 		} catch (error) {
 			//console.log(error);
 		}
 	}
 
-	atualizarBanca = async (e) => {
-		e.preventDefault();
-		this.setState({ success: '', error: '' });
+	// atualizarBanca = async (e) => {
+	// 	e.preventDefault();
+	// 	this.setState({ success: '', error: '' });
 
-		const { id_banca, id_tipoBanca, id_orientando } = this.state;
+	// 	const { id_banca, id_tipoBanca, id_orientando } = this.state;
 
-		try {
-			const response = await fetch(
-				`${api.baseURL}/bancas/${this.state.id_banca}`,
-				{
-					method: 'PUT',
-					headers: {
-						Accept: 'application/json',
-						'Content-Type': 'application/json',
-						'x-access-token': getToken(),
-					},
-					body: JSON.stringify({ id_tipoBanca, id_orientando }),
-				}
-			);
+	// 	try {
+	// 		const response = await fetch(
+	// 			`${api.baseURL}/bancas/${this.state.id_banca}`,
+	// 			{
+	// 				method: 'PUT',
+	// 				headers: {
+	// 					Accept: 'application/json',
+	// 					'Content-Type': 'application/json',
+	// 					'x-access-token': getToken(),
+	// 				},
+	// 				body: JSON.stringify({ id_tipoBanca, id_orientando }),
+	// 			}
+	// 		);
 
-			const data = await response.json();
-			if (data.status === 200) {
-				this.setState({ success: data.msg });
-				this.listaDeBancas(getToken(), 1);
-				this.listaDeBancas(getToken(), 2);
-				this.handlerCloseModalFinalizarBanca();
-			}
+	// 		const data = await response.json();
+	// 		if (data.status === 200) {
+	// 			this.setState({ success: data.msg });
+	// 			this.listaDeBancas(getToken(), 1);
+	// 			this.listaDeBancas(getToken(), 2);
+	// 			this.handlerCloseModalFinalizarBanca();
+	// 		}
 
-			//console.log(data);
-		} catch (error) {
-			//console.log(error);
-		}
-	}
+	// 		//console.log(data);
+	// 	} catch (error) {
+	// 		//console.log(error);
+	// 	}
+	// }
 
 	cadastrarOrientando = async (e) => {
 		e.preventDefault();
@@ -1072,6 +1120,58 @@ export default class Index extends Component {
 					id_orientando,
 					id_tipoBanca,
 					id_linhaPesquisa,
+					arraySelectedMembrosInternos,
+					arraySelectedMembrosExternos,
+					data_horaPrevista,
+					titulo,
+					title,
+					resumo,
+					palavra_chave
+				})
+			});
+
+			const data = await response.json();
+
+			if (data.status === 200) {
+				this.setState({ success: data.msg, error: "" });
+				this.listaDeBancas(getToken(), 1);
+				this.listaDeBancas(getToken(), 2);
+			}
+
+			if (data.status === 400) {
+				this.setState({ error: data.msg });
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
+	atualizarBanca = async (e) => {
+		e.preventDefault();
+
+		try {
+			const { id_banca, id_orientador, id_orientando, id_tipoBanca, data_horaPrevista, idLinhaPesquisa,
+				arraySelectedMembrosInternos, arraySelectedMembrosExternos,
+				titulo, title, resumo, palavra_chave } = this.state;
+
+			if (!id_orientando || !id_tipoBanca || !idLinhaPesquisa || !data_horaPrevista
+				|| arraySelectedMembrosInternos.length === 0 || arraySelectedMembrosExternos.length === 0) {
+				this.setState({ error: 'Por favor, preencher todos os campos!' });
+				return;
+			}
+
+			const response = await fetch(`${api.baseURL}/bancas/${id_banca}`, {
+				method: 'PUT',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'x-access-token': getToken()
+				},
+				body: JSON.stringify({
+					id_orientador,
+					id_orientando,
+					id_tipoBanca,
+					idLinhaPesquisa,
 					arraySelectedMembrosInternos,
 					arraySelectedMembrosExternos,
 					data_horaPrevista,
@@ -1383,40 +1483,18 @@ export default class Index extends Component {
 			const data = await response.json();
 
 			if (data.status === 200) {
-				console.log(data.resultados);
-				this.setState({arrayMembrosDaDeclaracaoDeParticipacao: data.resultados, arrayMembrosDaAtaDeDefesa: data.resultados});
+				this.setState({ arrayMembrosDaDeclaracaoDeParticipacao: data.resultados, arrayMembrosDaAtaDeDefesa: data.resultados });
+				const { arraySelectedMembrosInternos, arraySelectedMembrosExternos } = this.state;
 
-				// const arrayMembrosDaDeclaracaoDeParticipacao = [{ id: data.resultados[0].id_orientador, nome: data.resultados[0].orientador + " - presidente", assinatura: data.resultados[0].assinatura_orientador }];
-				// const arrayMembrosDaAtaDeDefesa = [{ id: data.resultados[0].id_orientador, nome: data.resultados[0].orientador + " (Orientador(a) - Participação presencial)" }]
+				data.resultados.map(membro => {
+					if (membro.id_tipo == 2) {
+						arraySelectedMembrosInternos.push({ value: membro.id, label: membro.nome });
+					}
 
-				// const id_membros_internos = data.resultados[0].id_usuarios_internos.split(",");
-				// const id_membros_externos = data.resultados[0].id_usuarios_externos.split(",");
-				// const ass_membros_internos = data.resultados[0].assinaturas_membros_internos.split(",");
-
-				// const membros_internos = data.resultados[0].membros_internos.split(",");
-				// const membros_externos = data.resultados[0].membros_externos.split(",");
-				// const ass_membros_externos = data.resultados[0].assinaturas_membros_externos.split(",");
-
-				// for (let index = 0; index < id_membros_internos.length; index++) {
-				// 	arrayMembrosDaDeclaracaoDeParticipacao.push(
-				// 		{ id: id_membros_internos[index], nome: membros_internos[index] + " - membro interno", assinatura: ass_membros_internos[index] }
-				// 	)
-
-				// 	arrayMembrosDaAtaDeDefesa.push(
-				// 		{ id: id_membros_internos[index], nome: membros_internos[index] + " (Participação Presencial)" }
-				// 	)
-				// }
-
-				// for (let index = 0; index < id_membros_externos.length; index++) {
-				// 	arrayMembrosDaDeclaracaoDeParticipacao.push(
-				// 		{ id: id_membros_externos[index], nome: membros_externos[index] + " - membro externo", assinatura: ass_membros_externos[index] }
-				// 	)
-
-				// 	arrayMembrosDaAtaDeDefesa.push(
-				// 		{ id: id_membros_externos[index], nome: membros_externos[index] + " (Participação Virtual)" }
-				// 	)
-				// }
-				// this.setState({ arrayMembrosDaDeclaracaoDeParticipacao, arrayMembrosDaAtaDeDefesa });
+					if (membro.id_tipo == 3) {
+						arraySelectedMembrosExternos.push({ value: membro.id, label: membro.nome });
+					}
+				});
 			}
 		} catch (error) {
 			return error;
@@ -1875,14 +1953,14 @@ export default class Index extends Component {
 										<div className='container'>
 
 											<div className='row d-flex justify-content-center'>
-												<div className='col-sm-5'>
+												<div className='col-sm-6'>
 													<h4 className='text-center lead text-light font-weight-bold'><FaPencilAlt /> Qualificação</h4>
 													<hr />
 													<Accordion>
 														{bancasQ.length > 0 ?
 															bancasQ.map(banca => (
 																<Card style={{ background: "#000233", color: "#ffffff" }}>
-																	<Accordion.Toggle as={Card.Header} eventKey={banca.id}>
+																	<Accordion.Toggle as={Card.Header} eventKey={banca.id} className='text-center'>
 																		<h5><FaLayerGroup /> {banca.orientando.length > 0 ? banca.orientando.toLocaleUpperCase() : ""}</h5>
 																	</Accordion.Toggle>
 																	<Accordion.Collapse eventKey={banca.id}>
@@ -1894,8 +1972,8 @@ export default class Index extends Component {
 																				<li className="list-group-item">Data e hora prevista: {banca.data_horaPrevista}</li>
 																			</ul>
 
-																			<div className='d-flex flex-column' >
-																				<button className='button' onClick={() => this.handlerShowModalCadastrarBanca()}><FaRegPlusSquare /> Editar banca </button>
+																			<div className='d-flex flex-column'>
+																				<button className='btn btn-sm btn-outline-light' onClick={() => this.handlerShowModalAtualizarBanca(banca)}><FaRegPlusSquare /> Atualizar banca </button>
 
 																				{banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA" ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>Declaração de participação</button>) : ""}
 																				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata === null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirAta(banca)}>Emitir ATA</button>) : ""}
@@ -1923,16 +2001,15 @@ export default class Index extends Component {
 																</Card>
 															)}
 													</Accordion>
-													<p className='font-weight-bold text-light text-center'>Total:{bancasQ.length}</p>
 												</div>
-												<div className='col-sm-5'>
+												<div className='col-sm-6'>
 													<h4 className='text-center lead text-light font-weight-bold'><FaShieldAlt /> Defesa</h4>
 													<hr />
 													<Accordion>
 														{bancasD.length > 0 ?
 															bancasD.map(banca => (
 																<Card style={{ background: "#000233", color: "#ffffff" }}>
-																	<Accordion.Toggle as={Card.Header} eventKey={banca.id}>
+																	<Accordion.Toggle as={Card.Header} eventKey={banca.id} className='text-center'>
 																		<h5><FaLayerGroup /> {banca.orientando.length > 0 ? banca.orientando.toLocaleUpperCase() : ""}</h5>
 																	</Accordion.Toggle>
 																	<Accordion.Collapse eventKey={banca.id}>
@@ -1943,7 +2020,7 @@ export default class Index extends Component {
 																				<li className="list-group-item">Data e hora prevista: {banca.data_horaPrevista}</li>
 																			</ul>
 																			<div className='d-flex flex-column'>
-																				<button className='button' onClick={() => this.handlerShowModalCadastrarBanca()}><FaRegPlusSquare /> Editar banca </button>
+																				<button className='btn btn-sm btn-outline-light' onClick={() => this.handlerShowModalAtualizarBanca(banca)}><FaRegPlusSquare /> Atualizar banca </button>
 																				<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirDeclaracaoDeOrientacao(banca)}>Emitir declaração de orientação</button>
 																				<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao({ ...banca, documentoEmIngles: false })}>Declaração de orientação</button>
 																				<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao({ ...banca, documentoEmIngles: true })}>Guidance statement</button>
@@ -1977,7 +2054,6 @@ export default class Index extends Component {
 																</Card>
 															)}
 													</Accordion>
-													<p className='font-weight-bold text-light text-center'>Total:{bancasD.length}</p>
 												</div>
 											</div>
 										</div>
@@ -3950,10 +4026,10 @@ export default class Index extends Component {
 														<div class="col-lg-6 col-lg-offset-6 text-center">
 															<div className="ml-auto">
 																<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
-																<hr className='hr'/>
+																<hr className='hr' />
 																<p style={{ fontSize: "8pt" }}>Ivy Enber Christian University<br />Alcimar José da Silva<br />Presidente</p>
 																<img style={{ width: "100px", height: "100px", display: "block", margin: "0 auto" }} src={ASSINATURA_JOSUE} />
-																<hr className='hr'/>
+																<hr className='hr' />
 																<p style={{ fontSize: "8pt" }}>Ivy Enber Christian University<br />Josué Claudio Dantas<br />Reitor</p>
 															</div>
 														</div>
@@ -4608,10 +4684,10 @@ export default class Index extends Component {
 														<div class="col-lg-6 col-lg-offset-6 text-center">
 															<div className="ml-auto">
 																<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
-																<hr className='hr'/>
+																<hr className='hr' />
 																<p>Ivy Enber Christian University<br />Alcimar José da Silva<br />Presidente</p>
 																<img style={{ width: "100px", height: "100px", display: "block", margin: "0 auto" }} src={ASSINATURA_JOSUE} />
-																<hr className='hr'/>
+																<hr className='hr' />
 																<p className=''>Ivy Enber Christian University<br />Josué Claudio Dantas<br />Reitor</p>
 															</div>
 														</div>
@@ -4689,6 +4765,194 @@ export default class Index extends Component {
 										</div>
 									</div>
 								</Modal.Body>
+							</Modal>
+
+							<Modal
+								show={this.state.modalShowAtualizarBanca}
+								onHide={() => this.handlerCloseModalAtualizarBanca()}
+								aria-labelledby="contained-modal-title-vcenter"
+								backdrop="static"
+								size='xl'
+								centered>
+								<Form onSubmit={this.atualizarBanca}>
+									<Modal.Header closeButton>
+										<h4 className='titulo'><FaLayerGroup /> Atualizar Banca</h4>
+									</Modal.Header>
+									<Modal.Body >
+										<div className='row' style={{ maxHeight: "400px", overflowY: "scroll" }}>
+											<div className='col-sm-6'>
+												<div class="form-group">
+													<label>Orientando:*</label>
+													<select class="form-control form-control-sm" id="selectOrientando"
+														value={this.state.id_orientando}
+														onChange={e => this.setState({ id_orientando: e.target.value })}>
+														<option value="0">Selecione</option>
+														{orientandos.length > 0 ?
+															orientandos.map(orientando => (
+																<option value={orientando.id}>{orientando.nome.toUpperCase()}</option>
+															))
+															: (<option>0</option>)
+														}
+													</select>
+												</div>
+
+												<div className="form-group">
+													<label>Tipo da banca:*</label>
+													<select class="form-control form-control-sm" id="selectOrientando"
+														value={this.state.id_tipoBanca}
+														onChange={e => this.setState({ id_tipoBanca: e.target.value })}>
+														<option value="0">Selecione</option>
+														{tiposDeBanca.length > 0 ?
+															tiposDeBanca.map(tipo =>
+																parseInt(tipo.id) < 3 ? (
+																	<option value={tipo.id}>{tipo.nome}</option>
+																) : ""
+															)
+															: (<option value="0">Nenhum resultado encontrado</option>)}
+													</select>
+												</div>
+
+												<div className="form-group">
+													<label>Área de concentração:* </label>
+													<select className="form-control form-control-sm" id="selectAreaConcentracao"
+														value={this.state.idAreaConcentracao}>
+														{areas_concentracao.length > 0 ?
+															areas_concentracao.map(area => (
+																area.id === this.state.idAreaConcentracao && (<option value={area.id}>{area.nome}</option>)
+															))
+															: (<option>0</option>)
+														}
+													</select>
+												</div>
+
+												<div className="form-group">
+													<label>Linha de pesquisa:*</label>
+													<select class="form-control form-control-sm" id="selectLinhaPesquisa" value={this.state.idLinhaPesquisa}
+														onChange={e => this.setState({ idLinhaPesquisa: e.target.value })}>
+														<option value="0">Selecione</option>
+														{linhasDePesquisas.length > 0 ?
+															linhasDePesquisas.map(linha => (
+																<option value={linha.id}>{linha.linha_pesquisa}</option>
+															))
+															: (<option>0</option>)
+														}
+													</select>
+												</div>
+
+												<div className="form-group">
+													<label for="dataHoraPrevista">Data e hora prevista:</label>
+													<input class="form-control form-control-sm" type="datetime-local" id="dataHoraPrevista" name="start"
+														min="2022-01"
+														onChange={e => this.setState({ data_horaPrevista: e.target.value })}
+														value={this.state.data_horaPrevista}
+													/>
+												</div>
+
+												<div className="form-group">
+													<label htmlFor="selectSetoresParticipantes">Membros internos:*</label>
+													<Select
+														closeMenuOnSelect={false}
+														value={this.state.arraySelectedMembrosInternos}
+														isMulti
+														options={this.state.arrayMembrosInternos}
+														onChange={(e) => this.setState({ arraySelectedMembrosInternos: e })}
+													/>
+												</div>
+											</div>
+											<div className='col-sm-6'>
+												<div className="form-group">
+													<label htmlFor="selectSetoresParticipantes">Membros externos:*</label>
+													<Select
+														closeMenuOnSelect={false}
+														value={this.state.arraySelectedMembrosExternos}
+														isMulti
+														options={this.state.arrayMembrosExternos}
+														onChange={(e) => this.setState({ arraySelectedMembrosExternos: e })}
+													/>
+												</div>
+
+												{/* <div className="form-group">
+													<label htmlFor="nome">Membro externo:*</label>
+													<select class="form-control form-control-sm" id="selectOrientador"
+														onChange={e => this.setState({ id_membroExterno: e.target.value })}>
+														<option value="0">Selecione</option>
+														{arrayMembrosExternos.length > 0 ?
+															arrayMembrosExternos.map(membro => (
+																<option value={membro.id_usuario}>{membro.nome}</option>
+															))
+															: (<option>0</option>)
+														}
+													</select>
+												</div> */}
+
+												<div class="form-group">
+													<label for="exampleFormControlTextarea1">Titulo:</label>
+													<textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="3"
+														onChange={(e) =>
+															this.setState({ titulo: e.target.value })
+														}
+														value={this.state.titulo}
+													></textarea>
+												</div>
+
+												<div class="form-group">
+													<label for="exampleFormControlTextarea1">Titulo em inglês:</label>
+													<textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="3"
+														onChange={(e) =>
+															this.setState({ title: e.target.value })
+														}
+														value={this.state.title}
+													></textarea>
+												</div>
+
+												<div class="form-group">
+													<label for="exampleFormControlTextarea1">Resumo:</label>
+													<textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="3"
+														onChange={(e) =>
+															this.setState({ resumo: e.target.value })
+														}
+														value={this.state.resumo}
+													></textarea>
+												</div>
+
+												<div class="form-group">
+													<label for="exampleFormControlTextarea1">Palavra chave:</label>
+													<textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="3"
+														onChange={(e) =>
+															this.setState({ palavra_chave: e.target.value })
+														}
+														value={this.state.palavra_chave}
+													></textarea>
+												</div>
+											</div>
+										</div>
+
+										<div className="row mt-2">
+											<div className="col-sm-12">
+												{this.state.success && (
+													<div
+														className="alert alert-success text-center"
+														role="alert"
+													>
+														{this.state.success}
+													</div>
+												)}
+												{this.state.error && (
+													<div
+														className="alert alert-danger text-center"
+														role="alert"
+													>
+														{this.state.error}
+													</div>
+												)}
+											</div>
+										</div>
+										<div className='d-flex justify-content-center'>
+											<button className='button'><FaRegSave /> Salvar</button>
+										</div>
+									</Modal.Body>
+
+								</Form>
 							</Modal>
 						</MainContent>
 					</Col>

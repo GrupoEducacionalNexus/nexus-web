@@ -36,7 +36,7 @@ export default class Index extends Component {
       tipo_membro: 0,
       arrayGruposTrabalho: [],
       id_grupo_trabalho: 0,
-      array_vinculoInstitucional: [],
+      arrayVinculoInstitucional: [],
       comoSoube: "",
       arrayEstados: [],
       arrayCidades: [],
@@ -68,18 +68,15 @@ export default class Index extends Component {
     const nome = this.state.nome;
     const email = this.state.email;
     // const cpf_cnpj = this.state.cpf_cnpj;
-    const telefone = this.state.telefone;
-    const vinculo_institucional = this.state.vinculo_institucional;
-    const id_permissao = 4;
-    const id_evento = 10;
-    const tipo_membro = this.state.tipo_membro;
-    const id_grupo_trabalho = this.state.id_grupo_trabalho;
-    const comoSoube = this.state.comoSoube;
-    const id_estado = this.state.id_estado;
-    const cidade = this.state.cidade;
-    const instituicao_empresa = this.state.instituicao_empresa;
-    const grau_escolaridade = this.state.grau_escolaridade;
-    const participacao = this.state.participacao;
+    const {
+      telefone, vinculo_institucional, id_permissao,
+      id_evento, tipo_membro, id_grupo_trabalho,
+      id_estado, cidade, instituicao_empresa, participacao
+    } = this.state;
+
+    console.log(telefone, vinculo_institucional,
+      id_evento, tipo_membro, id_grupo_trabalho,
+      id_estado, cidade);
 
     if (
       !nome ||
@@ -87,9 +84,9 @@ export default class Index extends Component {
       !telefone ||
       !id_estado ||
       !cidade ||
-      !grau_escolaridade ||
+      !vinculo_institucional ||
       !id_grupo_trabalho ||
-      !participacao
+      !tipo_membro
     ) {
       this.setState({ error: "Por favor, preencher todos os campos." });
     } else {
@@ -112,17 +109,12 @@ export default class Index extends Component {
             cidade,
             instituicao_empresa,
             vinculo_institucional,
-            grau_escolaridade,
-            id_grupo_trabalho,
-            participacao,
-            comoSoube,
-            cpf_cnpj: 0,
+            id_grupo_trabalho
           }),
         });
 
         const data = await response.json();
-        console.log(data);
-
+      
         if (data.status === 200) {
           this.setState({ success: data.msg });
         }
@@ -180,7 +172,7 @@ export default class Index extends Component {
       );
 
       const data = await response.json();
-      console.log(data);
+  
       if (data.status === 200) {
         if (data.resultados.length > 0) {
           this.setState({ arrayGruposTrabalho: data.resultados });
@@ -205,7 +197,7 @@ export default class Index extends Component {
 
       const data = await response.json();
       if (data.status === 200) {
-        this.setState({ array_vinculoInstitucional: data.resultados });
+        this.setState({ arrayVinculoInstitucional: data.resultados });
       }
     } catch (error) {
       console.log(error);
@@ -227,6 +219,7 @@ export default class Index extends Component {
       if (estadosCidades[index].sigla === sigla) {
         this.setState({
           id_estado,
+          estado: sigla,
           arrayCidades: estadosCidades[index].cidades,
         });
       }
@@ -260,7 +253,7 @@ export default class Index extends Component {
   render() {
     const array_eventos = this.state.array_eventos;
     const arrayGruposTrabalho = this.state.arrayGruposTrabalho;
-    const array_vinculoInstitucional = this.state.array_vinculoInstitucional;
+    const arrayVinculoInstitucional = this.state.arrayVinculoInstitucional;
     const arrayEstados = this.state.arrayEstados;
     const arrayCidades = this.state.arrayCidades;
     return (
@@ -381,15 +374,14 @@ export default class Index extends Component {
                   className="form-control form-control-sm"
                   id="grau_escolaridade"
                   onChange={(e) =>
-                    this.setState({ grau_escolaridade: e.target.value })
-                  }
-                >
+                    this.setState({ vinculo_institucional: e.target.value })
+                  }>
                   <option value={0}>Selecione seu grau de escolaridade</option>
-                  <option value={1}>Médio Incompleto</option>
-                  <option value={2}>Médio Completo</option>
-                  <option value={3}>Superior</option>
-                  <option value={4}>Mestrado</option>
-                  <option value={5}>Doutorado</option>
+                  {arrayVinculoInstitucional.length > 0 ? (
+                    arrayVinculoInstitucional.map(vinculo_institucional => (
+                      <option value={vinculo_institucional.id}>{vinculo_institucional.nome}</option>
+                    ))
+                  ) : ("")}
                 </select>
               </div>
 
@@ -413,9 +405,8 @@ export default class Index extends Component {
                   className="form-control form-control-sm"
                   id="participacao"
                   onChange={(e) =>
-                    this.setState({ participacao: e.target.value })
-                  }
-                >
+                    this.setState({ tipo_membro: e.target.value })
+                  }>
                   <option value={0}>Selecione sua participação</option>
                   <option value={1}>Ouvinte</option>
                   <option value={2}>Irei submeter artigos</option>
