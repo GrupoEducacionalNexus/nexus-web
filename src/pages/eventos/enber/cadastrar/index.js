@@ -5,7 +5,7 @@ import api from "../../../../services/api";
 import Logo from "../../../../assets/enber.png";
 import { listaDeEventos } from "../../../../services/getListaDeEventos";
 import { getToken } from "../../../../services/auth";
-import BackgroundEnber from "../../../../assets/background_blue.jpeg";
+import BackgroundEnber from "../../../../assets/background_enberlogo.jpeg";
 import { handleCpf } from "../../../../services/mascaraCpf";
 import EstadosCidadesJson from "../../../../services/estados-cidades.json";
 
@@ -259,23 +259,23 @@ export default class Index extends Component {
     return (
       <Container>
         <Form onSubmit={this.cadastrarMembro}>
-          <div className="row">
-            <div className="col-sm-4">
+          <div className="col">
+            <div className="row-sm-4">
               <div
                 style={{
-                  height: "350px",
+                  height: "140px",
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
                   flexDirection: "column",
                 }}
               >
-                <img src={Logo} style={{ width: "90px" }} />
-                <h3 id="titulo"> Eventos</h3>
+                {/* <img src={Logo} style={{ width: "90px" }} /> */}
+                <h3 id="titulo">II CONGRESSO INTERNACIONAL IVY ENBER CHRISTIAN UNIVERSITY</h3>
               </div>
             </div>
 
-            <div className="col-sm-8">
+            <div className="row-sm-8">
               <h4 className="text-center mb-4">
                 <FaUserEdit /> INSCRIÇÃO
               </h4>
