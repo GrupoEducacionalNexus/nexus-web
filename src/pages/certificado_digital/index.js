@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import api from '../../services/api';
 import { CertificadoPosGraduacao } from '../../components/CertificadoPosGraduacao';
 import { getParamUrlString } from '../../services/getParamUrlString';
+import { print } from '../../services/print';
 
-export default class LoginNexus extends Component {
+export default class Index extends Component {
     constructor(props) {
         super();
         this.state = {
@@ -16,7 +17,8 @@ export default class LoginNexus extends Component {
             numero_livro: 0,
             numero_pagina: 0,
             numero_registro: 0,
-            data_local: ''
+            data_local: '',
+            linkDoCerficado: ''
         }
     }
 
@@ -45,7 +47,8 @@ export default class LoginNexus extends Component {
                         numero_livro: data.resultados[0].numero_livro,
                         numero_pagina: data.resultados[0].numero_pagina,
                         numero_registro: data.resultados[0].numero_registro,
-                        data_local: data.resultados[0].data_local
+                        data_local: data.resultados[0].data_local,
+                        linkDoCertificado: `https://www.gestorgruponexus.com.br/certificado_digital?codigo_validacao=${data.resultados[0].codigo_validacao}`
                     })
                 }
             }
@@ -61,16 +64,23 @@ export default class LoginNexus extends Component {
 
     render() {
         return (
-            <div className='container'>
-                <CertificadoPosGraduacao
-                    nome_completo={this.state.nome_completo}
-                    curso={this.state.curso}
-                    data_emissaoDoDiploma={this.state.data_emissaoDoDiploma}
-                    numero_livro={this.state.numero_livro}
-                    numero_pagina={this.state.numero_pagina}
-                    numero_registro={this.state.numero_registro}
-                    data_local={this.state.data_local}
-                />
+            <div className='container-fluid'>
+                <div className='d-flex justify-content-center mt-2'>
+                    <button className='button' onClick={() => print('certificado_posgraduacao')}>Imprimir</button>
+                </div>
+                <div id="certificado_posgraduacao">
+                    <CertificadoPosGraduacao
+                        nome_completo={this.state.nome_completo}
+                        curso={this.state.curso}
+                        data_emissaoDoDiploma={this.state.data_emissaoDoDiploma}
+                        numero_livro={this.state.numero_livro}
+                        numero_pagina={this.state.numero_pagina}
+                        numero_registro={this.state.numero_registro}
+                        data_local={this.state.data_local}
+                        linkDoCertificado={this.state.linkDoCertificado}
+                    />
+                </div>
+                
             </div>
         )
     }

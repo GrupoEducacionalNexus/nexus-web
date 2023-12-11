@@ -2,12 +2,11 @@ import { FaHouseDamage, FaUserEdit } from "react-icons/fa";
 import React, { Component } from "react";
 import styled from "styled-components";
 import api from "../../../../services/api";
-import Logo from "../../../../assets/enber.png";
 import { listaDeEventos } from "../../../../services/getListaDeEventos";
 import { getToken } from "../../../../services/auth";
 import BackgroundEnber from "../../../../assets/background_enberlogo.jpeg";
-import { handleCpf } from "../../../../services/mascaraCpf";
 import EstadosCidadesJson from "../../../../services/estados-cidades.json";
+import { Col, Row, Table } from "react-bootstrap";
 
 export default class Index extends Component {
   constructor(props) {
@@ -21,7 +20,7 @@ export default class Index extends Component {
       email: "",
       cpf_cnpj: "",
       telefone: "",
-      vinculo_institucional: "",
+      grau_escolaridade: "",
       cep: "",
       estado: "",
       cidade: "",
@@ -36,12 +35,26 @@ export default class Index extends Component {
       tipo_membro: 0,
       arrayGruposTrabalho: [],
       id_grupo_trabalho: 0,
-      arrayVinculoInstitucional: [],
+      arrayGrauEscolaridade: [],
       comoSoube: "",
       arrayEstados: [],
       arrayCidades: [],
       id_estado: 0,
       instituicao_estado: "",
+      ouvinteGrupo1: false,
+      submeterGrupo1: false,
+      ouvinteGrupo2: false,
+      submeterGrupo2: false,
+      ouvinteGrupo3: false,
+      submeterGrupo3: false,
+      ouvinteGrupo4: false,
+      submeterGrupo4: false,
+      ouvinteGrupo5: false,
+      submeterGrupo5: false,
+      arrayGruposDeTrabalhosSelecionados: [],
+      curso_formacao: "",
+      instituicao_origem: "",
+      contSubmeterTrab: 1
     };
   }
 
@@ -49,9 +62,9 @@ export default class Index extends Component {
     listaDeEventos(getToken()).then((result) =>
       this.setState({ array_eventos: result })
     );
-    this.listaDeVinculoInstitucional();
+    this.listaDeGrauDeEscolaridade();
     this.listaDeEstados();
-    this.listaDeGruposDeTrabalho(10);
+    this.listaDeGruposDeTrabalho(11);
   }
 
   uuid = () => {
@@ -65,95 +78,73 @@ export default class Index extends Component {
     e.preventDefault();
     this.setState({ success: "", error: "" });
 
-    const nome = this.state.nome;
-    const email = this.state.email;
-    // const cpf_cnpj = this.state.cpf_cnpj;
     const {
-      telefone, vinculo_institucional, id_permissao,
-      id_evento, tipo_membro, id_grupo_trabalho,
-      id_estado, cidade, instituicao_empresa, participacao
+      nome, email, telefone, grau_escolaridade,
+      id_permissao, id_evento, tipo_membro,
+      id_estado, cidade,
+      ouvinteGrupo1, submeterGrupo1,
+      ouvinteGrupo2, submeterGrupo2,
+      ouvinteGrupo3, submeterGrupo3,
+      ouvinteGrupo4, submeterGrupo4,
+      ouvinteGrupo5, submeterGrupo5,
+      arrayGruposDeTrabalhosSelecionados,
+      curso_formacao, instituicao_origem
     } = this.state;
 
-    console.log(telefone, vinculo_institucional,
-      id_evento, tipo_membro, id_grupo_trabalho,
-      id_estado, cidade);
-
-    if (
-      !nome ||
-      !email ||
-      !telefone ||
-      !id_estado ||
-      !cidade ||
-      !vinculo_institucional ||
-      !id_grupo_trabalho ||
-      !tipo_membro
-    ) {
+    if (!nome || !email ||
+      !telefone || !id_estado ||
+      !cidade || !grau_escolaridade || 
+      !curso_formacao || !instituicao_origem) {
       this.setState({ error: "Por favor, preencher todos os campos." });
-    } else {
-      try {
-        const response = await fetch(`${api.baseURL}/membros`, {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            nome,
-            telefone,
-            email,
-            id_permissao,
-            id_evento,
-            codigo_validacao: this.uuid(),
-            tipo_membro,
-            id_estado,
-            cidade,
-            instituicao_empresa,
-            vinculo_institucional,
-            id_grupo_trabalho
-          }),
-        });
+      return;
+    }
 
-        const data = await response.json();
-      
-        if (data.status === 200) {
-          this.setState({ success: data.msg });
-        }
+    if (!ouvinteGrupo1 && !submeterGrupo1
+      && !ouvinteGrupo2 && !submeterGrupo2
+      && !ouvinteGrupo3 && !submeterGrupo3
+      && !ouvinteGrupo4 && !submeterGrupo4
+      && !ouvinteGrupo5 && !submeterGrupo5) {
+      this.setState({ error: "Selecione um grupo de trabalho." });
+      return;
+    }
 
-        if (data.status === 400) {
-          this.setState({ error: data.msg });
-        }
-      } catch (error) {
-        this.setState({ error: "Ocorreu um erro" });
+    try {
+      const response = await fetch(`${api.baseURL}/membros`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome,
+          telefone,
+          email,
+          id_permissao,
+          id_evento,
+          codigo_validacao: this.uuid(),
+          tipo_membro,
+          id_estado,
+          cidade,
+          grau_escolaridade,
+          arrayGruposDeTrabalhosSelecionados,
+          curso_formacao,
+          instituicao_origem
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.status === 200) {
+        this.setState({ success: data.msg });
       }
+
+      if (data.status === 400) {
+        this.setState({ error: data.msg });
+      }
+    } catch (error) {
+      this.setState({ error: "Ocorreu um erro" });
     }
   };
-
-  // handlerInformacoes = async (cep) => {
-  //   if (cep.length === 8) {
-  //     try {
-  //       const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`, {
-  //         method: 'GET',
-  //         headers: {
-  //           Accept: 'application/json',
-  //           'Content-Type': 'application/json',
-  //         },
-  //       });
-  //       const responseJson = await response.json();
-
-  //       this.setState({
-  //         cep: responseJson.cep,
-  //         bairro: responseJson.bairro,
-  //         logradouro: responseJson.logradouro,
-  //         cidade: responseJson.localidade,
-  //         estado: responseJson.uf,
-  //       });
-  //       console.log(responseJson)
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //     return;
-  //   }
-  // }
 
   listaDeGruposDeTrabalho = async (id_evento) => {
     try {
@@ -172,7 +163,7 @@ export default class Index extends Component {
       );
 
       const data = await response.json();
-  
+
       if (data.status === 200) {
         if (data.resultados.length > 0) {
           this.setState({ arrayGruposTrabalho: data.resultados });
@@ -185,9 +176,9 @@ export default class Index extends Component {
     }
   };
 
-  listaDeVinculoInstitucional = async () => {
+  listaDeGrauDeEscolaridade = async () => {
     try {
-      const response = await fetch(`${api.baseURL}/vinculo_institucional`, {
+      const response = await fetch(`${api.baseURL}/grau_escolaridade`, {
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -197,7 +188,7 @@ export default class Index extends Component {
 
       const data = await response.json();
       if (data.status === 200) {
-        this.setState({ arrayVinculoInstitucional: data.resultados });
+        this.setState({ arrayGrauEscolaridade: data.resultados });
       }
     } catch (error) {
       console.log(error);
@@ -250,10 +241,68 @@ export default class Index extends Component {
     }
   };
 
+  selecionarGrupoTrabalho = (grupoTrabalho) => {
+    const { id, tipo } = grupoTrabalho;
+    const { arrayGruposTrabalho } = this.state;
+    let contSubmeterTrab = this.state.contSubmeterTrab;
+   
+    arrayGruposTrabalho.map(gt => {
+      if (id === gt.id) {
+        tipo === 1 ? this.setState({ ouvinteGrupo1: true }) : this.setState({ submeterGrupo1: true });
+      }
+
+      if (id === gt.id) {
+        tipo === 1 ? this.setState({ ouvinteGrupo2: true }) : this.setState({ submeterGrupo2: true });
+      }
+
+      if (id === gt.id) {
+        tipo === 1 ? this.setState({ ouvinteGrupo3: true }) : this.setState({ submeterGrupo3: true });
+      }
+
+      if (id === gt.id) {
+        tipo === 1 ? this.setState({ ouvinteGrupo4: true }) : this.setState({ submeterGrupo4: true });
+      }
+
+      if (id === gt.id) {
+        tipo === 1 ? this.setState({ ouvinteGrupo5: true }) : this.setState({ submeterGrupo5: true });
+      }
+
+      if (id === gt.id) {
+        tipo === 1 ? this.setState({ ouvinteGrupo5: true }) : this.setState({ submeterGrupo5: true });
+      }
+    });
+
+    const arrayGtSelecionados = this.state.arrayGruposDeTrabalhosSelecionados;
+
+    arrayGtSelecionados.map(gt => {
+      if(gt.tipo === 2) {
+        this.setState({contSubmeterTrab: contSubmeterTrab += 1});
+        document.getElementById(`checkbox_sub_trabalho_${id}`)
+      }
+    });
+
+    console.log(contSubmeterTrab);
+
+    if(contSubmeterTrab > 2) {
+      alert("Você pode selecionar até dois grupos de trabalho para submeter trabalho!");
+      return;
+    }
+
+    const indice = arrayGtSelecionados.findIndex(item => item.id === id && item.tipo === tipo);
+    if (indice === -1) {
+      arrayGtSelecionados.splice(arrayGtSelecionados.length, 0, { id, tipo });
+      console.log(arrayGtSelecionados);
+      this.setState({ arrayGruposDeTrabalhosSelecionados: arrayGtSelecionados });
+      return;
+    }
+    arrayGtSelecionados.splice(indice, 1);
+    this.setState({ arrayGruposDeTrabalhosSelecionados: arrayGtSelecionados });
+    console.log(arrayGtSelecionados);
+  }
+
   render() {
-    const array_eventos = this.state.array_eventos;
     const arrayGruposTrabalho = this.state.arrayGruposTrabalho;
-    const arrayVinculoInstitucional = this.state.arrayVinculoInstitucional;
+    const arrayGrauEscolaridade = this.state.arrayGrauEscolaridade;
     const arrayEstados = this.state.arrayEstados;
     const arrayCidades = this.state.arrayCidades;
     return (
@@ -268,10 +317,9 @@ export default class Index extends Component {
                   justifyContent: "center",
                   alignItems: "center",
                   flexDirection: "column",
-                }}
-              >
+                }}>
                 {/* <img src={Logo} style={{ width: "90px" }} /> */}
-                <h3 id="titulo">II CONGRESSO INTERNACIONAL IVY ENBER CHRISTIAN UNIVERSITY</h3>
+                <h5 id="titulo">II CONGRESSO INTERNACIONAL IVY ENBER CHRISTIAN UNIVERSITY</h5>
               </div>
             </div>
 
@@ -319,130 +367,114 @@ export default class Index extends Component {
                   </div>
                 </div>
               </div>
-              <div class="form-group">
-                <label htmlFor="selectEstado">Estado:</label>
-                <select
-                  className="form-control form-control-sm"
-                  id="selectEstado"
-                  onChange={(e) => this.buscarCidades(e.target.value)}
-                >
-                  <option value={0}>Selecione um estado</option>
-                  {arrayEstados.length > 0 ? (
-                    arrayEstados.map((item) => (
-                      <option value={[item.id, item.sigla]}>{item.nome}</option>
-                    ))
-                  ) : (
-                    <option value="">Nenhum resultado foi encontrado</option>
-                  )}
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label htmlFor="selectEstado">Cidade:</label>
-                <select
-                  className="form-control form-control-sm"
-                  id="selectEstado"
-                  onChange={(e) => this.setState({ cidade: e.target.value })}
-                >
-                  <option value={0}>Selecione uma cidade</option>
-                  {arrayCidades.length > 0 ? (
-                    arrayCidades.map((item) => (
-                      <option value={[item]}>{item}</option>
-                    ))
-                  ) : (
-                    <option value="">Nenhum resultado foi encontrado</option>
-                  )}
-                </select>
-              </div>
-
-              {/* <div class="form-group">
-                    <label htmlFor="cpf">CPF:</label>
-                    <input
+              <Row>
+                <Col>
+                  <div class="form-group">
+                    <label htmlFor="selectEstado">ESTADO:</label>
+                    <select
                       className="form-control form-control-sm"
-                      type="text"
-                      placeholder="INFORME O SEU CPF"
-                      name="Cpf"
-                      id='Cpf'
-                      onChange={(e) => handleCpf(e.target.value).then(result => this.setState({cpf_cnpj: result}))}
-                      value={this.state.cpf_cnpj}
-                    />
-                  </div> */}
+                      id="selectEstado"
+                      onChange={(e) => this.buscarCidades(e.target.value)}
+                    >
+                      <option value={0}>Selecione um estado</option>
+                      {arrayEstados.length > 0 ? (
+                        arrayEstados.map((item) => (
+                          <option value={[item.id, item.sigla]}>{item.nome}</option>
+                        ))
+                      ) : (
+                        <option value="">Nenhum resultado foi encontrado</option>
+                      )}
+                    </select>
+                  </div>
+                </Col>
+                <Col>
+                  <div class="form-group">
+                    <label htmlFor="selectEstado">CIDADE:</label>
+                    <select
+                      className="form-control form-control-sm"
+                      id="selectEstado"
+                      onChange={(e) => this.setState({ cidade: e.target.value })}
+                    >
+                      <option value={0}>Selecione uma cidade</option>
+                      {arrayCidades.length > 0 ? (
+                        arrayCidades.map((item) => (
+                          <option value={[item]}>{item}</option>
+                        ))
+                      ) : (
+                        <option value="">Nenhum resultado foi encontrado</option>
+                      )}
+                    </select>
+                  </div>
+                </Col>
+              </Row>
 
               <div class="form-group">
-                <label htmlFor="selectEstado">Grau de Escolaridade:</label>
+                <label htmlFor="selectEstado">GRAU DE ESCOLARIDADE:</label>
                 <select
                   className="form-control form-control-sm"
                   id="grau_escolaridade"
                   onChange={(e) =>
-                    this.setState({ vinculo_institucional: e.target.value })
+                    this.setState({ grau_escolaridade: e.target.value })
                   }>
                   <option value={0}>Selecione seu grau de escolaridade</option>
-                  {arrayVinculoInstitucional.length > 0 ? (
-                    arrayVinculoInstitucional.map(vinculo_institucional => (
-                      <option value={vinculo_institucional.id}>{vinculo_institucional.nome}</option>
+                  {arrayGrauEscolaridade.length > 0 ? (
+                    arrayGrauEscolaridade.map(grau_escolaridade => (
+                      <option value={grau_escolaridade.nome}>{grau_escolaridade.nome}</option>
                     ))
                   ) : ("")}
                 </select>
               </div>
-
-              {arrayGruposTrabalho.length > 0 ? (<div class="form-group">
-                    <label htmlFor="selectGrupoDeTrabalho">Grupo:</label>
-                    <select class="form-control form-control-sm" id="selectGrupoDeTrabalho"
-                      onChange={e => this.setState({ id_grupo_trabalho: parseInt(e.target.value) })}>
-                      <option value={0}>{"Selecione uma opção".toLocaleUpperCase()}</option>
-                      {arrayGruposTrabalho.length > 0 ?
-                        arrayGruposTrabalho.map(grupo => (
-                          <option value={grupo.id}>{grupo.nome}</option>
-                        ))
-                        : (<option>0</option>)}
-                    </select>
-                  </div>
-                  ) : ("")}
-
-              <div class="form-group">
-                <label htmlFor="selectEstado">Participação:</label>
-                <select
-                  className="form-control form-control-sm"
-                  id="participacao"
-                  onChange={(e) =>
-                    this.setState({ tipo_membro: e.target.value })
-                  }>
-                  <option value={0}>Selecione sua participação</option>
-                  <option value={1}>Ouvinte</option>
-                  <option value={2}>Irei submeter artigos</option>
-                </select>
+              <div class="mb-3">
+                <label for="exampleFormControlTextarea1" class="form-label">CURSO DE FORMAÇÃO:</label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
+                  onChange={e => this.setState({ curso_formacao: e.target.value })}></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="exampleFormControlTextarea1" class="form-label">INSTITUIÇÃO DE ORIGEM:</label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
+                  onChange={e => this.setState({ instituicao_origem: e.target.value })}></textarea>
               </div>
 
-              {/* <div class="form-group">
-                    <label htmlFor="selectEvento">EVENTO:</label>
-                    <select class="form-control form-control-sm" id="selectEvento"
-                      onChange={(e) => this.listaDeGruposDeTrabalho(e.target.value)}>
-                      <option value={0}>{"Selecione uma opção".toLocaleUpperCase()}</option>
-                      {array_eventos.length > 0 ?
-                        array_eventos.map(evento => (
-                          <option value={evento.id}>{evento.tema.toUpperCase()}</option>
-                        ))
-                        : (<option>0</option>)}
-                    </select>
-                  </div>
-
-                  
-
-                  <div class="form-group">
-                    <label htmlFor="selectEvento">TIPO DE MEMBRO:</label>
-                    <select class="form-control form-control-sm" id="selectEvento"
-                      onChange={e => this.setState({ tipo_membro: e.target.value })}>
-                      <option value={0}>{"Selecione uma opção".toLocaleUpperCase()}</option>
-                      <option value={1}>Participante com submissão de trabalho</option>
-                      <option value={2}>Ouvinte sem submissão de trabalho</option>
-                    </select>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="inputComoSoube">{"Como soube do evento?".toLocaleUpperCase()}</label>
-                    <textarea class="form-control" rows="2" id="comment"
-                      onChange={e => this.setState({ comoSoube: e.target.value })}></textarea>
-                        </div>*/}
+              <Table striped bordered size="sm" className="text-center">
+                <thead>
+                  <tr>
+                    <th>Grupo de Trabalho</th>
+                    <th>Ouvinte</th>
+                    <th>Irei Submeter Artigos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {arrayGruposTrabalho.length > 0 ?
+                    arrayGruposTrabalho.map(grupo => (
+                      <tr>
+                        <td>{grupo.nome}</td>
+                        <td>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value={1} id="checkbox_ouvinte" onChange={(e) => this.selecionarGrupoTrabalho({ id: grupo.id, tipo: parseInt(e.target.value) })} />
+                          </div>
+                        </td>
+                        <td>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value={2} id={`checkbox_sub_trabalho_${grupo.id}`} onChange={(e) => this.selecionarGrupoTrabalho({ id: grupo.id, tipo: parseInt(e.target.value) })} />
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                    : (<tr>
+                      <td>Nenhum Grupo de Trabalho Encontrado</td>
+                      <td>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                        </div>
+                      </td>
+                      <td>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                        </div>
+                      </td>
+                    </tr>)}
+                </tbody>
+              </Table>
 
               <div className="row">
                 <div className="col-sm-12">
@@ -503,15 +535,15 @@ const Container = styled.div`
 }`;
 
 const Form = styled.form`
-  max-width: 920px;
-  background: rgba(255, 255, 255, 0.06);
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.1);
   padding: 30px;
   margin-top: 15px;
   margin-bottom: 20px;
   color: #ffffff;
 
   @media only screen and (min-width: 320px) and (max-width: 725px) {
-    width: 400px;
+    width: 410px;
     background: none;
   }
 `;

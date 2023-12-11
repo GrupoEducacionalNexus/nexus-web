@@ -30,7 +30,7 @@ export const AtaDefesa = (props) => {
         {props.id_curso === 2 ? ` DE TESE ` : ``}
         {props.id_curso === 3 ? ` DA DISSERTAÇÃO ` : ``}
         {props.id_curso === 4 ? ` DE TESE ` : ``}
-        de {props.nome.toUpperCase().trim() + ""},intitulada <b>{props.titulo.toUpperCase()}</b>. A Comissão Examinadora foi constituida
+        de {props.nome.toUpperCase().trim() + ""}, intitulada <b>{props.titulo.toUpperCase()}</b>. A Comissão Examinadora foi constituida
         pelos seguintes membros: {" "}
 
         {props.arrayMembrosDaAtaDeDefesa.map((item, index) => index === props.arrayMembrosDaAtaDeDefesa.length - 2 ? item.nome + " e " : index === props.arrayMembrosDaAtaDeDefesa.length - 1 ? item.nome : item.nome + ", ")}.

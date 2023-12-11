@@ -136,7 +136,7 @@ export default class Index extends Component {
 	componentDidMount() {
 		this.buscaInformacoesDoCoordenador(getToken());
 		//this.listaDeOrientandos(getToken());
-		listaDeTiposDeBanca(getToken()).then(result => this.setState({array_tiposBanca: result}));
+		listaDeTiposDeBanca(getToken()).then(result => this.setState({ array_tiposBanca: result }));
 		listaDeMembrosExternos().then(result => this.setState({ array_membros: result }));
 	}
 
@@ -466,8 +466,8 @@ export default class Index extends Component {
 			if (data.status === 200) {
 				this.setState({ email_coordenador: data.resultados[0].email, idAreaConcentracao: data.resultados[0].id_areaConcentracao });
 				listaDeLinhasDePesquisas(data.resultados[0].id_areaConcentracao)
-				.then(result => this.setState({ arrayLinhasDePesquisas: result }));
-				
+					.then(result => this.setState({ arrayLinhasDePesquisas: result }));
+
 				if (data.resultados[0].id_areaConcentracao === 1) {
 					this.listaDeBancas(getToken(), 1, 1);
 					this.listaDeBancas(getToken(), 2, 1);
@@ -808,71 +808,66 @@ export default class Index extends Component {
 										{this.state.idAreaConcentracao === 1 ? (
 											<div className='container'>
 												{/* <h4 className='text-center'><FaBookReader /> Educação</h4> */}
-												<Accordion>
-													<Card>
-														<Accordion.Toggle as={Card.Header} eventKey="0">
-															<h5><FaUserGraduate /> Qualificação </h5>
-														</Accordion.Toggle>
-														<Accordion.Collapse eventKey="0">
-															<Card.Body>
-																<div className="table-responsive">
-																	<div class="table-wrapper">
-																		<table className="table table-sm text-center table-bordered table-hover">
-																			<thead class="thead-light">
-																				<tr>
-																					<th>Orientador</th>
-																					<th>Orientando</th>
-																					<th>curso</th>
-																					<th>Fase do processo</th>
-																					<th>Data/hora inicial do processo</th>
-																					<th>Data/hora final do processo</th>
-																					<th>Data e hora de conclusão</th>
-																					<th>Data e hora de prevista</th>
-																					<th>Observação</th>
-																					<th>Status</th>
-																				</tr>
-																			</thead>
-																			<tbody>
-																				{array_bancasQE.length > 0 ?
-																					array_bancasQE.map(banca => (
-																						<tr key={banca.id} className={banca.status_confirmacaoBancaQ === "AGUARDANDO" ? "table-warning" : "table-success"} title="Clique aqui para obter mais informações sobre a banca">
-																							<td>{banca.orientador}</td>
-																							<td>{banca.orientando}</td>
-																							<td>{banca.curso}</td>
-																							<td>{banca.fase_processo}</td>
-																							<td>{banca.dataHoraInicialFaseProcessoTb}</td>
-																							<td>{banca.dataHoraFinalFaseProcessoTb}</td>
-																							<td>{banca.dataHoraConclusaoTb}</td>
-																							<td>{banca.data_horaPrevista}</td>
-																							<td>{banca.observacao}</td>
-																							<td>{banca.status === 1 ? `Aguardando` : banca.status === 2 ? `Confirmado` : ``}</td>
-																						</tr>
-																					))
-																					: (
-																						<tr>
-																							<td colSpan="12">Nenhum resultado encontrado</td>
-																						</tr>
-																					)}
+												<Accordion defaultActiveKey="0">
+													<Accordion.Item eventKey="0">
+														<Accordion.Header><h5><FaUserGraduate /> Qualificação </h5></Accordion.Header>
+														<Accordion.Body>
+															<div className="table-responsive">
+																<div class="table-wrapper">
+																	<table className="table table-sm text-center table-bordered table-hover">
+																		<thead class="thead-light">
+																			<tr>
+																				<th>Orientador</th>
+																				<th>Orientando</th>
+																				<th>curso</th>
+																				<th>Fase do processo</th>
+																				<th>Data/hora inicial do processo</th>
+																				<th>Data/hora final do processo</th>
+																				<th>Data e hora de conclusão</th>
+																				<th>Data e hora de prevista</th>
+																				<th>Observação</th>
+																				<th>Status</th>
+																			</tr>
+																		</thead>
+																		<tbody>
+																			{array_bancasQE.length > 0 ?
+																				array_bancasQE.map(banca => (
+																					<tr key={banca.id} className={banca.status_confirmacaoBancaQ === "AGUARDANDO" ? "table-warning" : "table-success"} title="Clique aqui para obter mais informações sobre a banca">
+																						<td>{banca.orientador}</td>
+																						<td>{banca.orientando}</td>
+																						<td>{banca.curso}</td>
+																						<td>{banca.fase_processo}</td>
+																						<td>{banca.dataHoraInicialFaseProcessoTb}</td>
+																						<td>{banca.dataHoraFinalFaseProcessoTb}</td>
+																						<td>{banca.dataHoraConclusaoTb}</td>
+																						<td>{banca.data_horaPrevista}</td>
+																						<td>{banca.observacao}</td>
+																						<td>{banca.status === 1 ? `Aguardando` : banca.status === 2 ? `Confirmado` : ``}</td>
+																					</tr>
+																				))
+																				: (
+																					<tr>
+																						<td colSpan="12">Nenhum resultado encontrado</td>
+																					</tr>
+																				)}
 
-																			</tbody>
-																		</table>
-																	</div>
+																		</tbody>
+																	</table>
 																</div>
-																{
-																	<div className="text-center font-weight-bold mt-3 mb-5">
-																		Total de Registros: {array_bancasQE.length}
-																	</div>
-																}
-															</Card.Body>
-														</Accordion.Collapse>
-													</Card>
-
-													<Card>
-														<Accordion.Toggle as={Card.Header} eventKey="1">
-															<h5><FaUserGraduate /> Defesa</h5>
-														</Accordion.Toggle>
-														<Accordion.Collapse eventKey="1">
-															<Card.Body>
+															</div>
+															{
+																<div className="text-center font-weight-bold mt-3 mb-5">
+																	Total de Registros: {array_bancasQE.length}
+																</div>
+															}
+														</Accordion.Body>
+													</Accordion.Item>
+												</Accordion>
+												<Accordion>
+													<Accordion defaultActiveKey="0">
+														<Accordion.Item eventKey="1">
+															<Accordion.Header><h5><FaUserGraduate /> Defesa</h5></Accordion.Header>
+															<Accordion.Body>
 																<div className="table-responsive ">
 																	<div class="table-wrapper">
 																		<table className="table table-sm text-center table-bordered table-hover ">
@@ -920,121 +915,115 @@ export default class Index extends Component {
 																		Total de Registros: {array_bancasDE.length}
 																	</div>
 																}
-															</Card.Body>
-														</Accordion.Collapse>
-													</Card>
+															</Accordion.Body>
+														</Accordion.Item>
+													</Accordion>
+
 												</Accordion>
 											</div>
 										) : (
 											<div className='container'>
 												{/* <h4 className='text-center'><FaBookMedical /> Teologia</h4> */}
-												<Accordion>
-													<Card>
-														<Accordion.Toggle as={Card.Header} eventKey="0">
-															<h3><FaUserGraduate /> Qualificação </h3>
-														</Accordion.Toggle>
-														<Accordion.Collapse eventKey="0">
-															<Card.Body>
-																<div className="table-responsive">
-																	<div class="table-wrapper">
-																		<table className="table table-sm text-center table-bordered table-hover">
-																			<thead class="thead-light">
-																				<tr>
-																					<th>Orientador</th>
-																					<th>Orientando</th>
-																					<th>curso</th>
-																					<th>Fase do processo</th>
-																					<th>Data/hora inicial do processo</th>
-																					<th>Data/hora final do processo</th>
-																					<th>Data e hora de conclusão</th>
-																					<th>Data e hora de prevista</th>
-																				</tr>
-																			</thead>
-																			<tbody>
-																				{array_bancasQT.length > 0 ?
-																					array_bancasQT.map(banca => (
-																						<tr key={banca.id} className={banca.status_confirmacaoBancaQ === "AGUARDANDO" ? "table-warning" : "table-success"} title="Clique aqui para obter mais informações sobre a banca">
-																							<td>{banca.orientador}</td>
-																							<td>{banca.orientando}</td>
-																							<td>{banca.curso}</td>
-																							<td>{banca.fase_processo}</td>
-																							<td>{banca.dataHoraInicialFaseProcessoTb}</td>
-																							<td>{banca.dataHoraFinalFaseProcessoTb}</td>
-																							<td>{banca.dataHoraConclusaoTb}</td>
-																							<td>{banca.data_horaPrevista}</td>
-																						</tr>
-																					))
-																					: (
-																						<tr>
-																							<td colSpan="12">Nenhum resultado encontrado</td>
-																						</tr>
-																					)}
+												<Accordion defaultActiveKey="0">
+													<Accordion.Item eventKey="2">
+														<Accordion.Header><h3><FaUserGraduate /> Qualificação </h3></Accordion.Header>
+														<Accordion.Body>
+															<div className="table-responsive">
+																<div class="table-wrapper">
+																	<table className="table table-sm text-center table-bordered table-hover">
+																		<thead class="thead-light">
+																			<tr>
+																				<th>Orientador</th>
+																				<th>Orientando</th>
+																				<th>curso</th>
+																				<th>Fase do processo</th>
+																				<th>Data/hora inicial do processo</th>
+																				<th>Data/hora final do processo</th>
+																				<th>Data e hora de conclusão</th>
+																				<th>Data e hora de prevista</th>
+																			</tr>
+																		</thead>
+																		<tbody>
+																			{array_bancasQT.length > 0 ?
+																				array_bancasQT.map(banca => (
+																					<tr key={banca.id} className={banca.status_confirmacaoBancaQ === "AGUARDANDO" ? "table-warning" : "table-success"} title="Clique aqui para obter mais informações sobre a banca">
+																						<td>{banca.orientador}</td>
+																						<td>{banca.orientando}</td>
+																						<td>{banca.curso}</td>
+																						<td>{banca.fase_processo}</td>
+																						<td>{banca.dataHoraInicialFaseProcessoTb}</td>
+																						<td>{banca.dataHoraFinalFaseProcessoTb}</td>
+																						<td>{banca.dataHoraConclusaoTb}</td>
+																						<td>{banca.data_horaPrevista}</td>
+																					</tr>
+																				))
+																				: (
+																					<tr>
+																						<td colSpan="12">Nenhum resultado encontrado</td>
+																					</tr>
+																				)}
 
-																			</tbody>
-																		</table>
-																	</div>
+																		</tbody>
+																	</table>
 																</div>
-																{
-																	<div className="text-center font-weight-bold mt-3 mb-5">
-																		Total de Registros: {array_bancasQT.length}
-																	</div>
-																}
-															</Card.Body>
-														</Accordion.Collapse>
-													</Card>
+															</div>
+															{
+																<div className="text-center font-weight-bold mt-3 mb-5">
+																	Total de Registros: {array_bancasQT.length}
+																</div>
+															}
+														</Accordion.Body>
+													</Accordion.Item>
 
-													<Card>
-														<Accordion.Toggle as={Card.Header} eventKey="1">
-															<h3><FaUserGraduate /> Defesa</h3>
-														</Accordion.Toggle>
-														<Accordion.Collapse eventKey="1">
-															<Card.Body>
-																<div className="table-responsive ">
-																	<div class="table-wrapper">
-																		<table className="table table-sm text-center table-bordered table-hover">
-																			<thead class="thead-light">
-																				<tr>
-																					<th>Orientador</th>
-																					<th>Orientando</th>
-																					<th>curso</th>
-																					<th>Fase do processo</th>
-																					<th>Data/hora inicial do processo</th>
-																					<th>Data/hora final do processo</th>
-																					<th>Data/hora de conclusão</th>
-																					<th>Data e hora de prevista</th>
-																				</tr>
-																			</thead>
-																			<tbody>
-																				{array_bancasDT.length > 0 ?
-																					array_bancasDT.map(banca => (
-																						<tr key={banca.id} className={banca.status_confirmacaoBancaD === "AGUARDANDO" ? "table-warning" : "table-success"} title="Clique aqui para obter mais informações sobre a banca">
-																							<td>{banca.orientador}</td>
-																							<td>{banca.orientando}</td>
-																							<td>{banca.curso}</td>
-																							<td>{banca.fase_processo}</td>
-																							<td>{banca.dataHoraInicialFaseProcessoTb}</td>
-																							<td>{banca.dataHoraFinalFaseProcessoTb}</td>
-																							<td>{banca.dataHoraConclusaoTb}</td>
-																							<td>{banca.data_horaPrevista}</td>
-																						</tr>
-																					))
-																					: (
-																						<tr>
-																							<td colSpan="12">Nenhum resultado encontrado</td>
-																						</tr>
-																					)}
-																			</tbody>
-																		</table>
-																	</div>
+													<Accordion.Item eventKey="0">
+														<Accordion.Header><h3><FaUserGraduate /> Defesa</h3></Accordion.Header>
+														<Accordion.Body>
+															<div className="table-responsive ">
+																<div class="table-wrapper">
+																	<table className="table table-sm text-center table-bordered table-hover">
+																		<thead class="thead-light">
+																			<tr>
+																				<th>Orientador</th>
+																				<th>Orientando</th>
+																				<th>curso</th>
+																				<th>Fase do processo</th>
+																				<th>Data/hora inicial do processo</th>
+																				<th>Data/hora final do processo</th>
+																				<th>Data/hora de conclusão</th>
+																				<th>Data e hora de prevista</th>
+																			</tr>
+																		</thead>
+																		<tbody>
+																			{array_bancasDT.length > 0 ?
+																				array_bancasDT.map(banca => (
+																					<tr key={banca.id} className={banca.status_confirmacaoBancaD === "AGUARDANDO" ? "table-warning" : "table-success"} title="Clique aqui para obter mais informações sobre a banca">
+																						<td>{banca.orientador}</td>
+																						<td>{banca.orientando}</td>
+																						<td>{banca.curso}</td>
+																						<td>{banca.fase_processo}</td>
+																						<td>{banca.dataHoraInicialFaseProcessoTb}</td>
+																						<td>{banca.dataHoraFinalFaseProcessoTb}</td>
+																						<td>{banca.dataHoraConclusaoTb}</td>
+																						<td>{banca.data_horaPrevista}</td>
+																					</tr>
+																				))
+																				: (
+																					<tr>
+																						<td colSpan="12">Nenhum resultado encontrado</td>
+																					</tr>
+																				)}
+																		</tbody>
+																	</table>
 																</div>
-																{
-																	<div className="text-center font-weight-bold mt-3 mb-5">
-																		Total de Registros: {array_bancasDT.length}
-																	</div>
-																}
-															</Card.Body>
-														</Accordion.Collapse>
-													</Card>
+															</div>
+															{
+																<div className="text-center font-weight-bold mt-3 mb-5">
+																	Total de Registros: {array_bancasDT.length}
+																</div>
+															}
+														</Accordion.Body>
+													</Accordion.Item>
+
 												</Accordion>
 											</div>
 										)}

@@ -912,7 +912,7 @@ export default class Index extends Component {
                   variant='pills'>
                   <Tab eventKey="aberturaTurmasDiario" title="Abertura de turmas do dia">
                     {/* <h4 className='text-light'><FaUserEdit /> Abertura de turmas</h4> */}
-                    <div class="table-responsive table-sm container">
+                    <div class="table-responsive table-sm">
                       <div class="table-wrapper">
                         <table class="table text-center table-hover mb-5 table-light" style={{ fontSize: "10pt" }}>
                           <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)' }}>

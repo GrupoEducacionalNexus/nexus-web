@@ -8,7 +8,7 @@ import UserContext from '../UserContext';
 
 export default class Perfil extends Component {
   static contextType = UserContext;
-  
+
   constructor(props) {
     super();
     this.state = {
@@ -37,7 +37,7 @@ export default class Perfil extends Component {
 
   handlerShowModalEditarUsuario() {
     this.setModalShowEditarUsuario(true);
-    
+
   }
 
   handlerCloseModalEditarUsuario() {
@@ -134,7 +134,7 @@ export default class Perfil extends Component {
   render() {
     return (
       <div>
-        <button className={this.props.className === "" ? `btn btn-sm btn-outline-light` : this.props.className} onClick={() => this.handlerShowModalEditarUsuario()}><FaRegEdit /> Perfil </button>
+        <button className={`btn btn-sm btn-outline-light`} onClick={() => this.handlerShowModalEditarUsuario()}><FaRegEdit /> Perfil </button>
 
         <Modal
           show={this.state.modalShowEditarUsuario}
@@ -229,10 +229,15 @@ export default class Perfil extends Component {
                 </div>
               )}
             </Form>
+
+            <a href="/" className="nav-link" onClick={() => logout()}>
+              <i className="nav-icon fas fa-sign-out-alt" />
+              Sair do Sistema
+            </a>
           </Modal.Body>
 
         </Modal>
-      </div >
+      </div>
     );
   }
 }

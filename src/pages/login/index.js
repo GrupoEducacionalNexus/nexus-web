@@ -53,13 +53,13 @@ export default class Login extends Component {
                     {
                         auth: data.auth,
                         id: data.id,
+                        nome: data.nome,
                         email: data.email,
                         id_permissao: data.id_permissao,
                         id_setor: data.id_setor
-
                     }
                     this.context.setUser(userData);
-                    console.log(data);
+                    //console.log(data);
 
                     if (data.permissao === "ADMIN") {
                         this.props.history.push("/administrador");

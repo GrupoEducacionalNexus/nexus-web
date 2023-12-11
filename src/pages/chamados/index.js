@@ -1,8 +1,9 @@
 import { FaRegSave, FaCalendarWeek, FaFileAlt, FaEye, FaEyeSlash, FaFilter, FaSearch, FaPlus, FaRegWindowClose, FaUserGraduate, FaUserCheck, FaTv, FaRegCommentDots, FaBoxes, FaCloudDownloadAlt } from 'react-icons/fa';
 import React, { Component } from 'react';
+import Draggable from 'react-draggable';
 import styled from 'styled-components';
 import Menu from '../../components/Menu';
-import { Card, Col, Modal, Row, Spinner, Tab, Tabs } from 'react-bootstrap';
+import { Card, Col, Container, Modal, Row, Spinner, Tab, Tabs } from 'react-bootstrap';
 import api from '../../services/api';
 import { getToken } from '../../services/auth';
 import { listaDeSetores } from '../../services/getListaDeSetores';
@@ -12,7 +13,7 @@ import { uploadFile } from '../../services/uploadFile';
 import { listaDeStatus } from '../../services/getListaDeStatus';
 import { listaDeUsuariosDoSetor } from '../../services/getListaDeUsuariosDoSetor';
 import Select from 'react-select';
-import Board, { Container } from 'react-trello';
+// import Board, { Container } from 'react-trello';
 import backgroundImage from '../../assets/background_geral.webp';
 import AccordionChamados from '../../components/AccordionChamados';
 import UserContext from '../../UserContext';
@@ -108,7 +109,34 @@ export default class Index extends Component {
 			arrayDadosDoSolicitante: [],
 			idPermissao: [],
 			arrayChamadosPorSetor: [],
-			id_setor: 0
+			id_setor: 0,
+			initialBoard: {
+				columns: [
+					{
+						id: 1,
+						title: 'To Do',
+						cards: [
+							{ id: 1, title: 'Task 1' },
+							{ id: 2, title: 'Task 2' },
+						],
+					},
+					{
+						id: 2,
+						title: 'In Progress',
+						cards: [
+							{ id: 3, title: 'Task 3' },
+						],
+					},
+					{
+						id: 3,
+						title: 'Done',
+						cards: [
+							{ id: 4, title: 'Task 4' },
+						],
+					},
+				],
+			}
+
 		};
 	}
 
@@ -418,20 +446,24 @@ export default class Index extends Component {
 					data.resultados.map((chamado, index) => {
 						if (chamado.id_status === 5) {
 							arrayChamadosRecebidosComOstatusSolicitados.push(
-								{ id: chamado.id, title: `Chamado ${chamado.id}`, description: chamado.tipo_chamado, label: chamado.dataHoraFinalizacao, metadata: chamado, style: { backgroundColor: 
-									moment(chamado.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ?  '' : '#F5C6CB' } }
+								{
+									id: chamado.id, title: `Chamado ${chamado.id}`, description: chamado.tipo_chamado, label: chamado.dataHoraFinalizacao, metadata: chamado, style: {
+										backgroundColor:
+											moment(chamado.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ? '' : '#F5C6CB'
+									}
+								}
 							)
 						}
 
 						if (chamado.id_status === 7) {
 							arrayChamadosRecebidosComOstatusFinalizados.push(
-								{ id: chamado.id, title: `Chamado ${chamado.id}`, description: chamado.tipo_chamado, label: chamado.dataHoraFinalizacao, metadata: chamado, style: { backgroundColor: moment(chamado.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ?  '' : '#F5C6CB' } }
+								{ id: chamado.id, title: `Chamado ${chamado.id}`, description: chamado.tipo_chamado, label: chamado.dataHoraFinalizacao, metadata: chamado, style: { backgroundColor: moment(chamado.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ? '' : '#F5C6CB' } }
 							)
 						}
 
 						if (chamado.id_status === 9) {
 							arrayChamadosRecebidosComOstatusEmProducao.push(
-								{ id: chamado.id, title: `Chamado ${chamado.id}`, description: chamado.tipo_chamado, label: chamado.dataHoraFinalizacao, metadata: chamado, style: { backgroundColor: moment(chamado.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ?  '' : '#F5C6CB' } }
+								{ id: chamado.id, title: `Chamado ${chamado.id}`, description: chamado.tipo_chamado, label: chamado.dataHoraFinalizacao, metadata: chamado, style: { backgroundColor: moment(chamado.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ? '' : '#F5C6CB' } }
 							)
 						}
 					});
@@ -837,15 +869,13 @@ export default class Index extends Component {
 	}
 
 	render() {
-
+		const arrayChamadosRecebidos = this.state.arrayChamadosRecebidos;
+		const arrayChamadosSolicitados = this.state.arrayChamadosSolicitados;
+		const arrayChamadosSemAtribuicao = this.state.arrayChamadosSemAtribuicao;
+		const arrayParticipacoesEmChamados = this.state.arrayParticipacoesEmChamados;
 		return (
-			<Container fluid style={{
-				backgroundImage: `url(${backgroundImage})`,
-				backgroundSize: "100% 100%",
-				backgroundRepeat: 'no-repeat',
-				padding: '0px',
-				minHeight: '100vh'
-			}}>
+
+			<Container fluid>
 				<Menu />
 				<Row>
 					<Col xs={12}>
@@ -887,7 +917,27 @@ export default class Index extends Component {
 								variant='pills'>
 
 								<Tab eventKey="chamados_recebidos" title={`Chamados recebidos`}>
-									<Board data={this.state.data}
+									<Container fluid>
+										<div className="row d-flex justify-content-center mt-3">
+											{['SOLICITADO', 'EM PRODUÇÃO', 'FINALIZADO(A)'].map((status) => (
+												<div key={status} className="col-sm-4" style={{ cursor: 'pointer' }}>
+													<h6 className='text-center font-weight-bold'>{status}</h6>
+													{arrayChamadosRecebidos
+														.filter((chamado) => chamado.status === status)
+														.map((chamado) => (
+															<div key={chamado.id} className={`card zoom ${chamado.id_status === 5 ? `border-primary` : chamado.id_status === 9 ? `border-warning` : `border-success`} `} onClick={() => this.handlerShowModalEditarChamadoRecebido(chamado)} style={{ width: '26rem' }}>
+																<div className="card-body">
+																	<h5 className="card-title">{`${chamado.id} - ${chamado.status} - ${chamado.dataHoraFinalizacaoFormatado}`}</h5>
+																	<p className="card-text fs-6">{chamado.descricao}</p>
+																</div>
+															</div>
+														))}
+												</div>
+											))}
+										</div>
+									</Container>
+
+									{/* <Board data={this.state.data}
 										style={{
 											overflow: 'auto',
 											backgroundColor: 'transparent', // Cor de fundo
@@ -895,51 +945,104 @@ export default class Index extends Component {
 											marginBottom: '30px', // Margem inferior
 											display: 'flex', // Exibição em linha
 											justifyContent: 'center', // Alinhamento centralizado horizontalmente
-											
+
 										}}
 										cardDraggable
 										handleDragEnd={this.handleDragEnd}
-										onCardClick={this.onCardClick} />
+										onCardClick={this.onCardClick} /> */}
+
+
 								</Tab>
 
 								<Tab eventKey="chamados_solicitados" title={`Chamados solicitados`}>
-
-									<div class="table-responsive table-sm mt-2 container">
-										<div class="table-wrapper">
-											<table class="table text-center table-hover mb-5 table-light">
-												<thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)', verticalAlign: 'middle' }}>
-													<tr>
-														<th scope="col" className="align-middle">N° do chamado:</th>
-														<th scope="col" className="align-middle">Descrição</th>
-														<th className="align-middle">Visualização</th>
-														<th scope="col" className="align-middle">Data de finalização</th>
-														<th className="align-middle">Ações</th>
-													</tr>
-												</thead>
-												<tbody>
-													{this.state.arrayChamadosSolicitados.length > 0 ? (
-														this.state.arrayChamadosSolicitados.map((item, index) => (
-															<tr key={index} className={moment(item.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ?  '' : 'table-danger'}>
-																<td>{item.id}</td>
-																<td><p style={{ width: "300px", height: "50px", overflow: "scroll" }}>{item.descricao}</p></td>
-																<td>{parseInt(item.visualizado) === 1 ? <FaEye style={{ width: "200px" }} /> : <FaEyeSlash style={{ width: "200px" }} />}</td>
-																<td>{item.dataHoraFinalizacaoFormatado}</td>
-																<td><button className='button w-100' onClick={() => this.handlerShowModalEditarChamadoSolicitado(item)}>Visualizar</button></td>
-															</tr>
-														))
-													) : (<tr>
-														<td colSpan="12">Nenhum resultado encontrado</td>
-													</tr>)}
-												</tbody>
-											</table>
+									<Container fluid>
+										<div className="row d-flex justify-content-center mt-3">
+											{['SOLICITADO', 'FINALIZADO(A)'].map((status) => (
+												<div key={status} className="col-sm-4" style={{ cursor: 'pointer' }}>
+													<h6 className='text-center font-weight-bold'>{status}</h6>
+													{arrayChamadosSolicitados
+														.filter((chamado) => chamado.status === status)
+														.map((chamado) => (
+															<div key={chamado.id} className={`card zoom ${chamado.id_status === 5 ? `border-primary` : chamado.id_status === 9 ? `border-warning` : `border-success`} `} onClick={() => this.handlerShowModalEditarChamadoSolicitado(chamado)} style={{ width: '26rem' }}>
+																<div className="card-body">
+																	<h5 className="card-title">{parseInt(chamado.visualizado) === 1 ? <FaEye /> : <FaEyeSlash />}{`${chamado.id} - ${chamado.status} - ${chamado.dataHoraFinalizacaoFormatado}`} </h5>
+																	<p className="card-text fs-6">{chamado.descricao}</p>
+																</div>
+															</div>
+														))}
+												</div>
+											))}
 										</div>
-									</div>
+									</Container>
+									{/* <div class="table-responsive table-sm mt-2 container">
+											<div class="table-wrapper">
+												<table class="table text-center table-hover mb-5 table-light">
+													<thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)', verticalAlign: 'middle' }}>
+														<tr>
+															<th scope="col" className="align-middle">N° do chamado:</th>
+															<th scope="col" className="align-middle">Descrição</th>
+															<th className="align-middle">Visualização</th>
+															<th scope="col" className="align-middle">Data de finalização</th>
+															<th className="align-middle">Ações</th>
+														</tr>
+													</thead>
+													<tbody>
+														{this.state.arrayChamadosSolicitados.length > 0 ? (
+															this.state.arrayChamadosSolicitados.map((item, index) => (
+																<tr key={index} className={moment(item.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ? '' : 'table-danger'}>
+																	<td>{item.id}</td>
+																	<td><p style={{ width: "300px", height: "50px", overflow: "scroll" }}>{item.descricao}</p></td>
+																	<td>{parseInt(item.visualizado) === 1 ? <FaEye style={{ width: "200px" }} /> : <FaEyeSlash style={{ width: "200px" }} />}</td>
+																	<td>{item.dataHoraFinalizacaoFormatado}</td>
+																	<td><button className='button w-100' onClick={() => this.handlerShowModalEditarChamadoSolicitado(item)}>Visualizar</button></td>
+																</tr>
+															))
+														) : (<tr>
+															<td colSpan="12">Nenhum resultado encontrado</td>
+														</tr>)}
+													</tbody>
+												</table>
+											</div>
+										</div> */}
 								</Tab>
 
 								<Tab eventKey="chamadosSemAtribuicao" title={`Chamados sem atribuição`}>
-									
 
-									<div class="table-responsive table-sm mt-2 container">
+									<Container fluid>
+										<div className="row d-flex justify-content-center mt-3">
+											{['SOLICITADO', 'EM PRODUÇÃO', 'FINALIZADO(A)'].map((status) => (
+												<div key={status} className="col-sm-4" style={{ cursor: 'pointer' }}>
+													<h6 className='text-center font-weight-bold'>{status}</h6>
+													{arrayChamadosSemAtribuicao
+														.filter((chamado) => chamado.status === status)
+														.map((chamado) => (
+															<div key={chamado.id} className={`card zoom ${chamado.id_status === 5 ? `border-primary` : chamado.id_status === 9 ? `border-warning` : `border-success`} `} style={{ width: '26rem' }}>
+																<div className="card-body">
+																	<h5 className="card-title">{`${chamado.id} - ${chamado.status} - ${chamado.dataHoraFinalizacaoFormatado}`}</h5>
+																	<p className="card-text fs-6">{chamado.descricao}</p>
+																	<div className="form-group">
+																		<select class="form-control form-control-sm" id="selectResponsavel"
+																			onChange={(e) => this.atribuirResponsavelDoChamado(chamado.id, parseInt(e.target.value))}>
+																			<option value="0">Selecione</option>
+																			{this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.length > 0 ?
+																				this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.map(setor => (
+																					<option value={setor.id}>{setor.nome}</option>
+																				))
+																				: (<option>0</option>)
+																			}
+																		</select>
+																		<div className='d-flex justify-content-center mt-2'>
+																			<button className='button' onClick={() => this.handlerShowModalEditarChamadoRecebido(chamado)}>Visualizar</button>
+																		</div>
+																	</div>
+																</div>
+															</div>
+														))}
+												</div>
+											))}
+										</div>
+									</Container>
+									{/* <div class="table-responsive table-sm mt-2 container">
 										<div class="table-wrapper">
 											<table class="table text-center table-hover mb-5 table-light">
 												<thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)', verticalAlign: 'middle' }}>
@@ -953,7 +1056,7 @@ export default class Index extends Component {
 												<tbody>
 													{this.state.arrayChamadosSemAtribuicao.length > 0 ? (
 														this.state.arrayChamadosSemAtribuicao.map((item, index) => (
-															<tr key={index} className={moment(item.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ?  '' : 'table-danger'}>
+															<tr key={index} className={moment(item.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ? '' : 'table-danger'}>
 																<td>{item.id}</td>
 																<td><p style={{ width: "300px", height: "80px", overflow: "scroll" }}>{item.descricao}</p></td>
 																<td>{item.dataHoraFinalizacaoFormatado}</td>
@@ -977,12 +1080,28 @@ export default class Index extends Component {
 												</tbody>
 											</table>
 										</div>
-									</div>
+									</div> */}
 								</Tab>
 
 								<Tab eventKey="participacoesEmChamados" title={`Participações em chamados`}>
-									
-									<div class="table-responsive table-sm mt-2 container">
+									<div className="row d-flex justify-content-center mt-3">
+										{['SOLICITADO', 'EM PRODUÇÃO', 'FINALIZADO(A)'].map((status) => (
+											<div key={status} className="col-sm-4" style={{ cursor: 'pointer' }}>
+												<h6 className='text-center font-weight-bold'>{status}</h6>
+												{arrayParticipacoesEmChamados
+													.filter((chamado) => chamado.status === status)
+													.map((chamado) => (
+														<div key={chamado.id} className={`card zoom ${chamado.id_status === 5 ? `border-primary` : chamado.id_status === 9 ? `border-warning` : `border-success`} `} onClick={() => this.handlerShowModalEditarChamadoRecebido(chamado)} style={{ width: '26rem' }}>
+															<div className="card-body">
+																<h5 className="card-title">{`${chamado.id} - ${chamado.status} - ${chamado.dataHoraFinalizacaoFormatado}`}</h5>
+																<p className="card-text fs-6" style={{ height: "80px", overflowY: "scroll" }}>{chamado.descricao}</p>
+															</div>
+														</div>
+													))}
+											</div>
+										))}
+									</div>
+									{/* <div class="table-responsive table-sm mt-2 container">
 										<div class="table-wrapper">
 											<table class="table text-center table-hover mb-5 table-light">
 												<thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)', verticalAlign: 'middle' }}>
@@ -996,9 +1115,9 @@ export default class Index extends Component {
 													</tr>
 												</thead>
 												<tbody>
-													{this.state.arrayParticipacoesEmChamados.length > 0 ? (
-														this.state.arrayParticipacoesEmChamados.map((item, index) => (
-															<tr key={index} className={moment(item.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ?  '' : 'table-danger'}>
+													{arrayParticipacoesEmChamados.length > 0 ? (
+														arrayParticipacoesEmChamados.map((item, index) => (
+															<tr key={index} className={moment(item.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ? '' : 'table-danger'}>
 																<td>{item.id}</td>
 																<td><p style={{ width: "300px", height: "80px", overflow: "scroll" }}>{item.descricao}</p></td>
 																<td>{parseInt(item.visualizado) === 1 ? <FaEye style={{ width: "200px" }} /> : <FaEyeSlash style={{ width: "200px" }} />}</td>
@@ -1013,7 +1132,9 @@ export default class Index extends Component {
 												</tbody>
 											</table>
 										</div>
-									</div>
+									</div> */}
+
+
 								</Tab>
 							</Tabs>
 

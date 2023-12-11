@@ -1,5 +1,6 @@
 body {
   overflow-x: hidden;
+  font-size: 12pt !important;
 }
 
 .App {
@@ -210,14 +211,6 @@ body {
 }
 
 
-.list-group-blue .list-group-item {
-  background-color: #000233;
-}
-
-.list-group-blue .list-group-item:hover {
-  background-color: #ffffff;
-  color: #000233;
-}
 
 * {
   -webkit-print-color-adjust: exact !important;
@@ -248,7 +241,6 @@ body {
 .list-group-item {
   background-color: transparent;
   border-radius: 0;
-  color: #fff;
 }
 
 /* Position and sizing of burger button */
@@ -513,4 +505,20 @@ Note: Beware of modifying this element as it can break the animations - you shou
   margin-top: 0px;
 }
 
+.accordion-button {
+  background-color: transparent;
+  border: none;
+}
+
+.accordion-header {
+  background-color: #ffffff !important;
+  border: 1px solid #000233 !important;
+}
+
+
+.accordion-body {
+  background-color: #ffffff !important;
+  padding: 10px;
+  border: 1px solid #000233 !important;
+}
 

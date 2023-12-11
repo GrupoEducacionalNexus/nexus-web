@@ -232,7 +232,8 @@ export default class Index extends Component {
 			numero_livro: 0,
 			numero_pagina: 0,
 			numero_registro: 0,
-			data_local: ''
+			data_local: '',
+			linkDoCertificado: ``
 		};
 	}
 
@@ -567,7 +568,8 @@ export default class Index extends Component {
 			numero_livro: certificado.numero_livro,
 			numero_pagina: certificado.numero_pagina,
 			numero_registro: certificado.numero_registro,
-			data_local: certificado.data_local
+			data_local: certificado.data_local,
+			linkDoCertificado: `https://www.gestorgruponexus.com.br/certificado_digital?codigo_validacao=${certificado.codigo_validacao}`
 		});
 	}
 
@@ -3387,7 +3389,8 @@ export default class Index extends Component {
 														<th>Nome Completo</th>
 														<th>E-mail</th>
 														<th>Telefone</th>
-														<th>Empresa ou Instituição</th>
+														<th>Instituição de Origem</th>
+														<th>Curso de Formação</th>
 														<th>Estado</th>
 														<th>Cidade</th>
 														<th>Data e hora da inscrição</th>
@@ -3401,7 +3404,8 @@ export default class Index extends Component {
 																<td>{membro.nome_completo}</td>
 																<td>{membro.email}</td>
 																<td>{membro.telefone}</td>
-																<td>{membro.instituicao_empresa}</td>
+																<td>{membro.instituicao_origem}</td>
+																<td>{membro.curso_formacao}</td>
 																<td>{membro.estado}</td>
 																<td>{membro.cidade}</td>
 																<td>{membro.dataHoraCriacao}</td>
@@ -4731,6 +4735,7 @@ export default class Index extends Component {
 										numero_pagina={this.state.numero_pagina}
 										numero_registro={this.state.numero_registro}
 										data_local={this.state.data_local}
+										linkDoCertificado={this.state.linkDoCertificado}
 									/>
 									<div className="row mt-2">
 										<div className="col-sm-12">
