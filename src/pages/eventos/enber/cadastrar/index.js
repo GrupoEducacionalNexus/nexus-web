@@ -136,6 +136,10 @@ export default class Index extends Component {
 
       if (data.status === 200) {
         this.setState({ success: data.msg });
+        setTimeout(() => {
+          // Redirecionar para outra página após 5 segundos
+          this.props.history.push('/');
+        }, 5000); // 5000 milissegundos = 5 segundos
       }
 
       if (data.status === 400) {

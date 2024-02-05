@@ -48,7 +48,8 @@ export default class Index extends Component {
                         numero_pagina: data.resultados[0].numero_pagina,
                         numero_registro: data.resultados[0].numero_registro,
                         data_local: data.resultados[0].data_local,
-                        linkDoCertificado: `https://www.gestorgruponexus.com.br/certificado_digital?codigo_validacao=${data.resultados[0].codigo_validacao}`
+                        linkDoCertificado: `https://www.gestorgruponexus.com.br/certificado_digital?codigo_validacao=${data.resultados[0].codigo_validacao}`,
+                        codigo_validacao: data.resultados[0].codigo_validacao
                     })
                 }
             }
@@ -77,10 +78,10 @@ export default class Index extends Component {
                         numero_pagina={this.state.numero_pagina}
                         numero_registro={this.state.numero_registro}
                         data_local={this.state.data_local}
-                        linkDoCertificado={this.state.linkDoCertificado}
+                        linkDoCertificado={`https://www.gestorgruponexus.com.br/validacao_certificado`}
+                        codigo_validacao={this.state.codigo_validacao}
                     />
                 </div>
-                
             </div>
         )
     }

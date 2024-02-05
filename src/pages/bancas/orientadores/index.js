@@ -7,7 +7,7 @@ import Modal from 'react-bootstrap/Modal';
 import Logo_ATA from '../../../assets/logo_ata.jpg';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import { Accordion, Card, Col, Container, Row } from 'react-bootstrap';
+import { Accordion, Card, Col, Container, Row, Spinner } from 'react-bootstrap';
 import { listaDeStatus } from '../../../services/getListaDeStatus';
 import { listaDeAreasConcentracao } from '../../../services/getListaDeAreasConcentracao';
 import { listaDeLinhasDePesquisas } from '../../../services/getListaDeLinhasDePesquisas';
@@ -1942,180 +1942,93 @@ export default class Index extends Component {
 									<Tab
 										eventKey="bancas"
 										title="Bancas">
-										<div className='container'>
+										<Container style={{ backgroundColor: "#F8F9FA" }}>
 											<div className='row d-flex justify-content-center'>
 												<div className='col-sm-6'>
-													<h4 className='text-center lead text-light font-weight-bold'><FaPencilAlt /> Qualificação</h4>
+													<h4 className='text-center lead font-weight-bold'><FaPencilAlt /> Qualificação</h4>
+													<Container style={{ maxHeight: "400px", overflowY: 'scroll', textAlign: 'center' }}>
+														<Accordion>
+															{bancasQ.length > 0 ?
+																bancasQ.map(banca => (
+																	<Accordion defaultActiveKey="0" flush style={{ backgroundColor: banca.status_confirmacaoBancaD === "FINALIZADA" ? "#00ff87" : "" }}>
+																		<Accordion.Item eventKey={banca.id} style={{ backgroundColor: '#fffffff', marginBottom: '5px' }}>
+																			<Accordion.Header>
+																				<h5><FaLayerGroup /> {banca.orientando.length > 0 ? banca.orientando.toLocaleUpperCase() : ""} - {banca.status_confirmacaoBancaD}</h5>
+																				<h6 className="list-group-item">Curso: {banca.curso}</h6>
+																				<h6 className="list-group-item">Data e hora prevista: {banca.dataHoraPrevistaFormatada}</h6>
+																			</Accordion.Header>
+																			<Accordion.Body style={{ overflowY: "scroll", height: "350px" }}>
 
-													<Accordion>
-														{bancasQ.length > 0 ?
-															bancasQ.map(banca => (
-																<Accordion defaultActiveKey="0" flush>
-																	<Accordion.Item eventKey={banca.id} style={{ backgroundColor: '#fffffff', marginBottom: '5px' }}>
-																		<Accordion.Header>
-																			<h5><FaLayerGroup /> {banca.orientando.length > 0 ? banca.orientando.toLocaleUpperCase() : ""}</h5>
-																		</Accordion.Header>
-																		<Accordion.Body style={{ overflowY: "scroll", height: "350px" }}>
-																			<ul className="list-group mb-2">
-																				<li className={
-																					banca.status_confirmacaoBancaQ === "AGUARDANDO" ? `list-group-item font-weight-bold text-warning` : `list-group-item lead font-weight-bold text-success`}>Status: {banca.status_confirmacaoBancaQ === "AGUARDANDO" ? `aguardando` : banca.status_confirmacaoBancaQ === "FINALIZADA" ? "finalizada" : "confirmada"}</li>
-																				<li className="list-group-item">Curso: {banca.curso}</li>
-																				<li className="list-group-item">Data e hora prevista: {banca.dataHoraPrevistaFormatada}</li>
-																			</ul>
-																			<div className='d-flex flex-column'>
-																				<button className='button' onClick={() => this.handlerShowModalAtualizarBanca(banca)}><FaRegPlusSquare /> Atualizar banca </button>
-																				{banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA" ? (<button className='button mt-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>Declaração de participação</button>) : ""}
-																				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata === null ? (<button className='button mt-2 ' onClick={() => this.handlerShowModalEmitirAta(banca)}>Emitir ATA</button>) : ""}
-																				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_ata !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalAtualizarAta(banca)}>Atualizar ATA</button>) : ""}
-																				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_ata !== null ? (<button className='button mt-2 ' onClick={() => this.handlerShowModalVisualizarAta(banca)}>ATA</button>) : ""}
-																				{banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.id_fichaAvaliacao === null ? (<button className='button mt-2' onClick={() => this.handlerShowModalEmitirFichaDeAvaliacao(banca)}>Emitir ficha de avaliação</button>) : ""}
-																				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_fichaAvaliacao !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalEditarFichaDeAvaliacao(banca)}>Atualizar ficha de avaliação</button>) : ""}
-																				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_fichaAvaliacao !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarFichaDeAvaliacao(banca)}>Visualizar ficha de avaliação</button>) : ""}
-																				<button className='button mt-2' onClick={() => this.handlerShowModalExcluirBanca(banca)}>Excluir banca</button>
-																				{banca.status_confirmacaoBancaQ === "CONFIRMADO" ? (<button className='button mt-2' onClick={() => this.handlerShowModalFinalizarBanca(banca)}>Finalizar banca</button>) : ""}
-																			</div>
-																		</Accordion.Body>
-																	</Accordion.Item>
-
-																</Accordion>
-																// <Card style={{ background: "#000233", color: "#ffffff" }}>
-																// 	<Accordion.Toggle as={Card.Header} eventKey={banca.id} className='text-center'>
-																// 		<h5><FaLayerGroup /> {banca.orientando.length > 0 ? banca.orientando.toLocaleUpperCase() : ""}</h5>
-																// 	</Accordion.Toggle>
-																// 	<Accordion.Collapse eventKey={banca.id}>
-																// 		<Card.Body style={{ overflowY: "scroll", height: "450px" }}>
-																// 			<ul className="list-group list-group-blue">
-																// 				<li className={
-																// 					banca.status_confirmacaoBancaQ === "AGUARDANDO" ? `list-group-item font-weight-bold text-warning` : `list-group-item lead font-weight-bold text-success`}>Status: {banca.status_confirmacaoBancaQ === "AGUARDANDO" ? `aguardando` : banca.status_confirmacaoBancaQ === "FINALIZADA" ? "finalizada" : "confirmada"}</li>
-																// 				<li className="list-group-item">Curso: {banca.curso}</li>
-																// 				<li className="list-group-item">Data e hora prevista: {banca.data_horaPrevista}</li>
-																// 			</ul>
-
-																// 			<div className='d-flex flex-column'>
-																// 				<button className='btn btn-sm btn-outline-light' onClick={() => this.handlerShowModalAtualizarBanca(banca)}><FaRegPlusSquare /> Atualizar banca </button>
-
-																// 				{banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA" ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>Declaração de participação</button>) : ""}
-																// 				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata === null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirAta(banca)}>Emitir ATA</button>) : ""}
-																// 				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_ata !== null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalAtualizarAta(banca)}>Atualizar ATA</button>) : ""}
-																// 				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_ata !== null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarAta(banca)}>ATA</button>) : ""}
-																// 				{banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.id_fichaAvaliacao === null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirFichaDeAvaliacao(banca)}>Emitir ficha de avaliação</button>) : ""}
-																// 				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_fichaAvaliacao !== null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEditarFichaDeAvaliacao(banca)}>Atualizar ficha de avaliação</button>) : ""}
-																// 				{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_fichaAvaliacao !== null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarFichaDeAvaliacao(banca)}>Visualizar ficha de avaliação</button>) : ""}
-																// 				<button className='btn btn-sm btn-outline-danger mt-2 mr-2' onClick={() => this.handlerShowModalExcluirBanca(banca)}>Excluir banca</button>
-																// 				{banca.status_confirmacaoBancaQ === "CONFIRMADO" ? (<button className='btn btn-sm btn-outline-success mt-2 mr-2' onClick={() => this.handlerShowModalFinalizarBanca(banca)}>Finalizar banca</button>) : ""}
-																// 			</div>
-																// 		</Card.Body>
-																// 	</Accordion.Collapse>
-																// </Card>
-															)) : (
-																<Accordion defaultActiveKey="0">
-																	<Accordion.Item eventKey="0">
-																		<Accordion.Header>Accordion Item #1</Accordion.Header>
-																		<Accordion.Body>
-																			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-																			eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-																			minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-																			aliquip ex ea commodo consequat. Duis aute irure dolor in
-																			reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-																			pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-																			culpa qui officia deserunt mollit anim id est laborum.
-																		</Accordion.Body>
-																	</Accordion.Item>
-																</Accordion>
-															)}
-													</Accordion>
+																				<div className='d-flex flex-column'>
+																					<button className='button' onClick={() => this.handlerShowModalAtualizarBanca(banca)}><FaRegPlusSquare /> Atualizar banca </button>
+																					{banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA" ? (<button className='button mt-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>Declaração de participação</button>) : ""}
+																					{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata === null ? (<button className='button mt-2 ' onClick={() => this.handlerShowModalEmitirAta(banca)}>Emitir ATA</button>) : ""}
+																					{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_ata !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalAtualizarAta(banca)}>Atualizar ATA</button>) : ""}
+																					{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_ata !== null ? (<button className='button mt-2 ' onClick={() => this.handlerShowModalVisualizarAta(banca)}>ATA</button>) : ""}
+																					{banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.id_fichaAvaliacao === null ? (<button className='button mt-2' onClick={() => this.handlerShowModalEmitirFichaDeAvaliacao(banca)}>Emitir ficha de avaliação</button>) : ""}
+																					{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_fichaAvaliacao !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalEditarFichaDeAvaliacao(banca)}>Atualizar ficha de avaliação</button>) : ""}
+																					{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_fichaAvaliacao !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarFichaDeAvaliacao(banca)}>Visualizar ficha de avaliação</button>) : ""}
+																					<button className='button mt-2' onClick={() => this.handlerShowModalExcluirBanca(banca)}>Excluir banca</button>
+																					{banca.status_confirmacaoBancaQ === "CONFIRMADO" ? (<button className='button mt-2' onClick={() => this.handlerShowModalFinalizarBanca(banca)}>Finalizar banca</button>) : ""}
+																				</div>
+																			</Accordion.Body>
+																		</Accordion.Item>
+																	</Accordion>
+																)) : (
+																	<Spinner animation="border" role="status">
+																		<span className="visually-hidden"></span>
+																	</Spinner>
+																)}
+														</Accordion>
+													</Container>
 												</div>
 												<div className='col-sm-6'>
 													<h4 className='text-center lead font-weight-bold'><FaShieldAlt /> Defesa</h4>
-													<Accordion>
-														{bancasD.length > 0 ?
-															bancasD.map(banca => (
-																<Accordion defaultActiveKey="0" flush>
-																	<Accordion.Item eventKey={banca.id} style={{ backgroundColor: '#fffffff', marginBottom: '5px' }}>
-																		<Accordion.Header>
-																			<h5><FaLayerGroup /> {banca.orientando.length > 0 ? banca.orientando.toLocaleUpperCase() : ""}</h5>
-																		</Accordion.Header>
-																		<Accordion.Body style={{ overflowY: "scroll", height: "350px" }}>
-																			<ul className="list-group mb-2">
-																				<li className={banca.status_confirmacaoBancaD === "AGUARDANDO" ? `list-group-item lead font-weight-bold text-warning` : `list-group-item lead font-weight-bold text-success`}>Status: {banca.status_confirmacaoBancaD === "AGUARDANDO" ? `aguardando` : banca.status_confirmacaoBancaD === "FINALIZADA" ? "finalizada" : "confirmada"}</li>
-																				<li className="list-group-item">Curso: {banca.curso}</li>
-																				<li className="list-group-item">Data e hora prevista: {banca.data_horaPrevista}</li>
-																			</ul>
-																			<div className='d-flex flex-column'>
-																				<button className='button' onClick={() => this.handlerShowModalAtualizarBanca(banca)}><FaRegPlusSquare /> Atualizar banca </button>
-																				<button className='button mt-2' onClick={() => this.handlerShowModalEmitirDeclaracaoDeOrientacao(banca)}>Emitir declaração de orientação</button>
-																				<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao({ ...banca, documentoEmIngles: false })}>Declaração de orientação</button>
-																				<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao({ ...banca, documentoEmIngles: true })}>Guidance statement</button>
-																				{banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='button mt-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>Declaração de participação</button>) : ""}
-																				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata === null ? (<button className='button mt-2' onClick={() => this.handlerShowModalEmitirAta(banca)}>Emitir ATA</button>) : ""}
-																				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalAtualizarAta(banca)}>Atualizar ATA</button>) : ""}
-																				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarAta(banca)}>ATA</button>) : ""}
-																				{banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.id_fichaAvaliacao === null ? (<button className='button mt-2' onClick={() => this.handlerShowModalEmitirFichaDeAvaliacao(banca)}>Emitir ficha de avaliação</button>) : ""}
-																				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null && banca.id_fichaAvaliacao !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalEditarFichaDeAvaliacao(banca)}>Atualizar ficha de avaliação</button>) : ""}
-																				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null && banca.id_fichaAvaliacao !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarFichaDeAvaliacao(banca)}>Visualizar ficha de avaliação</button>) : ""}
-																				{banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='button mt-2' onClick={() => this.handlerShowModalCadastrarEAtualizarFolhaDeAprovacao(banca)}>Emitir folha de aprovação</button>) : ""}
-																				{banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarFolhaDeAprovacao(banca)}>Folha de aprovação</button>) : ""}
-																				{banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarCertificadoDeAprovacao(banca)}>Certificado de aprovação</button>) : ""}
-																				<button className='button mt-2' onClick={() => this.handlerShowModalExcluirBanca(banca)}>Excluir</button>
-																				{banca.status_confirmacaoBancaD === "CONFIRMADO" ? (<button className='button mt-2' onClick={() => this.handlerShowModalFinalizarBanca(banca)}>Finalizar</button>) : ""}
-																			</div>
-																		</Accordion.Body>
-																	</Accordion.Item>
+													<Container style={{ maxHeight: "400px", overflowY: 'scroll', textAlign: 'center' }}>
+														<Accordion>
+															{bancasD.length > 0 ?
+																bancasD.map(banca => (
+																	<Accordion defaultActiveKey="0" flush style={{ backgroundColor: banca.status_confirmacaoBancaD === "FINALIZADA" ? "#00ff87" : "" }}>
+																		<Accordion.Item eventKey={banca.id} style={{ backgroundColor: '#fffffff', marginBottom: '5px' }}>
+																			<Accordion.Header>
+																				<h5><FaLayerGroup /> {banca.orientando.length > 0 ? banca.orientando.toLocaleUpperCase() : ""} - {banca.status_confirmacaoBancaD}</h5>
+																				<h6 className="list-group-item">Curso: {banca.curso}</h6>
+																				<h6 className="list-group-item">Data e hora prevista: {banca.dataHoraPrevistaFormatada}</h6>																			</Accordion.Header>
+																			<Accordion.Body style={{ overflowY: "scroll", height: "350px" }}>
+																				<div className='d-flex flex-column'>
+																					<button className='button' onClick={() => this.handlerShowModalAtualizarBanca(banca)}><FaRegPlusSquare /> Atualizar banca </button>
+																					<button className='button mt-2' onClick={() => this.handlerShowModalEmitirDeclaracaoDeOrientacao(banca)}>Emitir declaração de orientação</button>
+																					<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao({ ...banca, documentoEmIngles: false })}>Declaração de orientação</button>
+																					<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao({ ...banca, documentoEmIngles: true })}>Guidance statement</button>
+																					{banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='button mt-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>Declaração de participação</button>) : ""}
+																					{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata === null ? (<button className='button mt-2' onClick={() => this.handlerShowModalEmitirAta(banca)}>Emitir ATA</button>) : ""}
+																					{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalAtualizarAta(banca)}>Atualizar ATA</button>) : ""}
+																					{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarAta(banca)}>ATA</button>) : ""}
+																					{banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.id_fichaAvaliacao === null ? (<button className='button mt-2' onClick={() => this.handlerShowModalEmitirFichaDeAvaliacao(banca)}>Emitir ficha de avaliação</button>) : ""}
+																					{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null && banca.id_fichaAvaliacao !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalEditarFichaDeAvaliacao(banca)}>Atualizar ficha de avaliação</button>) : ""}
+																					{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null && banca.id_fichaAvaliacao !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarFichaDeAvaliacao(banca)}>Visualizar ficha de avaliação</button>) : ""}
+																					{banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='button mt-2' onClick={() => this.handlerShowModalCadastrarEAtualizarFolhaDeAprovacao(banca)}>Emitir folha de aprovação</button>) : ""}
+																					{banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarFolhaDeAprovacao(banca)}>Folha de aprovação</button>) : ""}
+																					{banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarCertificadoDeAprovacao(banca)}>Certificado de aprovação</button>) : ""}
+																					<button className='button mt-2' onClick={() => this.handlerShowModalExcluirBanca(banca)}>Excluir</button>
+																					{banca.status_confirmacaoBancaD === "CONFIRMADO" ? (<button className='button mt-2' onClick={() => this.handlerShowModalFinalizarBanca(banca)}>Finalizar</button>) : ""}
+																				</div>
+																			</Accordion.Body>
+																		</Accordion.Item>
 
-																</Accordion>
-																// <Card style={{ background: "#000233", color: "#ffffff" }}>
-																// 	<Accordion.Toggle as={Card.Header} eventKey={banca.id} className='text-center'>
-																// 		<h5><FaLayerGroup /> {banca.orientando.length > 0 ? banca.orientando.toLocaleUpperCase() : ""}</h5>
-																// 	</Accordion.Toggle>
-																// 	<Accordion.Collapse eventKey={banca.id}>
-																// 		<Card.Body style={{ overflowY: "scroll", height: "450px" }}>
-																// 			<ul className="list-group list-group-blue">
-																// 				<li className={banca.status_confirmacaoBancaD === "AGUARDANDO" ? `list-group-item lead font-weight-bold text-warning` : `list-group-item lead font-weight-bold text-success`}>Status: {banca.status_confirmacaoBancaD === "AGUARDANDO" ? `aguardando` : banca.status_confirmacaoBancaD === "FINALIZADA" ? "finalizada" : "confirmada"}</li>
-																// 				<li className="list-group-item">Curso: {banca.curso}</li>
-																// 				<li className="list-group-item">Data e hora prevista: {banca.data_horaPrevista}</li>
-																// 			</ul>
-																// 			<div className='d-flex flex-column'>
-																// 				<button className='btn btn-sm btn-outline-light' onClick={() => this.handlerShowModalAtualizarBanca(banca)}><FaRegPlusSquare /> Atualizar banca </button>
-																// 				<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirDeclaracaoDeOrientacao(banca)}>Emitir declaração de orientação</button>
-																// 				<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao({ ...banca, documentoEmIngles: false })}>Declaração de orientação</button>
-																// 				<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao({ ...banca, documentoEmIngles: true })}>Guidance statement</button>
-																// 				{banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>Declaração de participação</button>) : ""}
-																// 				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata === null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirAta(banca)}>Emitir ATA</button>) : ""}
-																// 				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalAtualizarAta(banca)}>Atualizar ATA</button>) : ""}
-																// 				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarAta(banca)}>ATA</button>) : ""}
-																// 				{banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.id_fichaAvaliacao === null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEmitirFichaDeAvaliacao(banca)}>Emitir ficha de avaliação</button>) : ""}
-																// 				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null && banca.id_fichaAvaliacao !== null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalEditarFichaDeAvaliacao(banca)}>Atualizar ficha de avaliação</button>) : ""}
-																// 				{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null && banca.id_fichaAvaliacao !== null ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarFichaDeAvaliacao(banca)}>Visualizar ficha de avaliação</button>) : ""}
-																// 				{banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalCadastrarEAtualizarFolhaDeAprovacao(banca)}>Emitir folha de aprovação</button>) : ""}
-																// 				{banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarFolhaDeAprovacao(banca)}>Folha de aprovação</button>) : ""}
-																// 				{banca.status_confirmacaoBancaD === "FINALIZADA" ? (<button className='btn btn-sm btn-outline-light mt-2 mr-2' onClick={() => this.handlerShowModalVisualizarCertificadoDeAprovacao(banca)}>Certificado de aprovação</button>) : ""}
-																// 				<button className='btn btn-sm btn-outline-danger mt-5 mr-2' onClick={() => this.handlerShowModalExcluirBanca(banca)}>Excluir</button>
-																// 				{banca.status_confirmacaoBancaD === "CONFIRMADO" ? (<button className='btn btn-sm btn-outline-success mt-2 mr-2' onClick={() => this.handlerShowModalFinalizarBanca(banca)}>Finalizar</button>) : ""}
-																// 			</div>
-																// 		</Card.Body>
-																// 	</Accordion.Collapse>
-																// </Card>
-															))
-															: (
-																<Accordion defaultActiveKey="0">
-																	<Accordion.Item eventKey="0">
-																		<Accordion.Header>Accordion Item #1</Accordion.Header>
-																		<Accordion.Body>
-																			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-																			eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-																			minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-																			aliquip ex ea commodo consequat. Duis aute irure dolor in
-																			reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-																			pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-																			culpa qui officia deserunt mollit anim id est laborum.
-																		</Accordion.Body>
-																	</Accordion.Item>
-																</Accordion>
-															)}
-													</Accordion>
+																	</Accordion>
+
+																))
+																: (
+																	<Spinner animation="border" role="status">
+																		<span className="visually-hidden"></span>
+																	</Spinner>
+																)}
+														</Accordion>
+													</Container>
 												</div>
 											</div>
-										</div>
+										</Container>
 									</Tab>
 								</Tabs>
 

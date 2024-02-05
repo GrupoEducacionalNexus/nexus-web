@@ -134,7 +134,7 @@ export default class Perfil extends Component {
   render() {
     return (
       <div>
-        <button className={`btn btn-sm btn-outline-light`} onClick={() => this.handlerShowModalEditarUsuario()}><FaRegEdit /> Perfil </button>
+        <button className={this.props.className ===  `` ? `button` : this.props.className } onClick={() => this.handlerShowModalEditarUsuario()}><FaRegEdit /> Perfil </button>
 
         <Modal
           show={this.state.modalShowEditarUsuario}

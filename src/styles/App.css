@@ -66,7 +66,6 @@ body {
 }
 
 .button {
-  display: block;
   background-color: #000233;
   border-radius: 5px;
   border: 1px solid #000233;
@@ -420,10 +419,6 @@ Note: Beware of modifying this element as it can break the animations - you shou
   min-height: 100vh;
 }
 
-#main {
-  padding-top: 20px;
-}
-
 /* Estilos para o menu flutuante */
 .floating-menu {
   position: fixed;
@@ -511,14 +506,13 @@ Note: Beware of modifying this element as it can break the animations - you shou
 }
 
 .accordion-header {
-  background-color: #ffffff !important;
-  border: 1px solid #000233 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
-
 
 .accordion-body {
   background-color: #ffffff !important;
   padding: 10px;
-  border: 1px solid #000233 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 

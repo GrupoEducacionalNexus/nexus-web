@@ -63,7 +63,8 @@ export const CertificadoPosGraduacao = (props) => {
               <span style={{ borderTop: "1px solid black" }}>Alcimar José Silva</span><br />
               <span style={{ fontSize: "16px", fontFamily: "Calibri", marginTop: "10px" }}>President of Ivy Enber Christian University</span>
 
-              <p className='mt-5'>VALIDATOR CODE</p>
+              <p className='font-weight-bold mt-2'>Validation Code: {props.codigo_validacao}</p>
+              <p className='mt-2'>VALIDATOR CODE</p>
               <QRCode value={props.linkDoCertificado} />
               <p style={{ fontSize: "10px", marginTop: "15px" }}>Register at the Secretoy of State of Florida - USA P19000042160 - EIN# 38-4120047</p>
               <p style={{ fontSize: "10px" }}>Section 1005.06 (1)(f). Florida Comission for independent Education</p>

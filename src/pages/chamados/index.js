@@ -1,9 +1,9 @@
-import { FaRegSave, FaCalendarWeek, FaFileAlt, FaEye, FaEyeSlash, FaFilter, FaSearch, FaPlus, FaRegWindowClose, FaUserGraduate, FaUserCheck, FaTv, FaRegCommentDots, FaBoxes, FaCloudDownloadAlt } from 'react-icons/fa';
+import { FaRegSave, FaCalendarWeek, FaFileAlt, FaEye, FaEyeSlash, FaFilter, FaSearch, FaPlus, FaRegWindowClose, FaUserGraduate, FaUserCheck, FaTv, FaRegCommentDots, FaBoxes, FaCloudDownloadAlt, FaDesktop } from 'react-icons/fa';
 import React, { Component } from 'react';
 import Draggable from 'react-draggable';
 import styled from 'styled-components';
 import Menu from '../../components/Menu';
-import { Card, Col, Container, Modal, Row, Spinner, Tab, Tabs } from 'react-bootstrap';
+import { Accordion, Card, Col, Container, Modal, Nav, Row, Spinner, Tab, Tabs } from 'react-bootstrap';
 import api from '../../services/api';
 import { getToken } from '../../services/auth';
 import { listaDeSetores } from '../../services/getListaDeSetores';
@@ -13,8 +13,6 @@ import { uploadFile } from '../../services/uploadFile';
 import { listaDeStatus } from '../../services/getListaDeStatus';
 import { listaDeUsuariosDoSetor } from '../../services/getListaDeUsuariosDoSetor';
 import Select from 'react-select';
-// import Board, { Container } from 'react-trello';
-import backgroundImage from '../../assets/background_geral.webp';
 import AccordionChamados from '../../components/AccordionChamados';
 import UserContext from '../../UserContext';
 import MainContent from '../../components/MainContent';
@@ -67,28 +65,6 @@ export default class Index extends Component {
 			arraySetoresParticipantes: [],
 			arraySelectedParticipantes: [],
 			arraySetoresDoChamado: [],
-			data: {
-				lanes: [
-					{
-						id: 'quadro1',
-						title: 'Solicitados',
-						label: '0/0',
-						cards: []
-					},
-					{
-						id: 'quadro2',
-						title: 'Em produção',
-						label: '0/0',
-						cards: []
-					},
-					{
-						id: 'quadro3',
-						title: 'Finalizados',
-						label: '0/0',
-						cards: []
-					}
-				]
-			},
 			id_comentario: 0,
 			comentario: "",
 			arrayChamadosXComentarios: [],
@@ -109,34 +85,7 @@ export default class Index extends Component {
 			arrayDadosDoSolicitante: [],
 			idPermissao: [],
 			arrayChamadosPorSetor: [],
-			id_setor: 0,
-			initialBoard: {
-				columns: [
-					{
-						id: 1,
-						title: 'To Do',
-						cards: [
-							{ id: 1, title: 'Task 1' },
-							{ id: 2, title: 'Task 2' },
-						],
-					},
-					{
-						id: 2,
-						title: 'In Progress',
-						cards: [
-							{ id: 3, title: 'Task 3' },
-						],
-					},
-					{
-						id: 3,
-						title: 'Done',
-						cards: [
-							{ id: 4, title: 'Task 4' },
-						],
-					},
-				],
-			}
-
+			id_setor: 0
 		};
 	}
 
@@ -494,30 +443,7 @@ export default class Index extends Component {
 					id_usuario: data.id_usuario,
 					idSetorResponsavel: parseInt(data.id_setor),
 					idPermissao: data.id_permissao,
-					arrayChamadosRecebidos: data.resultados,
-					data: {
-						lanes: [
-							{
-								id: '5',
-								title: 'Solicitados',
-								label: `${arrayChamadosRecebidosComOstatusSolicitados.length}/${arrayChamadosRecebidosComOstatusSolicitados.length}`,
-								cards: arrayChamadosRecebidosComOstatusSolicitados
-							},
-							{
-								id: '9',
-								title: 'Em produção',
-								label: `${arrayChamadosRecebidosComOstatusEmProducao.length}/${arrayChamadosRecebidosComOstatusEmProducao.length}`,
-								cards: arrayChamadosRecebidosComOstatusEmProducao
-							},
-							{
-								id: '7',
-								title: 'Finalizados',
-								label: `${arrayChamadosRecebidosComOstatusFinalizados.length}/${arrayChamadosRecebidosComOstatusFinalizados.length}`,
-								cards: arrayChamadosRecebidosComOstatusFinalizados
-							}
-						]
-					}
-
+					arrayChamadosRecebidos: data.resultados
 				});
 
 				console.log(this.state.data);
@@ -658,10 +584,10 @@ export default class Index extends Component {
 		console.log(e.target);
 	}
 
-	listaSetoresDoChamado = async (token, idSetorResponsavel) => {
+	listaSetoresDoChamado = async (token, id_chamado) => {
 		try {
 			const response = await fetch(
-				`${api.baseURL}/chamados/${idSetorResponsavel}/setores`,
+				`${api.baseURL}/chamados/${id_chamado}/setores`,
 				{
 					method: 'GET',
 					headers: {
@@ -868,6 +794,45 @@ export default class Index extends Component {
 		}
 	}
 
+	atualizarStatusDoChamado = async (idChamado, status, tipo_chamado) => {
+		const response = await fetch(`${api.baseURL}/chamados/${idChamado}`, {
+			method: 'PUT',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+				'x-access-token': getToken()
+			},
+			body: JSON.stringify({
+				status
+			})
+		});
+
+		const data = await response.json();
+
+		if (data.status === 200) {
+			if (tipo_chamado === 0) {
+				this.listaDeChamados(this.context.user.id_setor, 0);
+				return;
+			}
+
+			if (tipo_chamado === 1) {
+				this.listaDeChamados(this.context.user.id_setor, 1);
+				return;
+			}
+
+			if (tipo_chamado === 2) {
+				this.listaDeChamados(this.context.user.id_setor, 2);
+				return;
+			}
+
+			if (tipo_chamado === 3) {
+				this.listaDeChamados(this.context.user.id_setor, 4);
+				return;
+			}
+
+		}
+	}
+
 	render() {
 		const arrayChamadosRecebidos = this.state.arrayChamadosRecebidos;
 		const arrayChamadosSolicitados = this.state.arrayChamadosSolicitados;
@@ -875,7 +840,7 @@ export default class Index extends Component {
 		const arrayParticipacoesEmChamados = this.state.arrayParticipacoesEmChamados;
 		return (
 
-			<Container fluid>
+			<Container fluid >
 				<Menu />
 				<Row>
 					<Col xs={12}>
@@ -899,249 +864,224 @@ export default class Index extends Component {
 									<li>
 										<a onClick={() => this.handlerShowModalCadastrarTipoChamado()}><FaPlus /> Tipos de chamado</a>
 									</li>
-
 									{this.context.user.id_permissao.includes(14) ? (
 										<li>
 											<a onClick={() => this.handlerShowModalVisualizarSetores()}><FaPlus /> Diretoria</a>
 										</li>
 									) : ("")}
-
 								</ul>
 							</FloatingMenu>
 
+							<Tab.Container id="left-tabs-example" defaultActiveKey="chamados_recebidos">
+								<Row>
+									<Col sm={2}>
+										<Nav variant="pills" className="flex-column">
+											<Nav.Item>
+												<Nav.Link eventKey="chamados_recebidos"><FaDesktop /> Chamados Recebidos</Nav.Link>
+											</Nav.Item>
+											<Nav.Item>
+												<Nav.Link eventKey="chamados_solicitados"><FaDesktop /> Chamados Solicitados</Nav.Link>
+											</Nav.Item>
+											<Nav.Item>
+												<Nav.Link eventKey="chamadosSemAtribuicao"><FaDesktop /> Chamados sem Atribuição</Nav.Link>
+											</Nav.Item>
+											<Nav.Item>
+												<Nav.Link eventKey="participacoesEmChamados"><FaDesktop /> Participações em Chamados</Nav.Link>
+											</Nav.Item>
+										</Nav>
+									</Col>
+									<Col sm={10}>
+										<Tab.Content>
+											<Tab.Pane eventKey="chamados_recebidos">
+												<Container style={{ backgroundColor: "#F8F9FA" }}>
+													<div className="row d-flex justify-content-center border p-3" >
+														{['SOLICITADO', 'EM PRODUÇÃO', 'FINALIZADO(A)'].map((status) => (
+															<div key={status} className="col-sm-4" style={{ cursor: 'pointer' }}>
+																<h6 className='text-center font-weight-bold'>{status}</h6>
+																<Container style={{ maxHeight: "400px", overflowY: 'scroll' }} className='p-4'>
+																	{arrayChamadosRecebidos
+																		.filter((chamado) => chamado.status === status)
+																		.map((chamado) => (
+																			<div key={chamado.id} className={`card zoom ${chamado.id_status === 5 ? `border-primary` : chamado.id_status === 9 ? `border-warning` : `border-success`} `} >
+																				<div className="card-body d-flex flex-column">
+																					<h6 className="card-title font-weight-bold">{`${chamado.id} - ${chamado.tipo_chamado}`}</h6>
+																					<h6 className='text-center'>{`${chamado.status}`}</h6>
+																					<h6>Conclusão: {chamado.dataHoraFinalizacaoFormatado}</h6>
+																					<p className="card-text" style={{ height: "80px", overflowY: "scroll" }}>{chamado.descricao}</p>
+																					<button className='w-100 btn btn-sm btn-outline-primary mb-2 ' onClick={() => this.handlerShowModalEditarChamadoRecebido(chamado)}>Visualizar</button>
+																					{chamado.id_status === 5 && (
+																						<button className='w-100 btn btn-sm btn-outline-warning' onClick={() => this.atualizarStatusDoChamado(chamado.id, 9, 0)}>Mover para Produção</button>
+																					)}
+																					{chamado.id_status === 9 && (
+																						<button className='w-100 btn btn-sm btn-outline-success' onClick={() => this.atualizarStatusDoChamado(chamado.id, 7, 0)}>Finalizar</button>
+																					)}
+																				</div>
+																			</div>
+																		))}
+																	{arrayChamadosRecebidos.filter((chamado) => chamado.status === status).length === 0 && (
+																		<div className="card">
+																			<div className="card-body">
+																				<h5 className="card-title text-center">Nenhum chamado disponível {status.localeCompare('EM PRODUÇÃO') > -1 ? `` : `em`} {status.toLowerCase()}</h5>
+																			</div>
+																		</div>
+																	)}
+																</Container>
+															</div>
+														))}
+													</div>
+												</Container>
+											</Tab.Pane>
+											<Tab.Pane eventKey="chamados_solicitados">
+												<Container fluid style={{ backgroundColor: "#F8F9FA" }}>
+													<div className="row d-flex justify-content-center mt-3">
+														{['SOLICITADO', 'EM PRODUÇÃO', 'FINALIZADO(A)'].map((status) => (
+															<div key={status} className="col-sm-4" style={{ cursor: 'pointer' }}>
+																<h6 className='text-center font-weight-bold'>{status}</h6>
+																<Container style={{ maxHeight: "400px", overflowY: 'scroll' }} className='p-4'>
+																	{arrayChamadosSolicitados
+																		.filter((chamado) => chamado.status === status)
+																		.map((chamado) => (
+																			<div key={chamado.id} className={`card zoom ${chamado.id_status === 5 ? `border-primary` : chamado.id_status === 9 ? `border-warning` : `border-success`} `}>
+																				<div className="card-body d-flex flex-column">
+																					<h6 className="card-title font-weight-bold">{`${chamado.id} - ${chamado.tipo_chamado}`}</h6>
+																					<h6 className='text-center'>{`${chamado.status}`}</h6>
+																					<h6>Conclusão: {chamado.dataHoraFinalizacaoFormatado}</h6>
+																					<p className="card-text fs-6" style={{ height: "80px", overflowY: "scroll" }}>{chamado.descricao}</p>
+																					<button className='w-100 btn btn-sm btn-outline-primary mb-2 ' onClick={() => this.handlerShowModalEditarChamadoSolicitado(chamado)}>Visualizar</button>
+																				</div>
+																			</div>
+																		))}
+																	{arrayChamadosSolicitados.filter((chamado) => chamado.status === status).length === 0 && (
+																		<div className="card">
+																			<div className="card-body">
+																				<h5 className="card-title text-center">Nenhum chamado disponível {status.localeCompare('EM PRODUÇÃO') > -1 ? `` : `em`} {status.toLowerCase()}</h5>
+																			</div>
+																		</div>
+																	)}
+																</Container>
+															</div>
+														))}
+													</div>
+												</Container>
+											</Tab.Pane>
+											<Tab.Pane eventKey="chamadosSemAtribuicao">
+												<Container fluid style={{ backgroundColor: "#F8F9FA" }}>
+													<div className="row d-flex justify-content-center mt-3">
+														{['SOLICITADO', 'EM PRODUÇÃO', 'FINALIZADO(A)'].map((status) => (
+															<div key={status} className="col-sm-4" style={{ cursor: 'pointer' }}>
+																<h6 className='text-center font-weight-bold'>{status}</h6>
+																<Container style={{ maxHeight: "400px", overflowY: 'scroll' }} className='p-4'>
+																	{arrayChamadosSemAtribuicao
+																		.filter((chamado) => chamado.status === status)
+																		.map((chamado) => (
+																			<div key={chamado.id} className={`card zoom ${chamado.id_status === 5 ? `border-primary` : chamado.id_status === 9 ? `border-warning` : `border-success`} `}>
+																				<div className="card-body d-flex flex-column">
+																					<h6 className="card-title font-weight-bold">{`${chamado.id} - ${chamado.tipo_chamado}`}</h6>
+																					<h6 className='text-center'>{`${chamado.status}`}</h6>
+																					<h6>Conclusão: {chamado.dataHoraFinalizacaoFormatado}</h6>
+																					<p className="card-text fs-6" style={{ height: "80px", overflowY: "scroll" }}>{chamado.descricao}</p>
+																					<div className="form-group">
+																						<select class="form-control form-control-sm" id="selectResponsavel"
+																							onChange={(e) => this.atribuirResponsavelDoChamado(chamado.id, parseInt(e.target.value))}>
+																							<option value="0">Selecione</option>
+																							{this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.length > 0 ?
+																								this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.map(setor => (
+																									<option value={setor.id}>{setor.nome}</option>
+																								))
+																								: (<option>0</option>)
+																							}
+																						</select>
+																						<div className='d-flex justify-content-center mt-2'>
+																							<button className='button' onClick={() => this.handlerShowModalEditarChamadoRecebido(chamado)}>Visualizar</button>
+																						</div>
+																						{chamado.id_status === 5 && (
+																							<button className='w-100 btn btn-sm btn-outline-warning' onClick={() => this.atualizarStatusDoChamado(chamado.id, 9)}>Mover para Produção</button>
+																						)}
+																						{chamado.id_status === 9 && (
+																							<button className='w-100 btn btn-sm btn-outline-success' onClick={() => this.atualizarStatusDoChamado(chamado.id, 7)}>Finalizar</button>
+																						)}
 
-							<Tabs
+																					</div>
+																				</div>
+																			</div>
+																		))}
+																	{arrayChamadosSemAtribuicao.filter((chamado) => chamado.status === status).length === 0 && (
+																		<div className="card">
+																			<div className="card-body">
+																				<h5 className="card-title text-center">Nenhum chamado disponível {status.localeCompare('EM PRODUÇÃO') > -1 ? `` : `em`} {status.toLowerCase()}</h5>
+																			</div>
+																		</div>
+																	)}
+																</Container>
+															</div>
+														))}
+													</div>
+												</Container>
+											</Tab.Pane>
+											<Tab.Pane eventKey="participacoesEmChamados">
+												<div className="row d-flex justify-content-center mt-3">
+													{['SOLICITADO', 'EM PRODUÇÃO', 'FINALIZADO(A)'].map((status) => (
+														<div key={status} className="col-sm-4" style={{ cursor: 'pointer' }}>
+															<h6 className='text-center font-weight-bold'>{status}</h6>
+															<Container style={{ maxHeight: "400px", overflowY: 'scroll', backgroundColor: "#F8F9FA" }} className='p-4'>
+																{arrayParticipacoesEmChamados
+																	.filter((chamado) => chamado.status === status)
+																	.map((chamado) => (
+																		<div key={chamado.id} className={`card zoom ${chamado.id_status === 5 ? `border-primary` : chamado.id_status === 9 ? `border-warning` : `border-success`} `} >
+																			<div className="card-body d-flex flex-column">
+																				<h6 className="card-title font-weight-bold">{`${chamado.id} - ${chamado.tipo_chamado}`}</h6>
+																				<h6 className='text-center'>{`${chamado.status}`}</h6>
+																				<h6>Conclusão: {chamado.dataHoraFinalizacaoFormatado}</h6>
+																				<p className="card-text fs-6" style={{ height: "80px", overflowY: "scroll" }}>{chamado.descricao}</p>
+																				<button className='w-100 btn btn-sm btn-outline-primary mb-2 ' onClick={() => this.handlerShowModalEditarChamadoSolicitado(chamado)}>Visualizar</button>
+																				{/* {chamado.id_status === 5 && (
+																		<button className='w-100 btn btn-sm btn-outline-warning' onClick={() => this.atualizarStatusDoChamado(chamado.id, 9)}>Mover para Produção</button>
+																	)}
+																	{chamado.id_status === 9 && (
+																		<button className='w-100 btn btn-sm btn-outline-success' onClick={() => this.atualizarStatusDoChamado(chamado.id, 7)}>Finalizar</button>
+																	)} */}
+																			</div>
+																		</div>
+																	))}
+																{arrayParticipacoesEmChamados.filter((chamado) => chamado.status === status).length === 0 && (
+																	<div className="card">
+																		<div className="card-body">
+																			<h5 className="card-title text-center">Nenhum chamado disponível {status.localeCompare('EM PRODUÇÃO') > -1 ? `` : `em`} {status.toLowerCase()}</h5>
+																		</div>
+																	</div>
+																)}
+															</Container>
+														</div>
+													))}
+												</div>
+											</Tab.Pane>
+										</Tab.Content>
+									</Col>
+								</Row>
+							</Tab.Container>
+
+							{/* <Tabs
 								defaultActiveKey="chamados_recebidos"
 								id="fill-tab-solicitacoes"
 								className="justify-content-center"
 								variant='pills'>
 
 								<Tab eventKey="chamados_recebidos" title={`Chamados recebidos`}>
-									<Container fluid>
-										<div className="row d-flex justify-content-center mt-3">
-											{['SOLICITADO', 'EM PRODUÇÃO', 'FINALIZADO(A)'].map((status) => (
-												<div key={status} className="col-sm-4" style={{ cursor: 'pointer' }}>
-													<h6 className='text-center font-weight-bold'>{status}</h6>
-													{arrayChamadosRecebidos
-														.filter((chamado) => chamado.status === status)
-														.map((chamado) => (
-															<div key={chamado.id} className={`card zoom ${chamado.id_status === 5 ? `border-primary` : chamado.id_status === 9 ? `border-warning` : `border-success`} `} onClick={() => this.handlerShowModalEditarChamadoRecebido(chamado)} style={{ width: '26rem' }}>
-																<div className="card-body">
-																	<h5 className="card-title">{`${chamado.id} - ${chamado.status} - ${chamado.dataHoraFinalizacaoFormatado}`}</h5>
-																	<p className="card-text fs-6">{chamado.descricao}</p>
-																</div>
-															</div>
-														))}
-												</div>
-											))}
-										</div>
-									</Container>
-
-									{/* <Board data={this.state.data}
-										style={{
-											overflow: 'auto',
-											backgroundColor: 'transparent', // Cor de fundo
-											marginTop: '10px', // Margem superior
-											marginBottom: '30px', // Margem inferior
-											display: 'flex', // Exibição em linha
-											justifyContent: 'center', // Alinhamento centralizado horizontalmente
-
-										}}
-										cardDraggable
-										handleDragEnd={this.handleDragEnd}
-										onCardClick={this.onCardClick} /> */}
-
 
 								</Tab>
 
 								<Tab eventKey="chamados_solicitados" title={`Chamados solicitados`}>
-									<Container fluid>
-										<div className="row d-flex justify-content-center mt-3">
-											{['SOLICITADO', 'FINALIZADO(A)'].map((status) => (
-												<div key={status} className="col-sm-4" style={{ cursor: 'pointer' }}>
-													<h6 className='text-center font-weight-bold'>{status}</h6>
-													{arrayChamadosSolicitados
-														.filter((chamado) => chamado.status === status)
-														.map((chamado) => (
-															<div key={chamado.id} className={`card zoom ${chamado.id_status === 5 ? `border-primary` : chamado.id_status === 9 ? `border-warning` : `border-success`} `} onClick={() => this.handlerShowModalEditarChamadoSolicitado(chamado)} style={{ width: '26rem' }}>
-																<div className="card-body">
-																	<h5 className="card-title">{parseInt(chamado.visualizado) === 1 ? <FaEye /> : <FaEyeSlash />}{`${chamado.id} - ${chamado.status} - ${chamado.dataHoraFinalizacaoFormatado}`} </h5>
-																	<p className="card-text fs-6">{chamado.descricao}</p>
-																</div>
-															</div>
-														))}
-												</div>
-											))}
-										</div>
-									</Container>
-									{/* <div class="table-responsive table-sm mt-2 container">
-											<div class="table-wrapper">
-												<table class="table text-center table-hover mb-5 table-light">
-													<thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)', verticalAlign: 'middle' }}>
-														<tr>
-															<th scope="col" className="align-middle">N° do chamado:</th>
-															<th scope="col" className="align-middle">Descrição</th>
-															<th className="align-middle">Visualização</th>
-															<th scope="col" className="align-middle">Data de finalização</th>
-															<th className="align-middle">Ações</th>
-														</tr>
-													</thead>
-													<tbody>
-														{this.state.arrayChamadosSolicitados.length > 0 ? (
-															this.state.arrayChamadosSolicitados.map((item, index) => (
-																<tr key={index} className={moment(item.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ? '' : 'table-danger'}>
-																	<td>{item.id}</td>
-																	<td><p style={{ width: "300px", height: "50px", overflow: "scroll" }}>{item.descricao}</p></td>
-																	<td>{parseInt(item.visualizado) === 1 ? <FaEye style={{ width: "200px" }} /> : <FaEyeSlash style={{ width: "200px" }} />}</td>
-																	<td>{item.dataHoraFinalizacaoFormatado}</td>
-																	<td><button className='button w-100' onClick={() => this.handlerShowModalEditarChamadoSolicitado(item)}>Visualizar</button></td>
-																</tr>
-															))
-														) : (<tr>
-															<td colSpan="12">Nenhum resultado encontrado</td>
-														</tr>)}
-													</tbody>
-												</table>
-											</div>
-										</div> */}
+
 								</Tab>
 
 								<Tab eventKey="chamadosSemAtribuicao" title={`Chamados sem atribuição`}>
 
-									<Container fluid>
-										<div className="row d-flex justify-content-center mt-3">
-											{['SOLICITADO', 'EM PRODUÇÃO', 'FINALIZADO(A)'].map((status) => (
-												<div key={status} className="col-sm-4" style={{ cursor: 'pointer' }}>
-													<h6 className='text-center font-weight-bold'>{status}</h6>
-													{arrayChamadosSemAtribuicao
-														.filter((chamado) => chamado.status === status)
-														.map((chamado) => (
-															<div key={chamado.id} className={`card zoom ${chamado.id_status === 5 ? `border-primary` : chamado.id_status === 9 ? `border-warning` : `border-success`} `} style={{ width: '26rem' }}>
-																<div className="card-body">
-																	<h5 className="card-title">{`${chamado.id} - ${chamado.status} - ${chamado.dataHoraFinalizacaoFormatado}`}</h5>
-																	<p className="card-text fs-6">{chamado.descricao}</p>
-																	<div className="form-group">
-																		<select class="form-control form-control-sm" id="selectResponsavel"
-																			onChange={(e) => this.atribuirResponsavelDoChamado(chamado.id, parseInt(e.target.value))}>
-																			<option value="0">Selecione</option>
-																			{this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.length > 0 ?
-																				this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.map(setor => (
-																					<option value={setor.id}>{setor.nome}</option>
-																				))
-																				: (<option>0</option>)
-																			}
-																		</select>
-																		<div className='d-flex justify-content-center mt-2'>
-																			<button className='button' onClick={() => this.handlerShowModalEditarChamadoRecebido(chamado)}>Visualizar</button>
-																		</div>
-																	</div>
-																</div>
-															</div>
-														))}
-												</div>
-											))}
-										</div>
-									</Container>
-									{/* <div class="table-responsive table-sm mt-2 container">
-										<div class="table-wrapper">
-											<table class="table text-center table-hover mb-5 table-light">
-												<thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)', verticalAlign: 'middle' }}>
-													<tr >
-														<th scope="col" className="align-middle">N° do chamado:</th>
-														<th scope="col" className="align-middle">Descrição</th>
-														<th scope="col" className="align-middle">Data de finalização</th>
-														<th className="align-middle">Responsável</th>
-													</tr>
-												</thead>
-												<tbody>
-													{this.state.arrayChamadosSemAtribuicao.length > 0 ? (
-														this.state.arrayChamadosSemAtribuicao.map((item, index) => (
-															<tr key={index} className={moment(item.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ? '' : 'table-danger'}>
-																<td>{item.id}</td>
-																<td><p style={{ width: "300px", height: "80px", overflow: "scroll" }}>{item.descricao}</p></td>
-																<td>{item.dataHoraFinalizacaoFormatado}</td>
-																<td><div className="form-group">
-																	<select class="form-control form-control-sm" id="selectResponsavel"
-																		onChange={(e) => this.atribuirResponsavelDoChamado(item.id, parseInt(e.target.value))}>
-																		<option value="0">Selecione</option>
-																		{this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.length > 0 ?
-																			this.state.arrayUsuariosDoSetorParaAtribuicaoDeChamado.map(setor => (
-																				<option value={setor.id}>{setor.nome}</option>
-																			))
-																			: (<option>0</option>)
-																		}
-																	</select>
-																</div></td>
-															</tr>
-														))
-													) : (<tr>
-														<td colSpan="12">Nenhum resultado encontrado</td>
-													</tr>)}
-												</tbody>
-											</table>
-										</div>
-									</div> */}
 								</Tab>
 
 								<Tab eventKey="participacoesEmChamados" title={`Participações em chamados`}>
-									<div className="row d-flex justify-content-center mt-3">
-										{['SOLICITADO', 'EM PRODUÇÃO', 'FINALIZADO(A)'].map((status) => (
-											<div key={status} className="col-sm-4" style={{ cursor: 'pointer' }}>
-												<h6 className='text-center font-weight-bold'>{status}</h6>
-												{arrayParticipacoesEmChamados
-													.filter((chamado) => chamado.status === status)
-													.map((chamado) => (
-														<div key={chamado.id} className={`card zoom ${chamado.id_status === 5 ? `border-primary` : chamado.id_status === 9 ? `border-warning` : `border-success`} `} onClick={() => this.handlerShowModalEditarChamadoRecebido(chamado)} style={{ width: '26rem' }}>
-															<div className="card-body">
-																<h5 className="card-title">{`${chamado.id} - ${chamado.status} - ${chamado.dataHoraFinalizacaoFormatado}`}</h5>
-																<p className="card-text fs-6" style={{ height: "80px", overflowY: "scroll" }}>{chamado.descricao}</p>
-															</div>
-														</div>
-													))}
-											</div>
-										))}
-									</div>
-									{/* <div class="table-responsive table-sm mt-2 container">
-										<div class="table-wrapper">
-											<table class="table text-center table-hover mb-5 table-light">
-												<thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)', verticalAlign: 'middle' }}>
-													<tr>
-														<th scope="col" className="align-middle">N° do chamado:</th>
-														<th scope="col" className="align-middle">Descrição</th>
-														<th className="align-middle">Visualização</th>
-														<th scope="col" className="align-middle">Data de finalização</th>
-														<th className="align-middle">Status</th>
-														<th className="align-middle">Ações</th>
-													</tr>
-												</thead>
-												<tbody>
-													{arrayParticipacoesEmChamados.length > 0 ? (
-														arrayParticipacoesEmChamados.map((item, index) => (
-															<tr key={index} className={moment(item.dataHoraFinalizacao, 'YYYY-MM-DD HH:mm').isAfter(moment(dataHoraFormatada, 'YYYY-MM-DD HH:mm')) ? '' : 'table-danger'}>
-																<td>{item.id}</td>
-																<td><p style={{ width: "300px", height: "80px", overflow: "scroll" }}>{item.descricao}</p></td>
-																<td>{parseInt(item.visualizado) === 1 ? <FaEye style={{ width: "200px" }} /> : <FaEyeSlash style={{ width: "200px" }} />}</td>
-																<td>{item.dataHoraFinalizacaoFormatado}</td>
-																<td>{item.status}</td>
-																<td><button className='button w-100' onClick={() => this.handlerShowModalEditarChamadoSolicitado(item)}>Visualizar</button></td>
-															</tr>
-														))
-													) : (<tr>
-														<td colSpan="12">Nenhum resultado encontrado</td>
-													</tr>)}
-												</tbody>
-											</table>
-										</div>
-									</div> */}
-
 
 								</Tab>
-							</Tabs>
-
-							{/* /.container-fluid */}
-							{/* /.content */}
-							<br />
-							{/* </ContentWrapper > */}
+							</Tabs> */}
 
 							<Modal
 								show={this.state.modalShowCadastrarChamado}
@@ -1351,53 +1291,98 @@ export default class Index extends Component {
 									<h4 className='titulo'><FaCalendarWeek />Detalhes do chamado: {this.state.id_chamado}</h4>
 								</Modal.Header>
 								<Modal.Body style={{ maxHeight: "600px", overflowY: "scroll", padding: "25px" }}>
-
 									<div className='row'>
-										<div className='col-sm-5'>
-											{this.state.arrayDadosDoSolicitante.length > 0 ? (
-												<div>
-													<h4><FaBoxes />Informações do solicitante</h4>
-													<hr />
-													<ul className="list-group">
-														<li className="list-group-item text-dark">Nome: {this.state.arrayDadosDoSolicitante[0].nome}</li>
-														<li className="list-group-item text-dark">Email: {this.state.arrayDadosDoSolicitante[0].email}</li>
-														<li className="list-group-item text-dark">Setor: {this.state.arrayDadosDoSolicitante[0].setor}</li>
-													</ul>
-												</div>
+										<div className='col-sm-4'>
+											<Accordion >
+												<Accordion.Item eventKey="0">
+													<Accordion.Header>
+														<h6 className='font-weight-bold text-center'><FaCalendarWeek /> Setores participantes</h6>
+													</Accordion.Header>
+													<Accordion.Body>
+														<ul class="list-group">
+															{this.state.arraySetoresDoChamado.length > 0 ? (
+																this.state.arraySetoresDoChamado.map((item, index) => (
+																	<li class="list-group-item text-dark">{item.nome}</li>
+																))
+															) : (
+																<li class="list-group-item text-danger">Nenhum setor está participando do chamado!</li>
+															)}
+														</ul>
+													</Accordion.Body>
+												</Accordion.Item>
+											</Accordion>
+
+											<Accordion >
+												<Accordion.Item eventKey="1">
+													<Accordion.Header>
+														<h6 className='font-weight-bold text-center'><FaBoxes />Informações do solicitante</h6>													</Accordion.Header>
+													<Accordion.Body>
+														{this.state.arrayDadosDoSolicitante.length > 0 ? (
+															<ul class="list-group">
+																<li className="list-group-item text-dark">Nome: {this.state.arrayDadosDoSolicitante[0].nome}</li>
+																<li className="list-group-item text-dark">Setor: {this.state.arrayDadosDoSolicitante[0].setor}</li>
+															</ul>
+														) : ("")}
+													</Accordion.Body>
+												</Accordion.Item>
+											</Accordion>
+
+											<Accordion >
+												<Accordion.Item eventKey="2">
+													<Accordion.Header>
+														<h6 className='font-weight-bold text-center'><FaCalendarWeek /> Informações da solicitação</h6>
+													</Accordion.Header>
+													<Accordion.Body>
+														<ul className="list-group">
+															<li className="list-group-item text-dark d-inline-block" style={{ maxWidth: '600px', overflowY: "scroll", maxHeight: '400px' }}><b>Descrição:</b> {this.state.descricao}</li>
+															<li className="list-group-item text-dark"><b>Setor responsável:</b> {this.state.setorResponsavel}</li>
+															<li className="list-group-item text-dark"><b>Prioridade:</b> {this.state.prioridade} - <b>Status atual:</b> {this.state.statusAtual}</li>
+														</ul>
+													</Accordion.Body>
+												</Accordion.Item>
+											</Accordion>
+
+											{this.state.arrayAnexosDoChamado.length > 0 ? (
+												<Accordion >
+													<Accordion.Item eventKey="2">
+														<Accordion.Header>
+															<h6 className='font-weight-bold text-center'><FaCalendarWeek /> Arquivos anexados</h6>
+														</Accordion.Header>
+														<Accordion.Body>
+															<table className="table table-sm text-center">
+																<thead>
+																	<tr>
+																		<th scope="col">Link</th>
+																		<th scope="col">Responsável pelo anexo</th>
+																		<th scope="col">Data/hora de criação</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	{this.state.arrayAnexosDoChamado.length > 0 ? (
+																		this.state.arrayAnexosDoChamado.map((item, index) => (
+																			<tr key={index}>
+																				<td scope="row"><a href={item.link}>arquivo</a></td>
+																				<td>{item.responsavel_anexo}</td>
+																				<td>{item.dataHoraCriacao}</td>
+																			</tr>
+																		))
+																	) : (
+																		<tr>
+																			<td colSpan="12">Nenhum item foi anexado</td>
+																		</tr>
+																	)}
+																</tbody>
+															</table>
+														</Accordion.Body>
+													</Accordion.Item>
+												</Accordion>
 											) : ("")}
+										</div>
 
-											<hr />
-											<h4 className='mb-2'><FaTv /> Informações da solicitação</h4>
-											<hr />
-
-											<ul className="list-group">
-												<li className="list-group-item text-dark d-inline-block" style={{ maxWidth: '600px', overflowY: "scroll", maxHeight: '400px' }}><b>Descrição:</b> {this.state.descricao}</li>
-												<li className="list-group-item text-dark"><b>Setor responsável:</b> {this.state.setorResponsavel}</li>
-												<li className="list-group-item text-dark"><b>Prioridade:</b> {this.state.prioridade}</li>
-												<li className="list-group-item text-dark"><b>Status atual:</b> {this.state.statusAtual}</li>
-											</ul>
-
-											<div className='row'>
-												{this.state.valor !== 0 ? (<div className='col-sm-6'>
-													<div className="form-group">
-														<label htmlFor="nome">Valor</label>
-														<input
-															type="text"
-															className="form-control form-control-sm"
-															id="valor"
-															placeholder="Informe o valor"
-															onChange={(e) =>
-																handleMoeda(e.target.value).then(result => this.setState({ valor: result }))
-															}
-															value={this.state.valor}
-														/>
-													</div>
-												</div>) : ("")}
-											</div>
-
-											<p className='text-danger'>Caso você não seja o responsável pelo chamado, você tem a opção de delegar esse chamado a outro colaborador na opção abaixo.</p>
+										<div className='col-sm-3'>
+											<h6 className='font-weight-bold text-center'>Ações</h6>
 											<div className="form-group">
-												<label htmlFor="selectSetorResponsavel">Alterar responsável:*</label>
+												<label htmlFor="selectSetorResponsavel">Alterar responsável:</label>
 												<select className="form-control form-control-sm" id="selectSetorResponsavel" value={this.state.idResponsavel}
 													onChange={(e) => this.alterarResponsavelDoChamado(getToken(), this.state.id_chamado, e.target.value)}>
 													<option value="0">Selecione</option>
@@ -1419,95 +1404,9 @@ export default class Index extends Component {
 												/>
 											</div>
 
-											<div className="row mt-2">
-												<div className="col-sm-12">
-													{this.state.success && (
-														<div
-															className="alert alert-success text-center"
-															role="alert"
-														>
-															{this.state.success}
-														</div>
-													)}
-													{this.state.error && (
-														<div
-															className="alert alert-danger text-center"
-															role="alert"
-														>
-															{this.state.error}
-														</div>
-													)}
-												</div>
-											</div>
-
-											{this.state.arrayAnexosDoChamado.length > 0 ? (
-												<div className='container'>
-													<h4><FaFileAlt /> Arquivos anexados</h4>
-													<hr />
-													<table className="table table-sm text-center">
-														<thead>
-															<tr>
-																<th scope="col">Link</th>
-																<th scope="col">Responsável pelo anexo</th>
-																<th scope="col">Data/hora de criação</th>
-															</tr>
-														</thead>
-														<tbody>
-															{this.state.arrayAnexosDoChamado.length > 0 ? (
-																this.state.arrayAnexosDoChamado.map((item, index) => (
-																	<tr key={index}>
-																		<td scope="row"><a href={item.link}>arquivo</a></td>
-																		<td>{item.responsavel_anexo}</td>
-																		<td>{item.dataHoraCriacao}</td>
-																	</tr>
-																))
-															) : (
-																<tr>
-																	<td colSpan="12">Nenhum item foi anexado</td>
-																</tr>
-															)}
-														</tbody>
-													</table>
-												</div>
-											) : ("")}
-										</div>
-
-										<div className='col-sm-7'>
-											<h4 className='titulo'><FaCalendarWeek /> Setores participantes</h4>
-											<ul class="list-group list-group-flush mt-2 mb-2">
-												{this.state.arraySetoresDoChamado.length > 0 ? (
-													this.state.arraySetoresDoChamado.map((item, index) => (
-														<li class="list-group-item text-dark">{item.nome}</li>
-													))
-												) : (
-													<li class="list-group-item text-danger">Nenhum setor está participando do chamado!</li>
-												)}
-											</ul>
-
-											<h4 className='titulo mt-3'><FaRegCommentDots /> Comentários</h4>
-											<hr />
-
-											<div style={{ maxHeight: "300px", overflowY: "scroll", padding: "15px" }}>
-												{this.state.arrayChamadosXComentarios.length > 0 ? (
-													this.state.arrayChamadosXComentarios.map((comentario, index) => (
-														<div className="card" style={{ border: "1px solid #000233" }}>
-															<div className="card-header font-weight-bold">
-																{comentario.nome} - {comentario.dataHoraCriacao}
-															</div>
-															<div className="card-body">
-																<p className="card-text">{comentario.descricao}</p>
-															</div>
-															{comentario.anexo && (<div className="card-footer text-center">
-																<a href={comentario.anexo} className="button"><FaCloudDownloadAlt /> Baixar anexo</a>
-															</div>)}
-														</div>
-													))
-												) : ("")}
-											</div>
-
 											<Form onSubmit={this.cadastrarEatualizarComentario}>
 												<div class="form-group">
-													<label for="comentar"></label>
+													<label for="comentar">Postar comentário:</label>
 													<textarea class="form-control" rows="5" id="comentar" style={{ backgroundColor: '#f4f4f4', color: "#000233" }}
 														onChange={(e) => this.setState({ comentario: e.target.value })}
 													></textarea>
@@ -1540,6 +1439,49 @@ export default class Index extends Component {
 													<button id='btnCadastrarAnexo' className='button'><FaRegSave /> Comentar</button>
 												</div>
 											</Form>
+
+											<div className="row mt-2">
+												<div className="col-sm-12">
+													{this.state.success && (
+														<div
+															className="alert alert-success text-center"
+															role="alert"
+														>
+															{this.state.success}
+														</div>
+													)}
+													{this.state.error && (
+														<div
+															className="alert alert-danger text-center"
+															role="alert"
+														>
+															{this.state.error}
+														</div>
+													)}
+												</div>
+											</div>
+										</div>
+
+										<div className='col-sm-5'>
+											<h6 className='text-center'><FaRegCommentDots /> Comentários</h6>
+
+											<div style={{ maxHeight: "400px", overflowY: "scroll", padding: "15px" }}>
+												{this.state.arrayChamadosXComentarios.length > 0 ? (
+													this.state.arrayChamadosXComentarios.map((comentario, index) => (
+														<div className="card" style={{ border: "1px solid #000233" }}>
+															<div className="card-header font-weight-bold">
+																{comentario.nome} - {comentario.dataHoraCriacao}
+															</div>
+															<div className="card-body">
+																<p className="card-text">{comentario.descricao}</p>
+															</div>
+															{comentario.anexo && (<div className="card-footer text-center">
+																<a href={comentario.anexo} className="button"><FaCloudDownloadAlt /> Baixar anexo</a>
+															</div>)}
+														</div>
+													))
+												) : ("")}
+											</div>
 										</div>
 									</div>
 								</Modal.Body>

@@ -2,7 +2,6 @@ import { FaCalendarWeek, FaCheckSquare, FaClipboardList, FaDochub, FaFilter, FaL
 import React, { Component } from 'react';
 import api from '../../services/api';
 import { getToken } from '../../services/auth';
-import backgroundImage from '../../assets/sistema_chamados.png';
 import { Tab } from 'bootstrap';
 import { Card, Col, Container, Modal, Row, Tabs } from 'react-bootstrap';
 import Menu from '../../components/Menu';
@@ -55,6 +54,7 @@ export default class Index extends Component {
       modalShowCadastrarItemDoChecklist: false,
       modalShowCadastrarInstrucaoDoChecklist: false,
       modalShowDashboard: false,
+      modalShowVisualizarAnexo: false,
       estado: '',
 
       //Dados do gestor
@@ -70,7 +70,7 @@ export default class Index extends Component {
       razao_social: '',
       nome_fantasia: '',
       id_instituicao: 0,
-      id_estado: 0,
+      id_estado: "",
       cidade: '',
       status: '',
       arrayAnexosDoCredenciamento: [],
@@ -272,6 +272,21 @@ export default class Index extends Component {
   handlerCloseModalCadastrarInstrucaoDoChecklist() {
     this.setModalShowCadastrarInstrucaoDoChecklist(false);
   };
+
+  setModalShowVisualizarAnexo(valor) {
+    this.setState({ modalShowVisualizarAnexo: valor, error: "" });
+  }
+
+  handlerShowModalVisualizarAnexo(documento) {
+    console.log(documento);
+    this.setModalShowVisualizarAnexo(true);
+    this.setState({ item_checklist: documento.item_checklist, link: `https://docs.google.com/gview?url=${documento.anexo}&embedded=true` });
+  }
+
+  handlerCloseModalVisualizarAnexo() {
+    this.setModalShowVisualizarAnexo(false);
+    this.setState({ id_anexo: 0, link: `` });
+  }
 
   listaDeAberturaDeTurmas = async (token, dataAtual = "", cnpj = "", nome_fantasia = "", data_solicitacao = "", estado = "") => {
     try {
@@ -872,9 +887,6 @@ export default class Index extends Component {
 
     return (
       <Container fluid style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "100% 100%",
-        backgroundRepeat: 'no-repeat',
         padding: '0px',
         minHeight: '100vh'
       }}>
@@ -896,10 +908,7 @@ export default class Index extends Component {
                     <a onClick={() => this.handlerShowModalDashboard()}><FaPlus /> Dashboard</a>
                   </li>
                   <li>
-                    <a onClick={() => this.handlerShowModalCadastrarInstituicao()}><FaPlus /> Adicionar estado</a>
-                  </li>
-                  <li>
-                    <a onClick={() => this.handlerShowModalFiltrarChamado()}><FaPlus /> Adicionar instituição</a>
+                    <a onClick={() => this.handlerShowModalCadastrarInstituicao()}><FaPlus /> </a>
                   </li>
                 </ul>
               </FloatingMenu>
@@ -968,10 +977,10 @@ export default class Index extends Component {
                       </div>
                     </div>
                   </Tab>
-
+                  
                   <Tab eventKey="profile" title="Abertura de turmas gerais">
                     <div className='container'>
-                      <div className='row justify-content-center text-light'>
+                      <div className='row justify-content-center'>
                         <div className='col-md-3 mb-2'>
                           <div className="form-group">
                             <label for="staticEmail2">CNPJ</label>
@@ -1002,7 +1011,7 @@ export default class Index extends Component {
                             <label htmlFor="selectEstado">Estado:</label>
                             <select className="form-control form-control-sm" id="selectEstado"
                               onChange={e => this.setState({ id_estado: e.target.value })}>
-                              <option value={0}>Selecione um estado</option>
+                              <option value={""}>Selecione um estado</option>
                               {arrayEstados.length > 0 ?
                                 arrayEstados.map(item => (
                                   <option value={item.id}>{item.nome}</option>
@@ -1014,18 +1023,18 @@ export default class Index extends Component {
                       </div>
                     </div>
 
-                    <div class="row d-flex justify-content-center mt-4 mb-4">
+                    <div class="row d-flex justify-content-center">
                       <div class="col-lg-12 col-lg-offset-6 text-center">
                         <div className="ml-auto">
-                          <button className='btn btn-sm btn-outline-light mr-2' onClick={() => this.listaDeAberturaDeTurmas(getToken(), "", this.state.cnpj !== "" ? this.state.cnpj : "", this.state.nome_fantasia !== "" ? this.state.nome_fantasia : "", this.state.data_solicitacao !== "" ? this.state.data_solicitacao : "", this.state.id_estado !== "" ? this.state.id_estado : "")}>Buscar <FaSearch /> </button>
-                          <button className='btn btn-sm btn-outline-light mr-2' onClick={() => this.listaDeAberturaDeTurmas(getToken(), ``)}><FaFilter /> Limpar filtro</button>
+                          <button className='button mr-2' onClick={() => this.listaDeAberturaDeTurmas(getToken(), "", this.state.cnpj !== "" ? this.state.cnpj : "", this.state.nome_fantasia !== "" ? this.state.nome_fantasia : "", this.state.data_solicitacao !== "" ? this.state.data_solicitacao : "", this.state.id_estado !== "" ? this.state.id_estado : "")}>Buscar <FaSearch /> </button>
+                          <button className='button' onClick={() => this.listaDeAberturaDeTurmas(getToken(), ``)}><FaFilter /> Limpar filtro</button>
                         </div>
                       </div>
                     </div>
 
-                    <div class="table-responsive table-sm mb-5 container">
+                    <div class="table-responsive table-sm mb-5">
                       <div class="table-wrapper">
-                        <table class="table text-center table-hover mb-5 table-light">
+                        <table class="table text-center table-hover mb-5 bordered">
                           <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)' }}>
                             <tr>
                               <th scope="col">CNPJ</th>
@@ -1080,11 +1089,11 @@ export default class Index extends Component {
                         {arrayEstados.length > 0 ? (
                           arrayEstados.map(estado => (
                             <div className="col-sm-3">
-                              <Card key={estado.id} className="text-light text-center font-weight-bold zoom" style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}>
+                              <Card key={estado.id} className="text-center font-weight-bold zoom" style={{ border: "1px solid #000233" }}>
                                 <Card.Header>{estado.sigla}</Card.Header>
                                 <Card.Body>
-                                  <button className='btn btn-sm btn-dark w-100' onClick={() => this.handlerShowModalCredenciamento(estado)} title="Clique aqui para obter mais informações sobre o credenciamento">Credenciamento</button>
-                                  <button className='btn btn-sm btn-dark w-100 mt-2' onClick={() => this.handlerShowModalChecklistDoEstado(estado)} title="Clique aqui para obter mais informações sobre a documentação">Checklist</button>
+                                  <button className='button w-100' onClick={() => this.handlerShowModalCredenciamento(estado)} title="Clique aqui para obter mais informações sobre o credenciamento">Credenciamento</button>
+                                  <button className='button w-100 mt-2' onClick={() => this.handlerShowModalChecklistDoEstado(estado)} title="Clique aqui para obter mais informações sobre a documentação">Checklist</button>
                                 </Card.Body>
                               </Card>
                             </div>
@@ -1110,7 +1119,7 @@ export default class Index extends Component {
                 <Modal.Body>
                   <Form onSubmit={this.atualizarCredenciamento}>
                     <div className="row">
-                      <div className="col-sm-5" style={{ maxHeight: "500px", overflowY: "scroll", padding: "10px" }}>
+                      <div className="col-sm-5" style={{ maxHeight: "500px", overflowY: "scroll" }}>
                         <h4 className='titulo text-center'><FaUserTie /> Dados do gestor</h4>
                         <hr />
                         <div className="row">
@@ -1309,7 +1318,7 @@ export default class Index extends Component {
                                       <tr className={documento.id_status === 4 ? 'table-danger' : documento.id_status === 3 ? 'table-success' : ''}>
                                         <td>{documento.item_checklist}</td>
                                         <td>{documento.status}</td>
-                                        <td><a href={documento.anexo}>visualizar</a></td>
+                                        <td><button className='button' onClick={() => this.handlerShowModalVisualizarAnexo(documento)}>visualizar</button></td>
                                         <td>{parseInt(documento.observacao) !== 0 ? documento.observacao : ``}</td>
                                         <td>{documento.dataHoraCriacao}</td>
                                         <td><button className='button' onClick={() => this.handlerShowModalAvaliacaoDoAnexoDoCredenciamento(documento)}>Avaliar</button></td>
@@ -1396,8 +1405,7 @@ export default class Index extends Component {
                                 <td>{credenciamento.nome_fantasia}</td>
                                 <td>{credenciamento.status}</td>
                                 <td>Foram enviados {credenciamento.qtdDocEnviados} de um total de {credenciamento.totDocDoEstado}</td>
-
-                                <td><button className='btn btn-sm btn-outline-primary' onClick={() => this.handlerShowModalVisualizarDocumentacao(credenciamento)}>Documentação</button></td>
+                                <td><button className='button w-100' onClick={() => this.handlerShowModalVisualizarDocumentacao(credenciamento)}>Documentação</button></td>
                               </tr>
                             ))
                           ) : (
@@ -1784,9 +1792,27 @@ export default class Index extends Component {
                   </div>
                 </Modal.Body>
               </Modal>
+              <Modal
+                show={this.state.modalShowVisualizarAnexo}
+                onHide={() => this.handlerCloseModalVisualizarAnexo()}
+                aria-labelledby="contained-modal-title-vcenter"
+                backdrop="static"
+                size="lg"
+                centered>
+                <Modal.Header closeButton>
+                  <h4 className="titulo">
+                    <FaCalendarWeek /> Visualizar anexo - {this.state.item_checklist}
+                    {this.state.nome_membro}
+                  </h4>
+                </Modal.Header>
+                <Modal.Body>
+                  <iframe src={this.state.link} style={{ width: "100%", height: "350px", marginBottom: "50px" }} frameborder="0"></iframe>
+                </Modal.Body>
+              </Modal>
             </MainContent>
           </Col>
         </Row>
+
       </Container >
     );
   }

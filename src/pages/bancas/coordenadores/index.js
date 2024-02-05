@@ -1281,7 +1281,7 @@ export default class Index extends Component {
 													))
 													: (<option>0</option>)
 												}
-											</select>
+											</select>	
 										</div>
 
 										<div className="row mt-2">

@@ -28,6 +28,7 @@ import backgroundImage from '../../assets/sistema_chamados.png';
 import MainContent from '../../components/MainContent';
 import FloatingMenu from '../../components/FloatingMenu';
 import AdminNavbar from '../../components/Navbar';
+import Select from 'react-select';
 
 export default class Index extends Component {
 	constructor(props) {
@@ -217,6 +218,7 @@ export default class Index extends Component {
 			array_solicitacoes: [],
 			arrayLinhasDePesquisas: [],
 			arrayAreaConcentracao: [],
+			arraySelectedLiderGt: [],
 
 			id_orientando: '',
 			observacao: '',
@@ -560,6 +562,7 @@ export default class Index extends Component {
 
 	handlerShowModalVisualizarCertificado(certificado) {
 		this.setModalShowVisualizarCertificado(true);
+		console.log(certificado);
 		this.setState({
 			id_certificado: certificado.id,
 			nome_completo: certificado.nome,
@@ -569,7 +572,8 @@ export default class Index extends Component {
 			numero_pagina: certificado.numero_pagina,
 			numero_registro: certificado.numero_registro,
 			data_local: certificado.data_local,
-			linkDoCertificado: `https://www.gestorgruponexus.com.br/certificado_digital?codigo_validacao=${certificado.codigo_validacao}`
+			codigo_validacao: certificado.codigo_validacao,
+			linkDoCertificado: `https://www.gestorgruponexus.com.br/validacao_certificado`
 		});
 	}
 
@@ -1730,7 +1734,12 @@ export default class Index extends Component {
 			);
 			const data = await response.json();
 			if (data.status === 200) {
-				this.setState({ arrayUsuarios: data.resultados });
+
+				const arrayUsuarios = [];
+				data.resultados.map(usuario => {
+					arrayUsuarios.push({ value: usuario.id, label: usuario.email });
+				});
+				this.setState({ arrayUsuarios });
 			}
 		} catch (error) {
 			console.log(error);
@@ -1772,9 +1781,9 @@ export default class Index extends Component {
 		e.preventDefault();
 		this.setState({ success: '', error: '' });
 
-		const { id_usuario, id_grupoTrabalho, id_evento } = this.state;
+		const { arraySelectedLiderGt, id_grupoTrabalho, id_evento } = this.state;
 
-		if (!id_usuario || !id_grupoTrabalho) {
+		if (!arraySelectedLiderGt || !id_grupoTrabalho) {
 			this.setState({ error: 'Por favor, preencher todos os campos.' });
 		} else {
 			try {
@@ -1786,12 +1795,11 @@ export default class Index extends Component {
 						'x-access-token': getToken()
 					},
 					body: JSON.stringify({
-						id_usuario, id_grupoTrabalho, id_evento
+						id_usuario: arraySelectedLiderGt.value, id_grupoTrabalho, id_evento
 					}),
 				});
 
 				const data = await response.json();
-				console.log(data);
 
 				if (data.status === 200) {
 					this.setState({ success: data.msg });
@@ -1962,7 +1970,8 @@ export default class Index extends Component {
 				backgroundSize: "100% 100%",
 				backgroundRepeat: 'no-repeat',
 				padding: '0px',
-				minHeight: '100vh'}}>
+				minHeight: '100vh'
+			}}>
 				<Menu />
 				<Row>
 					<Col xs={12}>
@@ -3409,7 +3418,7 @@ export default class Index extends Component {
 																<td>{membro.estado}</td>
 																<td>{membro.cidade}</td>
 																<td>{membro.dataHoraCriacao}</td>
-																
+
 																{/* <td><button className='button' onClick={() => this.handlerShowModalEditarCertificado(membro)}>Certificado</button></td> */}
 															</tr>
 														))
@@ -4253,15 +4262,16 @@ export default class Index extends Component {
 											<div className="col-sm-6">
 												<div className="form-group">
 													<label htmlFor="nome">Email:*</label>
-													<select class="form-control form-control-sm" id="selectUsuario" value={this.state.id_usuario}
-														onChange={e => this.setState({ id_usuario: e.target.value })}>
+													<Select options={this.state.arrayUsuarios} onChange={(e) => this.setState({ arraySelectedLiderGt: e })} />
+													{/* <select class="form-control form-control-sm" id="selectUsuario" value={this.state.id_usuario}
+														>
 														<option value="0">Selecione</option>
 														{arrayUsuarios.length > 0 ?
 															arrayUsuarios.map(usuario => (
 																<option value={usuario.id}>{usuario.email}</option>
 															)) : (<option>0</option>)
 														}
-													</select>
+													</select> */}
 												</div>
 											</div>
 
@@ -4312,31 +4322,33 @@ export default class Index extends Component {
 									<div className='container'>
 										<h1 style={{ color: '#000233', fontSize: '20pt' }}><FaLayerGroup /> Lideres</h1>
 										<hr />
-										<div className="table-responsive table-sm text-center">
-											<table className="table table-bordered table-hover custom-table">
-												<thead class="thead-light">
-													<tr>
-														<th>Lider</th>
-														<th>E-mail</th>
-														<th>Grupo de trabalho</th>
-													</tr>
-												</thead>
-												<tbody>
-													{array_lideresGt.length > 0 ? (
-														array_lideresGt.map(lider => (
-															<tr key={lider.id} title="Clique aqui para obter mais informações sobre o evento">
-																<td>{lider.email}</td>
-																<td>{lider.nome}</td>
-																<td>{lider.grupo_trabalho}</td>
-															</tr>
-														))
-													) : (<tr className="text-center">
-														<td colSpan="10">
-															Nenhuma membro encontrado
-														</td>
-													</tr>)}
-												</tbody>
-											</table>
+										<div className="table-responsive table-sm text-center" style={{ maxHeight: "350px", overflowY: 'scroll' }}>
+											<div class="table-wrapper">
+												<table className="table table-bordered table-hover custom-table">
+													<thead class="thead-light">
+														<tr>
+															<th>Lider</th>
+															<th>E-mail</th>
+															<th>Grupo de trabalho</th>
+														</tr>
+													</thead>
+													<tbody>
+														{array_lideresGt.length > 0 ? (
+															array_lideresGt.map(lider => (
+																<tr key={lider.id} title="Clique aqui para obter mais informações sobre o evento">
+																	<td>{lider.email}</td>
+																	<td>{lider.nome}</td>
+																	<td>{lider.grupo_trabalho}</td>
+																</tr>
+															))
+														) : (<tr className="text-center">
+															<td colSpan="10">
+																Nenhuma membro encontrado
+															</td>
+														</tr>)}
+													</tbody>
+												</table>
+											</div>
 										</div>
 										{
 											<div className="text-center font-weight-bold mt-3 mb-5">
@@ -4736,6 +4748,7 @@ export default class Index extends Component {
 										numero_registro={this.state.numero_registro}
 										data_local={this.state.data_local}
 										linkDoCertificado={this.state.linkDoCertificado}
+										codigo_validacao={this.state.codigo_validacao}
 									/>
 									<div className="row mt-2">
 										<div className="col-sm-12">

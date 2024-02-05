@@ -6,6 +6,8 @@ import Login from './pages/login/index';
 import Administrador from './pages/administrador';
 import Secretaria from './pages/secretaria';
 import Validacao from './pages/validacao/index';
+import ValidacaoCertificado from './pages/validacao_certificado/index';
+
 import PageNotFound from './components/PageNotFound';
 import CadastroEventoEnber from './pages/eventos/enber/cadastrar/index';
 import GrupoTrabalho from './pages/eventos/enber/grupo_trabalho/index';
@@ -54,6 +56,7 @@ const Routes = () => {
                 <Route path="/eventos/enber/grupo_trabalho" component={GrupoTrabalho} />
                 <Route path="/eventos/nexus/cadastrar" component={CadastroEventoNexus} />
                 <Route path="/validacao" component={Validacao} />
+                <Route path="/validacao_certificado" component={ValidacaoCertificado} />
                 <Route path="/teste_vocacional" component={TesteVocacional} />
                 <Route path="/abertura_turma" component={AberturaTurma} />
                 <Route path="/abertura_turma_cbie" component={AberturaTurmaCbie} />

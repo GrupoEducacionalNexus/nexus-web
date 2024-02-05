@@ -7,7 +7,7 @@ import Modal from 'react-bootstrap/Modal';
 import { Certificado } from '../../components/Certificado';
 import moment from 'moment/moment';
 import { uploadFile } from '../../services/uploadFile';
-import { Accordion, Card, Col, Container, Nav, Navbar, Row } from 'react-bootstrap';
+import { Accordion, Card, Col, Container, Nav, Navbar, Row, Tab, Tabs } from 'react-bootstrap';
 import Perfil from '../../components/Perfil';
 import MainContent from '../../components/MainContent';
 import logo from '../../assets/enber.png';
@@ -22,6 +22,7 @@ export default class Index extends Component {
 			modalShowCadastrarAnexo: false,
 			modalShowEditarEvento: false,
 			modalShowEditarCertificado: false,
+			modalShowVisualizarAnexo: false,
 			keyTab: 'Checklist',
 			success: '',
 			error: '',
@@ -60,8 +61,7 @@ export default class Index extends Component {
 
 	componentDidMount() {
 		const userContext = this.context;
-		console.log(userContext);
-		this.setState({ 
+		this.setState({
 			nomeMembro: userContext.user.nome,
 			id_usuario: userContext.user.id
 
@@ -115,6 +115,21 @@ export default class Index extends Component {
 	handlerCloseModalEditarCertificado() {
 		this.setModalShowEditarCertificado(false);
 	};
+
+	setModalShowVisualizarAnexo(valor) {
+		this.setState({ modalShowVisualizarAnexo: valor, error: "" });
+	}
+
+	handlerShowModalVisualizarAnexo(anexo) {
+		console.log(anexo);
+		this.setModalShowVisualizarAnexo(true);
+		this.setState({ titulo: anexo.titulo, id_anexo: anexo.id, link: `https://docs.google.com/gview?url=${anexo.link}&embedded=true` });
+	}
+
+	handlerCloseModalVisualizarAnexo() {
+		this.setModalShowVisualizarAnexo(false);
+		this.setState({ id_anexo: 0, link: `` });
+	}
 
 
 	listaDeEventos = async (token) => {
@@ -187,7 +202,7 @@ export default class Index extends Component {
 
 	listaDeAnexos = async (id_usuario, id_gt) => {
 		try {
-			const response = await fetch(`${api.baseURL}/membros/${id_usuario}/anexos?id_grupoTrabalho=${id_gt}`,
+			const response = await fetch(`${api.baseURL}/membros/${id_usuario}/anexos?id_gt=${id_gt}`,
 				{
 					method: 'GET',
 					headers: {
@@ -213,7 +228,6 @@ export default class Index extends Component {
 		this.setState({ arquivo: e });
 	}
 
-
 	print = (id) => {
 		//console.log('print');  
 		let printContents = document.getElementById(id).innerHTML;
@@ -228,7 +242,10 @@ export default class Index extends Component {
 
 		return (
 			<Container fluid style={{
-				padding: "0"}}>
+				padding: "0",
+				backgroundColor: "#f5f5dc",
+				minHeight: "100vh"
+			}}>
 				<Navbar style={{ backgroundColor: "#000233" }}>
 					<Container>
 						<Navbar.Brand href="#home">
@@ -236,7 +253,7 @@ export default class Index extends Component {
 						</Navbar.Brand>
 						<Nav className="ml-auto">
 							<Nav.Link>
-								<Perfil />
+								<Perfil className="btn btn-sm btn-outline-light" />
 							</Nav.Link>
 
 						</Nav>
@@ -246,35 +263,37 @@ export default class Index extends Component {
 					<Col xs={12} >
 						<MainContent>
 							<div className='container mb-3'>
-								<h3 className='font-weight-bold mb-3 border-bottom' style={{ color: "#000233" }}><FaRegUser /> {this.state.nomeMembro.trim()}, seja bem-vindo ao sistema de eventos da enber!</h3>
+								<h3 className='font-weight-bold mb-3 border-bottom' style={{ fontSize: "12pt", color: "#000233" }}><FaRegUser /> {this.state.nomeMembro.trim()}, seja bem-vindo ao sistema de eventos da enber!</h3>
 								<p><FaHandsHelping /> Em caso de dúvidas acesse o <a href='https://api.whatsapp.com/send/?phone=13213009710&text&app_absent=0' target="_blank">link</a></p>
-								<h4 className='font-weight-bold mb-3'><FaBoxes /> Eventos</h4>
 								<div className='row'>
 									{eventos.length > 0 ? (
 										eventos.map(evento => (
-											<div className='col-sm-6'>
-												<Card style={{ maxHeight: "450px", overflowY: 'auto', backgroundColor: "#000233", color: "#ffffff" }} className='zoom mt-2'>
+											<div className='col-sm-12'>
+												<Card style={{ maxHeight: "380px", overflowY: 'auto' }} className='zoom mt-2'>
 													<Card.Body>
-														<Card.Title style={{ fontWeight: "bold", marginBottom: '10px' }}>{evento.tema.toUpperCase()}</Card.Title>
-
+														<Card.Title style={{ fontWeight: "bold", marginBottom: '10px' }}>{evento.tema !== null ? evento.tema.toUpperCase() : ``}</Card.Title>
 														<Card.Text>Data de inicio: {evento.dataEventoInicial}</Card.Text>
 														<Card.Text>Data de término: {evento.dataEventoFinal}</Card.Text>
-
 														<Accordion defaultActiveKey="0">
 															{
 																evento.grupos_trabalho.split("/").slice(0, -1).map((gt, index) => (
 																	<Accordion.Item eventKey={index}>
-																		<Accordion.Header style={{ fontSize: "14pt" }}><FaUserFriends /> {gt.startsWith(',') ? gt.substring(1) : gt}</Accordion.Header>
-																		<Accordion.Body className='text-center'>
+																		<Accordion.Header style={{ fontSize: "12pt", textAlign: "left" }}><FaUserFriends /> {gt.startsWith(',') ? gt.substring(1) : gt} {parseInt(evento.tipo_gt.split(",")[index]) === 2 ? (
+																			` - submeter artigos`
+																		) : (
+																			` - Ouvinte`
+																		)}</Accordion.Header>
+																		<Accordion.Body>
 																			{parseInt(evento.tipo_gt.split(",")[index]) === 2 ? (
 																				<Container>
 																					<p className='text-dark mb-2'>Você está participando desse grupo de trabalho para submeter artigos.</p>
 																					<a href={evento.links.split(",")[index]} target='_blank' >Link do grupo de trabalho</a>
 																					<div className='d-flex justify-content-center mt-2'>
 																						<button className='button' onClick={() =>
-																							this.handlerShowModalCadastrarAnexo({ 
-																							gt: gt.startsWith(',') ? gt.substring(1) : gt,
-																							id_gt: evento.id_grupo_trabalho.split(",")[index] })}>
+																							this.handlerShowModalCadastrarAnexo({
+																								gt: gt.startsWith('/,') ? gt.substring(1) : gt,
+																								id_gt: evento.id_grupo_trabalho.split(",")[index]
+																							})}>
 																							Submeter Artigo
 																						</button>
 																					</div>
@@ -290,6 +309,70 @@ export default class Index extends Component {
 																))
 															}
 														</Accordion>
+														{/* <Tabs
+															defaultActiveKey={0}
+															id="justify-tab-example"
+															className="mb-3"
+															justify
+															variant='pills'>
+															{
+																evento.grupos_trabalho.split("/").slice(0, -1).map((gt, index) => (
+																	<Tab eventKey={index} title={gt.startsWith(',') ? gt.substring(1) : gt} >
+																		{parseInt(evento.tipo_gt.split(",")[index]) === 2 ? (
+																			<Container>
+																				<p className='text-dark mb-2'>Você está participando desse grupo de trabalho para submeter artigos.</p>
+																				<a href={evento.links.split(",")[index]} target='_blank' >Link do grupo de trabalho</a>
+																				<div className='d-flex justify-content-center mt-2'>
+																					<button className='button' onClick={() =>
+																						this.handlerShowModalCadastrarAnexo({
+																							gt: gt.startsWith('/,') ? gt.substring(1) : gt,
+																							id_gt: evento.id_grupo_trabalho.split(",")[index]
+																						})}>
+																						Submeter Artigo
+																					</button>
+																				</div>
+																			</Container>
+																		) : (
+																			<Container>
+																				<p className='text-dark mb-2'>Você está participando desse grupo de trabalho como ouvinte</p>
+																				<a href={evento.links.split(",")[index]} target='_blank' className='mb-2'>Link do grupo de trabalho</a>
+																			</Container>
+																		)}
+																	</Tab>
+																))
+															}
+														</Tabs> */}
+														{/* <Accordion defaultActiveKey="0">
+															{
+																evento.grupos_trabalho.split("/").slice(0, -1).map((gt, index) => (
+																	<Accordion.Item eventKey={index}>
+																		<Accordion.Header style={{ fontSize: "14pt" }}><FaUserFriends /> {gt.startsWith(',') ? gt.substring(1) : gt}</Accordion.Header>
+																		<Accordion.Body>
+																			{parseInt(evento.tipo_gt.split(",")[index]) === 2 ? (
+																				<Container>
+																					<p className='text-dark mb-2'>Você está participando desse grupo de trabalho para submeter artigos.</p>
+																					<a href={evento.links.split(",")[index]} target='_blank' >Link do grupo de trabalho</a>
+																					<div className='d-flex justify-content-center mt-2'>
+																						<button className='button' onClick={() =>
+																							this.handlerShowModalCadastrarAnexo({
+																								gt: gt.startsWith('/,') ? gt.substring(1) : gt,
+																								id_gt: evento.id_grupo_trabalho.split(",")[index]
+																							})}>
+																							Submeter Artigo
+																						</button>
+																					</div>
+																				</Container>
+																			) : (
+																				<Container>
+																					<p className='text-dark mb-2'>Você está participando desse grupo de trabalho como ouvinte</p>
+																					<a href={evento.links.split(",")[index]} target='_blank' className='mb-2'>Link do grupo de trabalho</a>
+																				</Container>
+																			)}
+																		</Accordion.Body>
+																	</Accordion.Item>
+																))
+															}
+														</Accordion> */}
 
 														<div className='container text-center'>
 															{/* <button className='button mb-2' onClick={() => this.handlerShowModalEditarCertificado(evento)}>Visualizar certificado</button> */}
@@ -383,123 +466,138 @@ export default class Index extends Component {
 								onHide={() => this.handlerCloseModalCadastrarAnexo()}
 								aria-labelledby="contained-modal-title-vcenter"
 								backdrop="static"
-								size='lg'>
+								size='md'>
 
 								<Modal.Header closeButton>
 									<h4 className='titulo'><FaCalendarWeek /> Anexos do {this.state.grupo_trabalho}</h4>
 								</Modal.Header>
 								<Modal.Body >
-									<Row>
-										<Col>
-											<Form onSubmit={this.cadastrarAnexo}>
-												<div className="form-group">
-													<label htmlFor="nome">Titulo do documento:</label>
-													<input
-														type="text"
-														className="form-control form-control-sm"
-														id="nome"
-														placeholder="Informe o nome do arquivo"
-														onChange={(e) =>
-															this.setState({ nomeArquivo: e.target.value })
-														}
-														value={this.state.nomeArquivo}
-													/>
-												</div>
 
-												<div className="form-group">
-													<label htmlFor="nome">Coautor:</label>
-													<input
-														type="text"
-														className="form-control form-control-sm"
-														id="coautor"
-														placeholder="Informe o nome do coautor"
-														onChange={(e) =>
-															this.setState({ coautor: e.target.value })
-														}
-														value={this.state.coautor}
-													/>
-												</div>
+									<Form onSubmit={this.cadastrarAnexo}>
+										<div className="form-group">
+											<label htmlFor="nome">Titulo do documento:</label>
+											<input
+												type="text"
+												className="form-control form-control-sm"
+												id="nome"
+												placeholder="Informe o nome do arquivo"
+												onChange={(e) =>
+													this.setState({ nomeArquivo: e.target.value })
+												}
+												value={this.state.nomeArquivo}
+											/>
+										</div>
 
-												<div className="form-group">
-													<label>Anexo:</label>
-													<input
-														type="file"
-														className="form-control form-control-sm"
-														id="documento"
-														placeholder="Documento"
-														accept="application/msword, text/plain, application/pdf"
-														onChange={(e) => this.onChangeFileInput(e.target.files[0])}
-													/>
-												</div>
+										<div className="form-group">
+											<label htmlFor="nome">Coautor:</label>
+											<input
+												type="text"
+												className="form-control form-control-sm"
+												id="coautor"
+												placeholder="Informe o nome do coautor"
+												onChange={(e) =>
+													this.setState({ coautor: e.target.value })
+												}
+												value={this.state.coautor}
+											/>
+										</div>
 
-												<div class="progress">
-													<div id='progresso' className="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
-												</div>
+										<div className="form-group">
+											<label>Anexo:</label>
+											<input
+												type="file"
+												className="form-control form-control-sm"
+												id="documento"
+												placeholder="Documento"
+												accept="application/msword, text/plain, application/pdf"
+												onChange={(e) => this.onChangeFileInput(e.target.files[0])}
+											/>
+										</div>
 
-												<div className="row mt-2">
-													<div className="col-sm-12">
-														{this.state.success && (
-															<div
-																className="alert alert-success text-center"
-																role="alert"
-															>
-																{this.state.success}
-															</div>
-														)}
-														{this.state.error && (
-															<div
-																className="alert alert-danger text-center"
-																role="alert"
-															>
-																{this.state.error}
-															</div>
-														)}
+										<div class="progress">
+											<div id='progresso' className="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+										</div>
+
+										<div className="row mt-2">
+											<div className="col-sm-12">
+												{this.state.success && (
+													<div
+														className="alert alert-success text-center"
+														role="alert">
+														{this.state.success}
 													</div>
-												</div>
-
-												<div className='d-flex justify-content-center'>
-
-													<button id='btnCadastrarAnexo' className='button'><FaRegSave /> Salvar</button>
-
-												</div>
-											</Form>
-										</Col>
-										<Col>
-											<h4>Anexos</h4>
-											<hr />
-											<div className="table-responsive table-sm text-center">
-												<table className="table table-bordered table-hover">
-													<thead>
-														<tr>
-															<th scope="col">Titulo do documento</th>
-															<th>link</th>
-															<th>Coautor</th>
-														</tr>
-													</thead>
-													<tbody>
-														{anexos.length > 0 ? (
-															anexos.map(anexo => (
-																<tr key={anexo.id} title="Clique aqui para obter mais informações sobre o anexo">
-																	<td>{anexo.titulo}</td>
-																	<td><a href={anexo.link}>Arquivo</a></td>
-																	<td>{anexo.coautor}</td>
-																</tr>
-															))
-														) : (<tr className="text-center">
-															<td colSpan="10">
-																Nenhum evento encontrado
-															</td>
-														</tr>)}
-													</tbody>
-												</table>
+												)}
+												{this.state.error && (
+													<div
+														className="alert alert-danger text-center"
+														role="alert"
+													>
+														{this.state.error}
+													</div>
+												)}
 											</div>
-											{
-												<div className="text-center font-weight-bold mt-3 mb-5">
-													Total de Registros: {anexos.length}
-												</div>
-											}
-										</Col>
-									</Row>
+										</div>
+
+										<div className='d-flex justify-content-center'>
+											<button id='btnCadastrarAnexo' className='button'><FaRegSave /> Salvar</button>
+										</div>
+									</Form>
+
+									<h4>Anexos</h4>
+									<hr />
+									<div className="table-responsive table-sm text-center" style={{ height: "200px", overflowY: "scroll" }}>
+										<div class="table-wrapper">
+											<table className="table table-bordered table-hover">
+												<thead>
+													<tr>
+														<th scope="col">Titulo do documento</th>
+														<th>Coautor</th>
+														<th>Status</th>
+														<th>Ações</th>
+													</tr>
+												</thead>
+												<tbody >
+													{anexos.length > 0 ? (
+														anexos.map(anexo => (
+															<tr key={anexo.id} title="Clique aqui para obter mais informações sobre o anexo">
+																<td>{anexo.titulo}</td>
+																<td>{anexo.coautor}</td>
+																<td>{anexo.status}</td>
+																<td><button className="button w-100" onClick={() => this.handlerShowModalVisualizarAnexo(anexo)}>Visualizar</button></td>
+															</tr>
+														))
+													) : (<tr className="text-center">
+														<td colSpan="10">
+															Nenhum evento encontrado
+														</td>
+													</tr>)}
+												</tbody>
+											</table>
+										</div>
+									</div>
+									{
+										<div className="text-center font-weight-bold">
+											Total de Registros: {anexos.length}
+										</div>
+									}
+								</Modal.Body>
+							</Modal>
+
+							<Modal
+								show={this.state.modalShowVisualizarAnexo}
+								onHide={() => this.handlerCloseModalVisualizarAnexo()}
+								aria-labelledby="contained-modal-title-vcenter"
+								backdrop="static"
+								size="lg"
+								centered>
+								<Modal.Header closeButton>
+									<h4 className="titulo">
+										<FaCalendarWeek /> Visualizar anexo - {this.state.titulo}
+										{this.state.nome_membro}
+									</h4>
+								</Modal.Header>
+								<Modal.Body>
+									<iframe src={this.state.link} style={{ width: "100%", height: "350px", marginBottom: "50px" }} frameborder="0"></iframe>
 								</Modal.Body>
 							</Modal>
 						</MainContent>

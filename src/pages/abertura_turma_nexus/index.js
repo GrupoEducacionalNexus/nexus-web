@@ -13,6 +13,7 @@ export default class Index extends Component {
             nome_fantasia: '',
             email: '',
             telefone: '',
+            tipo_turma: '',
             observacao: "",
             id_instituicao: 0,
             display: "none",
@@ -78,9 +79,9 @@ export default class Index extends Component {
             razao_social,
             nome_fantasia,
             email, telefone,
-            observacao, id_instituicao, id_estado } = this.state;
+            observacao, id_instituicao, id_estado, tipo_turma } = this.state;
 
-        if (!cnpj || !razao_social || !nome_fantasia || !email || !telefone || !id_estado) {
+        if (!cnpj || !razao_social || !nome_fantasia || !email || !telefone || !id_estado || !tipo_turma) {
             this.setState({ error: "Por favor, preencher todos os campos." });
         } else {
             try {
@@ -98,6 +99,7 @@ export default class Index extends Component {
                         id_estado,
                         email,
                         telefone,
+                        tipo_turma,
                         observacao,
                         metodologia: '',
                         curso: ''
@@ -225,6 +227,17 @@ export default class Index extends Component {
                                     value={this.state.telefone}
                                     autocomplete="off"
                                 />
+                            </div>
+
+                            <div class="form-group">
+                                <label htmlFor="selectTurma">Tipo de turma:</label>
+                                <select className="form-control form-control-sm" id="selectTurma"
+                                    onChange={e => this.setState({ tipo_turma: e.target.value })}>
+                                    <option value={0}>Selecione um tipo de turma</option>
+                                    <option value={1}>Turma de certificação de ensino fundamental</option>
+                                    <option value={2}>Turma de certificação de ensino médio</option>
+                                    <option value={3}>Turma de certificação de ensino fundamental e médio</option>
+                                </select>
                             </div>
 
 
