@@ -232,7 +232,9 @@ export default class Index extends Component {
                             <div class="form-group">
                                 <label htmlFor="selectTurma">Tipo de turma:</label>
                                 <select className="form-control form-control-sm" id="selectTurma"
-                                    onChange={e => this.setState({ tipo_turma: e.target.value })}>
+                                    onChange={(e) => 
+                                        this.setState({ tipo_turma: e.target.value })
+                                    }>
                                     <option value={0}>Selecione um tipo de turma</option>
                                     <option value={1}>Turma de certificação de ensino fundamental</option>
                                     <option value={2}>Turma de certificação de ensino médio</option>
