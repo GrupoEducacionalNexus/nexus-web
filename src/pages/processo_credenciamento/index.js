@@ -3,8 +3,7 @@ import React, { Component } from 'react';
 import api from '../../services/api';
 import { getToken } from '../../services/auth';
 import backgroundImage from '../../assets/sistema_chamados.png';
-import { Tab } from 'bootstrap';
-import { Accordion, Button, Card, Col, Container, Modal, Row, Spinner, Tabs } from 'react-bootstrap';
+import { Accordion, Button, Card, Col, Container, Modal, Row, Spinner, Tabs, Header } from 'react-bootstrap';
 import Menu from '../../components/Menu';
 import AdminNavbar from '../../components/Navbar';
 import MainContent from '../../components/MainContent';
@@ -308,9 +307,9 @@ export default class Index extends Component {
                 <Accordion >
                   <Card>
                     <Card.Header>
-                      <Accordion.Toggle as={Button} variant="link" eventKey="0" style={{}}>
+                      {/* <Accordion.Toggle as={Button} variant="link" eventKey="0">
                         <FaUsers /> Informações da solicitação
-                      </Accordion.Toggle>
+                      </Accordion.Toggle> */}
                     </Card.Header>
                     <Accordion.Collapse eventKey="0">
                       <Card.Body>
@@ -439,7 +438,7 @@ export default class Index extends Component {
                                     {this.state.arrayStatus.length > 0 ? (
                                       this.state.arrayStatus.map(item =>
                                         item.id === 5 || item.id === 6 || item.id === 7 ?
-                                          (<option value={item.id}>{item.nome}</option>) : "")
+                                          (<option value={item.id} key={item.id}>{item.nome}</option>) : "")
                                     ) : (
                                       <option value="0">Nenhum resultado encontrado</option>
                                     )}
@@ -457,9 +456,9 @@ export default class Index extends Component {
                 <Accordion >
                   <Card>
                     <Card.Header>
-                      <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                      {/* <Accordion.Toggle as={Button} variant="link" eventKey="0">
                         <FaCheckSquare /> Checkist do credenciamento
-                      </Accordion.Toggle>
+                      </Accordion.Toggle> */}
                     </Card.Header>
                     <Accordion.Collapse eventKey="0">
                       <Card.Body>

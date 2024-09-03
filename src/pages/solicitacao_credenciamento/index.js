@@ -95,17 +95,17 @@ export default class Index extends Component {
             } = this.state;
 
             if (!nome || !email || !telefone || !cpf ||
-                !cnpj || !razao_social || !nome_fantasia || 
+                !cnpj || !razao_social || !nome_fantasia ||
                 !id_estado || !cidade) {
                 this.setState({ error: "Por favor, preencher todos os campos." });
-                return 
+                return
             }
 
 
             if (senha.localeCompare(confirmarSenha) === -1) {
-				this.setState({ error: 'Por favor, informe senhas iguais!' });
-				return;
-			}
+                this.setState({ error: 'Por favor, informe senhas iguais!' });
+                return;
+            }
 
             const response = await fetch(`${api.baseURL}/credenciamento`, {
                 method: 'POST',
@@ -165,8 +165,8 @@ export default class Index extends Component {
         const sigla = estado.split(",")[1];
         const estadosCidades = EstadosCidadesJson.estados;
         for (let index = 0; index < estadosCidades.length; index++) {
-            if(estadosCidades[index].sigla === sigla) {
-                this.setState({id_estado, arrayCidades: estadosCidades[index].cidades})
+            if (estadosCidades[index].sigla === sigla) {
+                this.setState({ id_estado, arrayCidades: estadosCidades[index].cidades })
             }
         }
     }
@@ -184,7 +184,7 @@ export default class Index extends Component {
                     <hr />
                     <div className="row">
                         <div className="col-sm-6">
-                            <h4 className='text-center' style={{color: "#000233"}}><FaUserTie /> Dados do gestor</h4>
+                            <h4 className='text-center' style={{ color: "#000233" }}><FaUserTie /> Dados do gestor</h4>
                             <hr />
                             <div className="form-group">
                                 <label htmlFor="nome">Nome completo:</label>
@@ -267,7 +267,7 @@ export default class Index extends Component {
                         </div>
 
                         <div className="col-sm-6">
-                            <h4 className='text-center' style={{color: "#000233"}}><FaSchool /> Dados da instituição</h4>
+                            <h4 className='text-center' style={{ color: "#000233" }}><FaSchool /> Dados da instituição</h4>
                             <hr />
                             <div class="form-group">
                                 <label htmlFor="telefone">CNPJ:*</label>

@@ -159,8 +159,8 @@ const NotificationComponent = ({ id_usuario, listaDeChamados }) => {
         <div className='container' style={{ maxHeight: "300px", overflowY: "scroll" }}>
           {notificacoes.length > 0 ?
             notificacoes.map(notificacao => (
-              <Alert variant={`light`} style={{ border: "1px solid #000233" }}>
-                <p>{notificacao.descricao + ` na data ` + notificacao.dataHoraCriacao}</p><br />
+              <Alert variant={`light`} style={{ border: "1px solid #000233" }} key={notificacao.id}>
+                <p >{notificacao.descricao + ` na data ` + notificacao.dataHoraCriacao}</p><br />
                 {!notificacao.descricao.includes('status') ? (
                   <div className='d-flex justify-content-center'>
                     <button className='button mt-2' onClick={() => openModalModalRight(notificacao)}>Visualizar</button>
