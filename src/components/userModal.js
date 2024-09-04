@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import { atualizarUsuario } from '../services/userService';
 import UserForm from './userForm';
+import { atualizarUsuario } from '../services/userService';
 
 const UserModal = ({ show, onHide, user, onSuccess }) => {
     const handleFormSubmit = (userData) => {
