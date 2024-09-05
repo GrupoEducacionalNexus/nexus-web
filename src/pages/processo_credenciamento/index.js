@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { FaCalendarWeek, FaClipboardList, FaFileAlt, FaFileExport, FaFolderOpen, FaRegSave, FaUsers } from 'react-icons/fa';
-import { Accordion, Button, Card, Col, Container, Modal, Row } from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 import Menu from '../../components/Menu';
 import AdminNavbar from '../../components/Navbar';
 import MainContent from '../../components/MainContent';
@@ -97,6 +96,7 @@ const Index = () => {
               setModalShowCadastrarAnexo={setModalShowCadastrarAnexo}
               handleFileInputChange={handleFileInputChange}
               cadastrarDocumentoDoCredenciamento={cadastrarDocumentoDoCredenciamento}
+              arrayChecklistCredenciamento={state.arrayChecklistCredenciamento}
             />
           </MainContent>
         </Col>
