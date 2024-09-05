@@ -3,10 +3,7 @@ import {
   FaUsers,
   FaCheckSquare,
   FaFolderOpen,
-  FaClipboardList,
-  FaFileExport,
   FaFileAlt,
-  FaRegSave
 } from 'react-icons/fa';
 import {
   Accordion,
@@ -18,6 +15,7 @@ import {
   Row,
   Form
 } from 'react-bootstrap';
+import styled from 'styled-components';
 import backgroundImage from '../../assets/sistema_chamados.png';
 import Menu from '../../components/Menu';
 import AdminNavbar from '../../components/Navbar';
@@ -105,8 +103,8 @@ export default class Index extends Component {
     }
 
     try {
-      const uploadResponse = await uploadFile(arquivo, `nexus/credenciamento/`);
-      const fileLink = uploadResponse.link; // Supondo que a função uploadFile retorne o link do arquivo
+      const uploadResponse = uploadFile(arquivo, `nexus/credenciamento/`);
+      const fileLink = uploadResponse.link;
 
       const response = await fetch(`${api.baseURL}/documento_credenciamento`, {
         method: 'POST',
