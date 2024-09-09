@@ -69,9 +69,9 @@ class Index extends Component {
 
       // Após o upload, atualiza a lista de documentos anexados
       this.listaDedocumentosDoCredenciamento(id_credenciamento);
-      this.setState({ success: 'Arquivo enviado com sucesso!', progressoUpload: 0 });
+      this.setState({ success: 'Arquivo enviado com sucesso!' });
     } catch (error) {
-      this.setState({ error: 'Erro ao enviar documento. Tente novamente.', progressoUpload: 0 });
+      this.setState({ error: 'Erro ao enviar documento. Tente novamente.' });
       console.error('Erro ao enviar documento:', error);
     }
   };
