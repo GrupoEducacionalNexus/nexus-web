@@ -1,20 +1,36 @@
-import { FaCalendarWeek, FaCheckSquare, FaClipboardList, FaDochub, FaFileAlt, FaFileExport, FaFilter, FaFolderOpen, FaListAlt, FaPlus, FaRegFolderOpen, FaRegSave, FaSchool, FaSearch, FaSpinner, FaUserEdit, FaUserTie, FaUsers, FaWpforms } from 'react-icons/fa';
 import React, { Component } from 'react';
+import {
+  Accordion,
+  Button,
+  Card,
+  Col,
+  Container,
+  Modal,
+  Row,
+} from 'react-bootstrap';
+import styled from 'styled-components';
+import UserContext from '../../UserContext';
+import {
+  FaCalendarWeek,
+  FaCheckSquare,
+  FaClipboardList,
+  FaFileAlt,
+  FaFileExport,
+  FaFolderOpen,
+  FaRegSave,
+  FaUsers,
+} from 'react-icons/fa';
 import api from '../../services/api';
 import { getToken } from '../../services/auth';
-import backgroundImage from '../../assets/sistema_chamados.png';
-import { Tab } from 'bootstrap';
-import { Accordion, Button, Card, Col, Container, Modal, Row, Spinner, Tabs } from 'react-bootstrap';
-import Menu from '../../components/Menu';
-import AdminNavbar from '../../components/Navbar';
-import MainContent from '../../components/MainContent';
-import styled from 'styled-components';
 import { handleTelefone } from '../../services/mascaraTelefone';
 import { handleCpf } from '../../services/mascaraCpf';
 import { listaDeStatus } from '../../services/getListaDeStatus';
-import UserContext from '../../UserContext';
 import { uploadFile } from '../../services/uploadFile';
 import { alfabeto } from '../../services/alfabeto';
+import Menu from '../../components/Menu';
+import AdminNavbar from '../../components/Navbar';
+import MainContent from '../../components/MainContent';
+import backgroundImage from '../../assets/sistema_chamados.png';
 
 export default class Index extends Component {
   static contextType = UserContext;
@@ -82,9 +98,16 @@ export default class Index extends Component {
 
   handlerShowModalCadastrarAnexo(checklistCredenciamento) {
     this.setModalShowCadastrarAnexo(true);
-    this.setState({ id_checklist_credenciamento: checklistCredenciamento.id_checklist, itemDochecklist: checklistCredenciamento.nome });
+    this.setState({ 
+      id_checklist_credenciamento: checklistCredenciamento.id_checklist, 
+      itemDochecklist: checklistCredenciamento.nome 
+    });
     this.listaDeInstrucoesDoChecklist(getToken(), checklistCredenciamento.id_checklist);
-    this.listaDedocumentosDoCredenciamento(getToken(), checklistCredenciamento.id_checklist, this.state.id_credenciamento);
+    this.listaDedocumentosDoCredenciamento(
+      getToken(), 
+      checklistCredenciamento.id_checklist, 
+      this.state.id_credenciamento
+    );
   }
 
   handlerCloseModalCadastrarAnexo() {
@@ -469,7 +492,7 @@ export default class Index extends Component {
                               arrayChecklistCredenciamento.map((checklistCredenciamento, index) => (
                                 <div className="col-sm-4">
                                   <Card key={checklistCredenciamento.id_checklist} className="text-center font-weight-bold zoom"
-                                  style={{ backgroundColor: "rgba(255, 255, 255, 0.3)", height: "200px", border: "1px solid #000233" }}>
+                                    style={{ backgroundColor: "rgba(255, 255, 255, 0.3)", height: "200px", border: "1px solid #000233" }}>
                                     <Card.Header style={{ height: "60px" }}>{alfabeto()[index]} - {checklistCredenciamento.nome}</Card.Header>
                                     <Card.Body>
                                       <div className='d-flex justify-content-center mt-3'>
