@@ -1,56 +1,44 @@
 import AWS from 'aws-sdk';
+export const uploadFile = async (file, path, onProgress) => {
+    try {
+        const S3_BUCKET = 'gestor-administrativo';
+        const REGION = 'us-east-1';
 
-const S3_BUCKET = 'gestor-administrativo';
-const REGION = 'us-east-1';
+        AWS.config.update({
+            accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
+            secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
+        });
 
-AWS.config.update({
-    accessKeyId: 'AKIAWH3VX2V54PRTMJFO',
-    secretAccessKey: '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',
-});
+        const myBucket = new AWS.S3({
+            params: { Bucket: S3_BUCKET },
+            region: REGION,
+        });
 
-const myBucket = new AWS.S3({
-    params: { Bucket: S3_BUCKET },
-    region: REGION,
-});
+        const params = {
+            ACL: 'public-read',
+            Body: file,
+            Bucket: S3_BUCKET,
+            Key: `${path}${file.name}`,
+        };
 
-const uploadFile = (file, path, onProgress) => { 
-    localStorage.removeItem("@link");
-
-    const btnCadastrarAnexo = document.getElementById("btnCadastrarAnexo");
-    if (btnCadastrarAnexo) btnCadastrarAnexo.style.display = "none";
-
-    const params = {
-        ACL: 'public-read',
-        Body: file,
-        Bucket: S3_BUCKET,
-        Key: path + file.name,
-    };
-
-    myBucket.putObject(params, (err, data) => {
-        if (err) {
-            console.error("Erro ao fazer upload:", err);
-            return;
-        }
-        localStorage.setItem('@link', JSON.stringify(`https://${params.Bucket}.s3.amazonaws.com/${params.Key}`));
-    }).on('httpUploadProgress', ({ loaded, total }) => {
-        const percentCompleted = Math.round((loaded * 100) / total);
-        
-        if (onProgress) {
-            onProgress(percentCompleted);
-        }
-
-        const progresso = document.getElementById("progresso");
-        if (progresso) {
-            progresso.textContent = `${percentCompleted}%`;
-            progresso.style.width = `${percentCompleted}%`;
-
-            if (percentCompleted === 100) {
-                setTimeout(() => {
-                    if (btnCadastrarAnexo) btnCadastrarAnexo.style.display = "block";
-                }, 5000);
-            }
-        }
-    });
+        return new Promise((resolve, reject) => {
+            myBucket
+                .putObject(params)
+                .on('httpUploadProgress', (evt) => {
+                    const percentCompleted = Math.round((evt.loaded * 100) / evt.total);
+                    onProgress(percentCompleted);
+                })
+                .send((err, data) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        const fileUrl = `https://${S3_BUCKET}.s3.${REGION}.amazonaws.com/${params.Key}`;
+                        resolve(fileUrl);
+                    }
+                });
+        });
+    } catch (error) {
+        console.error('Erro ao fazer upload:', error);
+        throw error;
+    }
 };
-
-export { uploadFile };

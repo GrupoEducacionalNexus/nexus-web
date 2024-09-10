@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, ProgressBar } from 'react-bootstrap';
 
-const UploadForm = ({ onSubmit, onProgress }) => {
+const UploadForm = ({ onSubmit }) => {
   const [arquivo, setArquivo] = useState(null);
   const [progressoUpload, setProgressoUpload] = useState(0);
 
