@@ -26,7 +26,7 @@ const DocumentsModal = ({ show, onHide, documentos, instrucoes, onFileChange, on
                             <Form.Control type="file" onChange={onFileChange} />
                         </Form.Group>
                         {progressoUpload > 0 && <ProgressBar now={progressoUpload} label={`${progressoUpload}%`} />}
-                        <Button variant="primary" type="submit">Salvar</Button>
+                        <Button className='button' type="submit">Salvar</Button>
                     </Form>
 
                     <hr />

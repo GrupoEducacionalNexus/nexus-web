@@ -18,6 +18,7 @@ import { getToken } from '../../services/auth';
 const Index = () => {
   const userContext = useContext(UserContext);
   const [idCredenciamento, setIdCredenciamento] = useState(0);
+  const [solicitacaoInfo, setSolicitacaoInfo] = useState({});
   const [checklists, setChecklists] = useState([]);
   const [documentos, setDocumentos] = useState([]);
   const [instrucoes, setInstrucoes] = useState([]);
@@ -27,17 +28,18 @@ const Index = () => {
   const [arquivo, setArquivo] = useState(null);
   const [idChecklistCredenciamento, setIdChecklistCredenciamento] = useState(null);
 
-  // Carregar os dados iniciais do credenciamento e checklists
   useEffect(() => {
     const fetchData = async () => {
       try {
         const idUsuario = userContext.user.id;
-        const { resultados } = await buscaSolicitacaoDeCredenciamento(idUsuario);
-        const credenciamento = resultados[0];
+        const credenciamentoData = await buscaSolicitacaoDeCredenciamento(idUsuario);
+        const credenciamento = credenciamentoData.resultados[0];
         setIdCredenciamento(credenciamento.id_credenciamento);
+        setSolicitacaoInfo(credenciamento);
+        console.log(credenciamento)  // Armazenando as informações da solicitação
 
-        const checklistsData = await listaDoChecklistDoEstado(credenciamento.id_estado);
-        setChecklists(checklistsData);
+        // Busca checklists do estado
+        await listaDoChecklistDoEstado(credenciamento.id_estado).then(setChecklists);
       } catch (error) {
         console.error('Erro ao buscar credenciamento:', error);
       }
@@ -46,7 +48,6 @@ const Index = () => {
     fetchData();
   }, [userContext]);
 
-  // Abre o modal e carrega os documentos e instruções
   const handleShowModal = async (checklist) => {
     setItemDochecklist(checklist.nome);
     setIdChecklistCredenciamento(checklist.id_checklist);
@@ -57,23 +58,28 @@ const Index = () => {
       setInstrucoes(instrucoesData);
 
       const documentosData = await listaDedocumentosDoCredenciamentoApi(checklist.id_checklist, idCredenciamento);
-      setDocumentos(documentosData.resultados || []);
+      if (documentosData.status === 200 && documentosData.resultados && documentosData.resultados.length > 0) {
+        setDocumentos(documentosData.resultados);
+      } else {
+        setDocumentos([]);
+      }
     } catch (error) {
       console.error('Erro ao buscar documentos ou instruções:', error);
     }
   };
 
-  // Lida com a mudança de arquivo para upload
   const handleFileChange = (e) => {
     setArquivo(e.target.files[0]);
   };
 
-  // Envia o arquivo selecionado e o registra no banco de dados
   const handleFileUpload = async (e) => {
     e.preventDefault();
-    if (!arquivo) return console.error('Nenhum arquivo selecionado.');
-
     try {
+      if (!arquivo) {
+        console.error('Nenhum arquivo selecionado.');
+        return;
+      }
+
       const fileUrl = await uploadFile(arquivo, `nexus/credenciamento/`, setProgressoUpload);
 
       const response = await fetch(`${api.baseURL}/documento_credenciamento`, {
@@ -105,7 +111,7 @@ const Index = () => {
   };
 
   return (
-    <Container fluid>
+    <Container fluid style={{ padding: '0px', minHeight: '100vh' }}>
       <Menu />
       <Row>
         <Col xs={12}>
@@ -115,22 +121,49 @@ const Index = () => {
       <Row>
         <Col xs={12}>
           <MainContent>
+            {/* Accordion para informações da solicitação */}
             <Accordion>
+              <Card>
+                <Accordion.Item eventKey="0">
+                  <Accordion.Header>Informações da Solicitação</Accordion.Header>
+                  <Accordion.Body>
+                    <p><strong>Nome do Gestor:</strong> {solicitacaoInfo.gestor}</p>
+                    <p><strong>Email:</strong> {solicitacaoInfo.email}</p>
+                    <p><strong>Telefone:</strong> {solicitacaoInfo.telefone}</p>
+                    <p><strong>CPF/CNPJ:</strong> {solicitacaoInfo.cpf_cnpj}</p>
+                    <p><strong>Razão Social:</strong> {solicitacaoInfo.razao_social}</p>
+                    <p><strong>Nome Fantasia:</strong> {solicitacaoInfo.nome_fantasia}</p>
+                    <p><strong>status da solicitação:</strong>
+                      <p style={{ color: 'green' }}>{solicitacaoInfo.status}</p>
+                    </p>
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Card>
+
+              {/* Accordion com o checklist do credenciamento */}
               <Card>
                 <Accordion.Item eventKey="1">
                   <Accordion.Header>Checklist do Credenciamento</Accordion.Header>
                   <Accordion.Body>
                     <Row>
-                      {checklists.length ? checklists.map((checklist, index) => (
-                        <Col sm={4} key={index}>
-                          <Card className="text-center">
-                            <Card.Header>{index + 1} - {checklist.nome}</Card.Header>
-                            <Card.Body>
-                              <Button onClick={() => handleShowModal(checklist)}>Anexos e Instruções</Button>
-                            </Card.Body>
-                          </Card>
-                        </Col>
-                      )) : <Col>Nenhum checklist encontrado</Col>}
+                      {checklists.length > 0 ? (
+                        checklists.map((checklist, index) => (
+                          <Col sm={4} key={index}>
+                            <Card className="text-center font-weight-bold">
+                              <Card.Header>{index + 1} - {checklist.nome}</Card.Header>
+                              <Card.Body>
+                                <Button
+                                  className='button'
+                                  onClick={() => handleShowModal(checklist)}>
+                                  Ver Anexos e Instruções
+                                </Button>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                        ))
+                      ) : (
+                        <Col>Nenhum checklist encontrado</Col>
+                      )}
                     </Row>
                   </Accordion.Body>
                 </Accordion.Item>
