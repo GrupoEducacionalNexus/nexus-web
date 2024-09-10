@@ -39,6 +39,7 @@ const Index = () => {
         const idUsuario = user.id;
         const credenciamentoData = await buscaSolicitacaoDeCredenciamento(idUsuario);
         const credenciamento = credenciamentoData.resultados[0];
+        console.log('credenciamento', credenciamento)
         setIdCredenciamento(credenciamento.id_credenciamento);
         setSolicitacaoInfo(credenciamento);
         
