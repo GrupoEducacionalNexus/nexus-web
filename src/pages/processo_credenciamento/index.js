@@ -1,5 +1,6 @@
+// src/pages/solicitacao_credenciamento/index.js
 import React, { useState, useEffect, useContext } from 'react';
-import { Container, Row, Col, Accordion, Card, Button } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import Menu from '../../components/Menu';
 import AdminNavbar from '../../components/Navbar';
 import MainContent from '../../components/MainContent';
@@ -15,8 +16,12 @@ import { uploadFile } from '../../services/uploadFile';
 import api from '../../services/api';
 import { getToken } from '../../services/auth';
 
+// Importando os novos componentes
+import SolicitacaoInfo from './SolicitacaoInfo';
+import ChecklistCredenciamento from './ChecklistCredenciamento';
+
 const Index = () => {
-  const userContext = useContext(UserContext);
+  const { user } = useContext(UserContext); // Desestruturação do contexto do usuário
   const [idCredenciamento, setIdCredenciamento] = useState(0);
   const [solicitacaoInfo, setSolicitacaoInfo] = useState({});
   const [checklists, setChecklists] = useState([]);
@@ -31,55 +36,57 @@ const Index = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const idUsuario = userContext.user.id;
+        const idUsuario = user.id;
         const credenciamentoData = await buscaSolicitacaoDeCredenciamento(idUsuario);
         const credenciamento = credenciamentoData.resultados[0];
         setIdCredenciamento(credenciamento.id_credenciamento);
         setSolicitacaoInfo(credenciamento);
-        console.log(credenciamento)  // Armazenando as informações da solicitação
-
-        // Busca checklists do estado
-        await listaDoChecklistDoEstado(credenciamento.id_estado).then(setChecklists);
+        
+        // Carrega o checklist do estado
+        await loadChecklists(credenciamento.id_estado);
       } catch (error) {
         console.error('Erro ao buscar credenciamento:', error);
       }
     };
 
     fetchData();
-  }, [userContext]);
+  }, [user]);
+
+  const loadChecklists = async (idEstado) => {
+    try {
+      const checklists = await listaDoChecklistDoEstado(idEstado);
+      setChecklists(checklists);
+    } catch (error) {
+      console.error('Erro ao buscar checklists:', error);
+    }
+  };
 
   const handleShowModal = async (checklist) => {
-    setItemDochecklist(checklist.nome);
-    setIdChecklistCredenciamento(checklist.id_checklist);
-    setModalShow(true);
-
     try {
+      setItemDochecklist(checklist.nome);
+      setIdChecklistCredenciamento(checklist.id_checklist);
+      setModalShow(true);
+
       const instrucoesData = await listaDeInstrucoesDoChecklistApi(checklist.id_checklist);
       setInstrucoes(instrucoesData);
 
       const documentosData = await listaDedocumentosDoCredenciamentoApi(checklist.id_checklist, idCredenciamento);
-      if (documentosData.status === 200 && documentosData.resultados && documentosData.resultados.length > 0) {
-        setDocumentos(documentosData.resultados);
-      } else {
-        setDocumentos([]);
-      }
+      setDocumentos(documentosData.status === 200 ? documentosData.resultados : []);
     } catch (error) {
       console.error('Erro ao buscar documentos ou instruções:', error);
     }
   };
 
-  const handleFileChange = (e) => {
-    setArquivo(e.target.files[0]);
-  };
+  const handleFileChange = (e) => setArquivo(e.target.files[0]);
 
   const handleFileUpload = async (e) => {
     e.preventDefault();
-    try {
-      if (!arquivo) {
-        console.error('Nenhum arquivo selecionado.');
-        return;
-      }
+    if (!arquivo) {
+      console.error('Nenhum arquivo selecionado.');
+      return;
+    }
 
+    try {
       const fileUrl = await uploadFile(arquivo, `nexus/credenciamento/`, setProgressoUpload);
 
       const response = await fetch(`${api.baseURL}/documento_credenciamento`, {
@@ -91,7 +98,7 @@ const Index = () => {
         body: JSON.stringify({
           id_credenciamento: idCredenciamento,
           id_checklist_credenciamento: idChecklistCredenciamento,
-          id_usuario: userContext.user.id,
+          id_usuario: user.id,
           anexo: fileUrl,
           status: 1,
         }),
@@ -121,55 +128,11 @@ const Index = () => {
       <Row>
         <Col xs={12}>
           <MainContent>
-            {/* Accordion para informações da solicitação */}
-            <Accordion>
-              <Card>
-                <Accordion.Item eventKey="0">
-                  <Accordion.Header>Informações da Solicitação</Accordion.Header>
-                  <Accordion.Body>
-                    <p><strong>Nome do Gestor:</strong> {solicitacaoInfo.gestor}</p>
-                    <p><strong>Email:</strong> {solicitacaoInfo.email}</p>
-                    <p><strong>Telefone:</strong> {solicitacaoInfo.telefone}</p>
-                    <p><strong>CPF/CNPJ:</strong> {solicitacaoInfo.cpf_cnpj}</p>
-                    <p><strong>Razão Social:</strong> {solicitacaoInfo.razao_social}</p>
-                    <p><strong>Nome Fantasia:</strong> {solicitacaoInfo.nome_fantasia}</p>
-                    <p><strong>status da solicitação:</strong>
-                      <p style={{ color: 'green' }}>{solicitacaoInfo.status}</p>
-                    </p>
-                  </Accordion.Body>
-                </Accordion.Item>
-              </Card>
-
-              {/* Accordion com o checklist do credenciamento */}
-              <Card>
-                <Accordion.Item eventKey="1">
-                  <Accordion.Header>Checklist do Credenciamento</Accordion.Header>
-                  <Accordion.Body>
-                    <Row>
-                      {checklists.length > 0 ? (
-                        checklists.map((checklist, index) => (
-                          <Col sm={4} key={index}>
-                            <Card className="text-center font-weight-bold">
-                              <Card.Header>{index + 1} - {checklist.nome}</Card.Header>
-                              <Card.Body>
-                                <Button
-                                  className='button'
-                                  onClick={() => handleShowModal(checklist)}>
-                                  Ver Anexos e Instruções
-                                </Button>
-                              </Card.Body>
-                            </Card>
-                          </Col>
-                        ))
-                      ) : (
-                        <Col>Nenhum checklist encontrado</Col>
-                      )}
-                    </Row>
-                  </Accordion.Body>
-                </Accordion.Item>
-              </Card>
-            </Accordion>
-
+            <SolicitacaoInfo solicitacaoInfo={solicitacaoInfo} />
+            <ChecklistCredenciamento
+              checklists={checklists}
+              handleShowModal={handleShowModal}
+            />
             <DocumentsModal
               show={modalShow}
               onHide={() => setModalShow(false)}
