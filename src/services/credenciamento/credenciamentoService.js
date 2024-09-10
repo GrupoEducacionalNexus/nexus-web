@@ -2,28 +2,35 @@ import api from '../api'; // Importando a base URL da API
 import { getToken } from '../auth';
 
 // Busca a solicitação de credenciamento para um usuário
-export const buscaSolicitacaoDeCredenciamentoApi = async (idUsuario) => {
-  try {
-    const token = getToken();
-    const response = await fetch(`${api.baseURL}/usuarios/${idUsuario}/credenciamento`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'x-access-token': token,
-      },
-    });
-    return await response.json();
-  } catch (error) {
-    console.error('Erro ao buscar solicitação de credenciamento:', error);
-    throw error;
-  }
+export const buscaSolicitacaoDeCredenciamento = async (idUsuario) => {
+  const token = getToken();
+  const response = await fetch(`${api.baseURL}/usuarios/${idUsuario}/credenciamento`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'x-access-token': token
+    }
+  });
+  return response.json();
+};
+
+export const listaDochecklistDoCredenciamento = async () => {
+  const token = getToken();
+  const response = await fetch(`${api.baseURL}/checklist_credenciamento`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'x-access-token': token
+    }
+  });
+  return response.json();
 };
 
 // Lista os status
-export const listaDeStatus = async () => {
+export const listaDeStatusApi = async (token) => {
   try {
-    const token = getToken();
     const response = await fetch(`${api.baseURL}/status`, {
       method: 'GET',
       headers: {
@@ -32,9 +39,15 @@ export const listaDeStatus = async () => {
         'x-access-token': token,
       },
     });
-    return await response.json();
+
+    if (!response.ok) {
+      throw new Error(`Erro na API: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.resultados;
   } catch (error) {
-    console.error('Erro ao listar status:', error);
+    console.error('Erro ao buscar lista de status:', error);
     throw error;
   }
 };
