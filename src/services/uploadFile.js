@@ -3,48 +3,54 @@ import AWS from 'aws-sdk';
 const S3_BUCKET = 'gestor-administrativo';
 const REGION = 'us-east-1';
 
-// Configure AWS com as variáveis de ambiente para segurança
 AWS.config.update({
-  accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
-  region: REGION
+    accessKeyId: 'AKIAWH3VX2V54PRTMJFO',
+    secretAccessKey: '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',
 });
 
 const myBucket = new AWS.S3({
-  params: { Bucket: S3_BUCKET },
-  region: REGION,
+    params: { Bucket: S3_BUCKET },
+    region: REGION,
 });
 
-const uploadFile = (file, path, onProgress) => {
-  return new Promise((resolve, reject) => {
-    // Remove qualquer link anterior do localStorage
-    localStorage.removeItem('@link');
+const uploadFile = (file, path, onProgress) => { 
+    localStorage.removeItem("@link");
+
+    const btnCadastrarAnexo = document.getElementById("btnCadastrarAnexo");
+    if (btnCadastrarAnexo) btnCadastrarAnexo.style.display = "none";
 
     const params = {
-      ACL: 'public-read',
-      Body: file,
-      Bucket: S3_BUCKET,
-      Key: `${path}${file.name}`,
+        ACL: 'public-read',
+        Body: file,
+        Bucket: S3_BUCKET,
+        Key: path + file.name,
     };
 
-    // Inicia o upload para o S3
-    myBucket.putObject(params)
-      .on('httpUploadProgress', (event) => {
-        const percentComplete = Math.round((event.loaded * 100) / event.total);
-        if (onProgress) {
-          onProgress(percentComplete); // Atualiza a barra de progresso
-        }
-      })
-      .send((err, data) => {
+    myBucket.putObject(params, (err, data) => {
         if (err) {
-          reject(err);
-        } else {
-          const fileUrl = `https://${params.Bucket}.s3.amazonaws.com/${params.Key}`;
-          localStorage.setItem('@link', JSON.stringify(fileUrl)); // Salva o link do arquivo no localStorage
-          resolve(fileUrl); // Resolve com o URL do arquivo
+            console.error("Erro ao fazer upload:", err);
+            return;
         }
-      });
-  });
+        localStorage.setItem('@link', JSON.stringify(`https://${params.Bucket}.s3.amazonaws.com/${params.Key}`));
+    }).on('httpUploadProgress', ({ loaded, total }) => {
+        const percentCompleted = Math.round((loaded * 100) / total);
+        
+        if (onProgress) {
+            onProgress(percentCompleted);
+        }
+
+        const progresso = document.getElementById("progresso");
+        if (progresso) {
+            progresso.textContent = `${percentCompleted}%`;
+            progresso.style.width = `${percentCompleted}%`;
+
+            if (percentCompleted === 100) {
+                setTimeout(() => {
+                    if (btnCadastrarAnexo) btnCadastrarAnexo.style.display = "block";
+                }, 5000);
+            }
+        }
+    });
 };
 
 export { uploadFile };
