@@ -525,5 +525,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
 .card-body {
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
