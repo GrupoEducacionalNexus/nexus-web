@@ -1,11 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, Table, Form, ProgressBar, Button, Alert } from 'react-bootstrap';
 
 const DocumentsModal = ({ show, onHide, documentos, instrucoes, onFileChange, onSubmitFile, progressoUpload }) => {
+    const [alertaArquivoDuplicado, setAlertaArquivoDuplicado] = useState(false);
+
     // Verifica se o último documento enviado tem status que permite novo envio
     const ultimoDocumento = documentos?.length > 0 ? documentos[documentos.length - 1] : null;
-    const permiteNovoEnvio = !ultimoDocumento || ultimoDocumento.status === "AGUARDANDO REENVIO"; // Ajuste conforme seu status
-    
+
+    // Status que permitem novo envio
+    const statusPermitidosParaReenvio = ["AGUARDANDO REENVIO", "REPROVADA", "DOCUMENTO INVALIDO"];
+
+    // Permitir reenvio apenas se o status estiver nos permitidos
+    const permiteNovoEnvio = !ultimoDocumento || statusPermitidosParaReenvio.includes(ultimoDocumento.status);
+
+    // Função para verificar se o arquivo com o mesmo nome já foi enviado
+    const handleFileChange = (e) => {
+        const arquivoSelecionado = e.target.files[0];
+        const nomeArquivoSelecionado = arquivoSelecionado?.name;
+
+        // Verificar se algum dos documentos anexados tem o mesmo nome de arquivo
+        const arquivoDuplicado = documentos.some(doc => {
+            const nomeArquivoAnexado = doc.anexo.split('/').pop(); // Extrai apenas o nome do arquivo da URL
+            return nomeArquivoAnexado === nomeArquivoSelecionado;
+        });
+
+        if (arquivoDuplicado) {
+            setAlertaArquivoDuplicado(true);
+        } else {
+            setAlertaArquivoDuplicado(false);
+            onFileChange(e);  // Passa o arquivo para a função de controle principal
+        }
+    };
+
     return (
         <Modal show={show} onHide={onHide} size="lg" centered>
             <Modal.Header closeButton>
@@ -27,17 +53,24 @@ const DocumentsModal = ({ show, onHide, documentos, instrucoes, onFileChange, on
                         <h4>Anexar um novo documento</h4>
                         {!permiteNovoEnvio ? (
                             <Alert variant="warning">
-                                Você já enviou um documento. Aguarde o administrador revisar o documeto enviado.
+                                Você já enviou um documento. Aguarde o setor de convênios revisar o documento enviado.
                             </Alert>
                         ) : (
-                            <Form onSubmit={onSubmitFile}>
-                                <Form.Group controlId="formFile" className="mb-3">
-                                    <Form.Label>Escolha um arquivo</Form.Label>
-                                    <Form.Control type="file" onChange={onFileChange} />
-                                </Form.Group>
-                                {progressoUpload > 0 && <ProgressBar now={progressoUpload} label={`${progressoUpload}%`} />}
-                                <Button className='button' type="submit">Salvar</Button>
-                            </Form>
+                            <>
+                                <Form onSubmit={onSubmitFile}>
+                                    <Form.Group controlId="formFile" className="mb-3">
+                                        <Form.Label>Escolha um arquivo</Form.Label>
+                                        <Form.Control type="file" onChange={handleFileChange} />
+                                    </Form.Group>
+                                    {progressoUpload > 0 && <ProgressBar now={progressoUpload} label={`${progressoUpload}%`} />}
+                                    <Button className='button' type="submit" disabled={alertaArquivoDuplicado}>Salvar</Button>
+                                </Form>
+                                {alertaArquivoDuplicado && (
+                                    <Alert variant="danger" className="mt-3">
+                                        Este arquivo já foi enviado. Selecione um arquivo diferente.
+                                    </Alert>
+                                )}
+                            </>
                         )}
 
                         <hr />
