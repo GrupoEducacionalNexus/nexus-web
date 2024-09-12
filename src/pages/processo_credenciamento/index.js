@@ -42,7 +42,7 @@ const Index = () => {
         console.log('credenciamento', credenciamento)
         setIdCredenciamento(credenciamento.id_credenciamento);
         setSolicitacaoInfo(credenciamento);
-        
+
         // Carrega o checklist do estado
         await loadChecklists(credenciamento.id_estado);
       } catch (error) {
@@ -117,6 +117,35 @@ const Index = () => {
       console.error('Erro ao enviar documento:', error);
     }
   };
+  const handleDeleteDocument = async (id, anexoUrl) => {
+    try {
+      const response = await fetch(`${api.baseURL}/documento_credenciamento/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-access-token': getToken(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ anexo: anexoUrl }),  // Enviar o nome do anexo
+      });
+
+      const data = await response.json();
+      if (data.status === 200) {
+        console.log('Documento deletado com sucesso:', data);
+        // Atualizar a lista de documentos
+      } else {
+        console.error('Erro ao deletar documento:', data.msg);
+      }
+    } catch (error) {
+      console.error('Erro ao deletar o arquivo:', error);
+    }
+  };
+
+
+
+  const atualizarDocumentos = async (idChecklistCredenciamento, idCredenciamento) => {
+    const documentosAtualizados = await listaDedocumentosDoCredenciamentoApi(idChecklistCredenciamento, idCredenciamento);
+    setDocumentos(documentosAtualizados.resultados);
+  };
 
   return (
     <Container fluid style={{ padding: '0px', minHeight: '100vh' }}>
@@ -142,6 +171,8 @@ const Index = () => {
               onFileChange={handleFileChange}
               onSubmitFile={handleFileUpload}
               progressoUpload={progressoUpload}
+              atualizarDocumentos={atualizarDocumentos}
+              handleDeleteDocument={handleDeleteDocument}
             />
           </MainContent>
         </Col>
