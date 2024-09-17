@@ -36,15 +36,16 @@ const Index = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = getToken();
         const idUsuario = user.id;
-        const credenciamentoData = await buscaSolicitacaoDeCredenciamento(idUsuario);
+        const credenciamentoData = await buscaSolicitacaoDeCredenciamento(token, idUsuario);
         const credenciamento = credenciamentoData.resultados[0];
         console.log('credenciamento', credenciamento)
         setIdCredenciamento(credenciamento.id_credenciamento);
         setSolicitacaoInfo(credenciamento);
 
         // Carrega o checklist do estado
-        await loadChecklists(credenciamento.id_estado);
+        await loadChecklists(token, credenciamento.id_estado);
       } catch (error) {
         console.error('Erro ao buscar credenciamento:', error);
       }
@@ -53,9 +54,9 @@ const Index = () => {
     fetchData();
   }, [user]);
 
-  const loadChecklists = async (idEstado) => {
+  const loadChecklists = async (token, idEstado) => {
     try {
-      const checklists = await listaDoChecklistDoEstado(idEstado);
+      const checklists = await listaDoChecklistDoEstado(token, idEstado);
       setChecklists(checklists);
     } catch (error) {
       console.error('Erro ao buscar checklists:', error);
