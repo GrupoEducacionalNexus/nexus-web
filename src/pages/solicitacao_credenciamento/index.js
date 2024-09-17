@@ -125,6 +125,7 @@ export default class Index extends Component {
 
             if (data.status === 200) {
                 this.setState({ success: data.msg, error: "" });
+                this.props.history.push("/processo_credenciamento");
             }
 
             if (data.status === 400) {
