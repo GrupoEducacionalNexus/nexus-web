@@ -72,10 +72,8 @@ export const listaDochecklistDoCredenciamentoApi = async () => {
 };
 
 // Lista o checklist de um estado específico
-export const listaDoChecklistDoEstado = async (idEstado) => {
+export const listaDoChecklistDoEstado = async (token, idEstado) => {
   try {
-    const token = getToken;
-    console.log('token', token)
     const response = await fetch(`${api.baseURL}/estados/${idEstado}/checklist_credenciamento`, {
       method: 'GET',
       headers: {

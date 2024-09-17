@@ -10,6 +10,7 @@ import {
   buscaSolicitacaoDeCredenciamento,
   listaDedocumentosDoCredenciamentoApi,
   listaDeInstrucoesDoChecklistApi,
+  listaDoChecklistDoEstado,
 } from '../../services/credenciamento/credenciamentoService';
 import { uploadFile } from '../../services/uploadFile';
 import api from '../../services/api';
@@ -64,49 +65,6 @@ const Index = () => {
 
     fetchData();
   }, [user]);
-
-
-  // const listaDoChecklistDoEstado = async (getToken, idEstado) => {
-  //   try {
-  //     console.log('getToken', getToken)
-  //     const response = await fetch(`${api.baseURL}/estados/${idEstado}/checklist_credenciamento`, {
-  //       method: 'GET',
-  //       headers: {
-  //         Accept: 'application/json',
-  //         'Content-Type': 'application/json',
-  //         'x-access-token': getToken,
-  //       },
-  //     });
-  //     const data = await response.json();
-  //     if (data.status === 200) {
-  //       return data.resultados;
-  //     }
-  //   } catch (error) {
-  //     console.error('Erro ao listar checklist do estado:', error);
-  //     throw error;
-  //   }
-  // };
-
-  const listaDoChecklistDoEstado = async (token, idEstado) => {
-    try {
-      console.log('Token enviado:', token);
-      const response = await fetch(`${api.baseURL}/estados/${idEstado}/checklist_credenciamento`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'x-access-token': token, // Aqui estamos passando o token corretamente
-        },
-      });
-      const data = await response.json();
-      if (data.status === 200) {
-        return data.resultados;
-      }
-    } catch (error) {
-      console.error('Erro ao listar checklist do estado:', error);
-      throw error;
-    }
-  };
 
   const loadChecklists = async (getToken, idEstado) => {
     try {
