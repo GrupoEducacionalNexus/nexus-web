@@ -9,7 +9,6 @@ import UserContext from '../../UserContext';
 import {
   buscaSolicitacaoDeCredenciamento,
   listaDedocumentosDoCredenciamentoApi,
-  listaDoChecklistDoEstado,
   listaDeInstrucoesDoChecklistApi,
 } from '../../services/credenciamento/credenciamentoService';
 import { uploadFile } from '../../services/uploadFile';
@@ -22,6 +21,7 @@ import ChecklistCredenciamento from './ChecklistCredenciamento';
 
 const Index = () => {
   const { user } = useContext(UserContext); // Desestruturação do contexto do usuário
+  console.log('user', user)
   const [idCredenciamento, setIdCredenciamento] = useState(0);
   const [solicitacaoInfo, setSolicitacaoInfo] = useState({});
   const [checklists, setChecklists] = useState([]);
@@ -36,15 +36,27 @@ const Index = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const idUsuario = user.id;
-        const credenciamentoData = await buscaSolicitacaoDeCredenciamento(idUsuario);
-        const credenciamento = credenciamentoData.resultados[0];
-        console.log('credenciamento', credenciamento)
-        setIdCredenciamento(credenciamento.id_credenciamento);
-        setSolicitacaoInfo(credenciamento);
+        const token = getToken();
+        if (!token) {
+          console.error('Token não encontrado');
+          return;
+        }
 
-        // Carrega o checklist do estado
-        await loadChecklists(credenciamento.id_estado);
+        const idUsuario = user.id;
+        console.log('ID do usuário:', idUsuario);
+
+        const credenciamentoData = await buscaSolicitacaoDeCredenciamento(idUsuario);
+        console.log('Dados do credenciamento:', credenciamentoData);
+
+        if (credenciamentoData.resultados && credenciamentoData.resultados.length > 0) {
+          const credenciamento = credenciamentoData.resultados[0];
+          console.log('credenciamento', credenciamento);
+          setIdCredenciamento(credenciamento.id_credenciamento);
+          setSolicitacaoInfo(credenciamento);
+          await loadChecklists(token, credenciamento.id_estado);
+        } else {
+          console.error('Nenhum credenciamento encontrado.');
+        }
       } catch (error) {
         console.error('Erro ao buscar credenciamento:', error);
       }
@@ -53,12 +65,57 @@ const Index = () => {
     fetchData();
   }, [user]);
 
-  const loadChecklists = async (idEstado) => {
+
+  // const listaDoChecklistDoEstado = async (getToken, idEstado) => {
+  //   try {
+  //     console.log('getToken', getToken)
+  //     const response = await fetch(`${api.baseURL}/estados/${idEstado}/checklist_credenciamento`, {
+  //       method: 'GET',
+  //       headers: {
+  //         Accept: 'application/json',
+  //         'Content-Type': 'application/json',
+  //         'x-access-token': getToken,
+  //       },
+  //     });
+  //     const data = await response.json();
+  //     if (data.status === 200) {
+  //       return data.resultados;
+  //     }
+  //   } catch (error) {
+  //     console.error('Erro ao listar checklist do estado:', error);
+  //     throw error;
+  //   }
+  // };
+
+  const listaDoChecklistDoEstado = async (token, idEstado) => {
     try {
-      const checklists = await listaDoChecklistDoEstado(idEstado);
-      setChecklists(checklists);
+      console.log('Token enviado:', token);
+      const response = await fetch(`${api.baseURL}/estados/${idEstado}/checklist_credenciamento`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'x-access-token': token, // Aqui estamos passando o token corretamente
+        },
+      });
+      const data = await response.json();
+      if (data.status === 200) {
+        return data.resultados;
+      }
+    } catch (error) {
+      console.error('Erro ao listar checklist do estado:', error);
+      throw error;
+    }
+  };
+
+  const loadChecklists = async (getToken, idEstado) => {
+    try {
+      const checklistsData = await listaDoChecklistDoEstado(getToken, idEstado);
+      console.log('checklistsData', checklistsData)
+      setChecklists(checklistsData || []); // Ensure it's an array
     } catch (error) {
       console.error('Erro ao buscar checklists:', error);
+      setChecklists([]); // Set to empty array on error
     }
   };
 
@@ -140,8 +197,6 @@ const Index = () => {
   //   }
   // };
 
-
-
   const atualizarDocumentos = async (idChecklistCredenciamento, idCredenciamento) => {
     const documentosAtualizados = await listaDedocumentosDoCredenciamentoApi(idChecklistCredenciamento, idCredenciamento);
     setDocumentos(documentosAtualizados.resultados);
@@ -160,7 +215,7 @@ const Index = () => {
           <MainContent>
             <SolicitacaoInfo solicitacaoInfo={solicitacaoInfo} />
             <ChecklistCredenciamento
-              checklists={checklists}
+              checklists={checklists && checklists}
               handleShowModal={handleShowModal}
             />
             <DocumentsModal
@@ -172,7 +227,7 @@ const Index = () => {
               onSubmitFile={handleFileUpload}
               progressoUpload={progressoUpload}
               atualizarDocumentos={atualizarDocumentos}
-              // handleDeleteDocument={handleDeleteDocument}
+            // handleDeleteDocument={handleDeleteDocument}
             />
           </MainContent>
         </Col>
