@@ -10,6 +10,7 @@ import EstadosCidadesJson from '../../services/estados-cidades.json';
 import DadosGestor from './DadosGestor';
 import DadosInstituicao from './DadosInstituicao';
 import MensagemFeedback from './MensagemFeedback';
+import Spinner from '../../components/Spinner/Spinner'; // Importando o spinner personalizado
 
 export default class SolicitacaoCredenciamento extends Component {
     constructor(props) {
@@ -35,6 +36,7 @@ export default class SolicitacaoCredenciamento extends Component {
             displaySolicitar: false,
             success: '',
             error: '',
+            isLoading: false, // Novo estado para loading
             arrayEstados: [],
             arrayCidades: []
         };
@@ -104,27 +106,31 @@ export default class SolicitacaoCredenciamento extends Component {
                         nome_fantasia: instituicao.nome_fantasia,
                         id_instituicao: instituicao.id_instituicao,
                         displaySolicitar: true,
-                        error: ''
+                        error: '',
+                        isLoading: false // Assegurar que o loading está falso
                     });
                 } else {
                     this.setState({
                         error: 'CNPJ NÃO ENCONTRADO, POR FAVOR ENTRE EM CONTATO COM O SETOR DE CONVÊNIOS ATRAVÉS DA CENTRAL DE ATENDIMENTO',
                         razao_social: "",
                         nome_fantasia: "",
-                        displaySolicitar: false
+                        displaySolicitar: false,
+                        isLoading: false // Assegurar que o loading está falso
                     });
                 }
             } else {
                 this.setState({
                     error: data.msg || 'Erro na consulta de CNPJ.',
-                    displaySolicitar: false
+                    displaySolicitar: false,
+                    isLoading: false // Assegurar que o loading está falso
                 });
             }
         } catch (error) {
             console.error("Erro na consulta de CNPJ:", error);
             this.setState({
                 error: "Erro ao consultar CNPJ.",
-                displaySolicitar: false
+                displaySolicitar: false,
+                isLoading: false // Assegurar que o loading está falso
             });
         }
     }
@@ -135,7 +141,7 @@ export default class SolicitacaoCredenciamento extends Component {
      */
     solicitarCredenciamento = async (e) => {
         e.preventDefault();
-        this.setState({ success: '', error: '' });
+        this.setState({ success: '', error: '', isLoading: true }); // Iniciar o loading
 
         const {
             nome, email, telefone,
@@ -146,12 +152,12 @@ export default class SolicitacaoCredenciamento extends Component {
 
         // Validação dos campos
         if (!nome || !email || !telefone || !cpf || !cnpj || !razao_social || !nome_fantasia || !id_estado || !cidade) {
-            this.setState({ error: "Por favor, preencher todos os campos." });
+            this.setState({ error: "Por favor, preencher todos os campos.", isLoading: false });
             return;
         }
 
         if (senha !== confirmarSenha) {
-            this.setState({ error: 'Por favor, informe senhas iguais!' });
+            this.setState({ error: 'Por favor, informe senhas iguais!', isLoading: false });
             return;
         }
 
@@ -174,17 +180,17 @@ export default class SolicitacaoCredenciamento extends Component {
             console.log("Resposta da solicitação de credenciamento:", data); // Para depuração
 
             if (data.status === 200) {
-                this.setState({ success: data.msg, error: "" });
+                this.setState({ success: data.msg, error: "", isLoading: false });
                 // Opcional: Redirecionar ou limpar o formulário após sucesso
                 this.limparFormulario();
             } else if (data.status === 400) {
-                this.setState({ error: data.msg || 'Erro ao solicitar credenciamento.', success: "" });
+                this.setState({ error: data.msg || 'Erro ao solicitar credenciamento.', success: "", isLoading: false });
             } else {
-                this.setState({ error: data.msg || 'Erro inesperado.', success: "" });
+                this.setState({ error: data.msg || 'Erro inesperado.', success: "", isLoading: false });
             }
         } catch (error) {
             console.error("Erro ao solicitar credenciamento:", error);
-            this.setState({ error: "Ocorreu um erro ao solicitar credenciamento." });
+            this.setState({ error: "Ocorreu um erro ao solicitar credenciamento.", isLoading: false });
         }
     }
 
@@ -205,7 +211,9 @@ export default class SolicitacaoCredenciamento extends Component {
             id_instituicao: 0,
             id_estado: '',
             cidade: '',
-            displaySolicitar: false
+            displaySolicitar: false,
+            isLoading: false, // Assegurar que o loading está falso
+            arrayCidades: []
         });
     }
 
@@ -257,7 +265,7 @@ export default class SolicitacaoCredenciamento extends Component {
         }
 
         // Procura o estado pelo ID
-        const estadoEncontrado = EstadosCidadesJson.estados.find(est => est.id === id_estado);
+        const estadoEncontrado = EstadosCidadesJson.estados.find(est => Number(est.id) === Number(id_estado));
         console.log('estadoEncontrado:', estadoEncontrado); // Log do estado encontrado
 
         if (estadoEncontrado) {
@@ -321,7 +329,8 @@ export default class SolicitacaoCredenciamento extends Component {
             telefone,
             cpf,
             senha,
-            confirmarSenha
+            confirmarSenha,
+            isLoading // Adicionando o estado de loading
         } = this.state;
 
         return (
@@ -360,10 +369,23 @@ export default class SolicitacaoCredenciamento extends Component {
                     {/* Mensagens de Sucesso e Erro */}
                     <MensagemFeedback success={success} error={error} />
 
-                    {/* Botão de Enviar */}
+                    {/* Botão de Enviar com Spinner Personalizado */}
                     {displaySolicitar && (
-                        <button className="button btn-block mt-4" type="submit">
-                            Solicitar
+                        <button
+                            className="button btn-block mt-4"
+                            type="submit"
+                            disabled={isLoading}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '10px 20px',
+                                fontSize: '16px',
+                                cursor: isLoading ? 'not-allowed' : 'pointer'
+                            }}
+                        >
+                            {isLoading && <Spinner />}
+                            {isLoading ? 'Processando...' : 'Solicitar'}
                         </button>
                     )}
                 </StyledForm>
