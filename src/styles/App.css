@@ -512,13 +512,20 @@ Note: Beware of modifying this element as it can break the animations - you shou
 
 .accordion-header {
   background-color: #ffffff !important;
-  border: 1px solid #000233 !important;
+  /* border: 1px solid #000233 !important; */
 }
 
 
 .accordion-body {
   background-color: #ffffff !important;
   padding: 10px;
-  border: 1px solid #000233 !important;
+  /* border: 1px solid #000233 !important; */
+}
+
+.card-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
