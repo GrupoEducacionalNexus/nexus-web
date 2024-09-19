@@ -9,8 +9,8 @@ import UserContext from '../../UserContext';
 import {
   buscaSolicitacaoDeCredenciamento,
   listaDedocumentosDoCredenciamentoApi,
-  listaDoChecklistDoEstado,
   listaDeInstrucoesDoChecklistApi,
+  listaDoChecklistDoEstado,
 } from '../../services/credenciamento/credenciamentoService';
 import { uploadFile } from '../../services/uploadFile';
 import api from '../../services/api';
@@ -22,6 +22,7 @@ import ChecklistCredenciamento from './ChecklistCredenciamento';
 
 const Index = () => {
   const { user } = useContext(UserContext); // Desestruturação do contexto do usuário
+  console.log('user', user)
   const [idCredenciamento, setIdCredenciamento] = useState(0);
   const [solicitacaoInfo, setSolicitacaoInfo] = useState({});
   const [checklists, setChecklists] = useState([]);
@@ -60,6 +61,7 @@ const Index = () => {
       setChecklists(checklists);
     } catch (error) {
       console.error('Erro ao buscar checklists:', error);
+      setChecklists([]); // Set to empty array on error
     }
   };
 
@@ -141,8 +143,6 @@ const Index = () => {
   //   }
   // };
 
-
-
   const atualizarDocumentos = async (idChecklistCredenciamento, idCredenciamento) => {
     const documentosAtualizados = await listaDedocumentosDoCredenciamentoApi(idChecklistCredenciamento, idCredenciamento);
     setDocumentos(documentosAtualizados.resultados);
@@ -161,7 +161,7 @@ const Index = () => {
           <MainContent>
             <SolicitacaoInfo solicitacaoInfo={solicitacaoInfo} />
             <ChecklistCredenciamento
-              checklists={checklists}
+              checklists={checklists && checklists}
               handleShowModal={handleShowModal}
             />
             <DocumentsModal
@@ -173,7 +173,7 @@ const Index = () => {
               onSubmitFile={handleFileUpload}
               progressoUpload={progressoUpload}
               atualizarDocumentos={atualizarDocumentos}
-              // handleDeleteDocument={handleDeleteDocument}
+            // handleDeleteDocument={handleDeleteDocument}
             />
           </MainContent>
         </Col>
@@ -182,4 +182,9 @@ const Index = () => {
   );
 };
 
+export const Form = styled.form`
+  .titulo {
+    color: #000233;
+  }
+`;
 export default Index;

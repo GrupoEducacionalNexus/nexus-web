@@ -1236,7 +1236,7 @@ export default class Index extends Component {
                                 {this.state.arrayStatus.length > 0 ? (
                                   this.state.arrayStatus.map(item =>
                                     item.id === 5 || item.id === 6 || item.id === 7 ?
-                                      (<option value={item.id}>{item.nome}</option>) : "")
+                                      (<option key={item.id} value={item.id}>{item.nome} </option>) : "")
                                 ) : (
                                   <option value="0">Nenhum resultado encontrado</option>
                                 )}

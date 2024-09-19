@@ -1173,7 +1173,7 @@ export default class Index extends Component {
 															<option value="0">Selecione</option>
 															{this.state.arraySetores.length > 0 ?
 																this.state.arraySetores.map(setor => (
-																	<option value={setor.id}>{setor.nome}</option>
+																	<option key={setor.id} value={setor.id}>{setor.nome}</option>
 																))
 																: (<option>0</option>)
 															}
@@ -1189,7 +1189,7 @@ export default class Index extends Component {
 															<option value="0">Selecione</option>
 															{this.state.arrayUsuariosDoSetorResponsavel.length > 0 ?
 																this.state.arrayUsuariosDoSetorResponsavel.map(setor => (
-																	<option value={setor.id}>{setor.nome}</option>
+																	<option key={setor.id} value={setor.id}>{setor.nome}</option>
 																))
 																: (<option>0</option>)
 															}
@@ -1235,7 +1235,7 @@ export default class Index extends Component {
 															<option value="0">Selecione</option>
 															{this.state.arrayPrioridades.length > 0 ?
 																this.state.arrayPrioridades.map(prioridade => (
-																	<option value={prioridade.id}>{prioridade.nome}</option>
+																	<option key={prioridade.id} value={prioridade.id}>{prioridade.nome}</option>
 																))
 																: (<option>0</option>)
 															}
@@ -1577,7 +1577,7 @@ export default class Index extends Component {
 																{this.state.arraySetores.length > 0 ?
 																	this.state.arraySetores.map(setor => (
 																		this.state.idSetorResponsavel === setor.id ? (
-																			<option value={setor.id}>{setor.nome}</option>
+																			<option key={setor.id} value={setor.id}>{setor.nome}</option>
 																		) : ("")
 																	))
 																	: (<option>0</option>)
@@ -1963,7 +1963,7 @@ export default class Index extends Component {
 								<Modal.Body style={{ maxHeight: "600px", overflowY: "scroll" }}>
 									{this.state.arraySetores.length > 0 ? (
 										this.state.arraySetores.map(setor => (
-											<AccordionChamados id_setor={setor.id} setor={setor.nome} listaDeChamados={this.listaDeChamados} limpaFiltro={this.limpaFiltro}>
+											<AccordionChamados key={setor.id} id_setor={setor.id} setor={setor.nome} listaDeChamados={this.listaDeChamados} limpaFiltro={this.limpaFiltro}>
 												<div class="form-group">
 													<label for="descricaoPesq">Descrição:*</label>
 													<textarea class="form-control" id="descricaoPesq" rows="3"
@@ -1991,7 +1991,7 @@ export default class Index extends Component {
 																<option value="0">Selecione</option>
 																{this.state.arrayPrioridades.length > 0 ?
 																	this.state.arrayPrioridades.map(prioridade => (
-																		<option value={prioridade.id}>{prioridade.nome}</option>
+																		<option key={prioridade.id} value={prioridade.id}>{prioridade.nome}</option>
 																	))
 																	: (<option>0</option>)
 																}
@@ -2019,7 +2019,7 @@ export default class Index extends Component {
 																<option value="0">Selecionar</option>
 																{this.state.arrayStatus.length > 0 ? (
 																	this.state.arrayStatus.map(item =>
-																		parseInt(item.id) > 4 ? (<option value={item.id}>{item.nome}</option>) : "")
+																		parseInt(item.id) > 4 ? (<option key={item.id} value={item.id}>{item.nome}</option>) : "")
 																) : (
 																	<option value="0">Nenhum resultado encontrado</option>
 																)}
@@ -2121,10 +2121,10 @@ export default class Index extends Component {
 													<label htmlFor="prioridadePesq">Prioridade:</label>
 													<select class="form-control form-control-sm" id="prioridadePesq" value={this.state.prioridadePesq}
 														onChange={e => this.setState({ prioridadePesq: e.target.value })}>
-														<option value="0">Selecione</option>
+														<option  value="0">Selecione</option>
 														{this.state.arrayPrioridades.length > 0 ?
 															this.state.arrayPrioridades.map(prioridade => (
-																<option value={prioridade.id}>{prioridade.nome}</option>
+																<option key={prioridade.id} value={prioridade.id}>{prioridade.nome}</option>
 															))
 															: (<option>0</option>)
 														}
@@ -2152,7 +2152,7 @@ export default class Index extends Component {
 														<option value="0">Selecionar</option>
 														{this.state.arrayStatus.length > 0 ? (
 															this.state.arrayStatus.map(item =>
-																parseInt(item.id) > 4 ? (<option value={item.id}>{item.nome}</option>) : "")
+																parseInt(item.id) > 4 ? (<option key={item.id} value={item.id}>{item.nome}</option>) : "")
 														) : (
 															<option value="0">Nenhum resultado encontrado</option>
 														)}

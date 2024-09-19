@@ -135,13 +135,13 @@ export default class Login extends Component {
                 <img src={LogoAdmin} style={{ display: "block", margin: "0 auto", width: "200px" }} className="mt-3 mb-3" />
                 <h1 className='titulo'>Gestor Grupo Nexus</h1>
                 <Form onSubmit={this.handlerLogin}>
-                    <div class="form-group mb-3">
+                    <div className="form-group mb-3">
                         <label htmlFor="email">EMAIL:</label>
                         <input className="form-control form-control-sm" type="email" placeholder="Email" name="email"
                             onChange={e => this.setState({ email: e.target.value })} />
                     </div>
 
-                    <div class="form-group">
+                    <div className="form-group">
                         <label htmlFor="nome">SENHA:</label>
                         <input className="form-control form-control-sm" type="password" placeholder="Senha" name="senha"
                             onChange={e => this.setState({ senha: e.target.value })} />
