@@ -183,6 +183,9 @@ export default class SolicitacaoCredenciamento extends Component {
                 this.setState({ success: data.msg, error: "", isLoading: false });
                 // Opcional: Redirecionar ou limpar o formulário após sucesso
                 this.limparFormulario();
+                setTimeout(() => {
+                    this.props.history.push('/');
+                }, 1500);
             } else if (data.status === 400) {
                 this.setState({ error: data.msg || 'Erro ao solicitar credenciamento.', success: "", isLoading: false });
             } else {
@@ -229,10 +232,7 @@ export default class SolicitacaoCredenciamento extends Component {
                     'Content-Type': 'application/json'
                 }
             });
-
             const data = await response.json();
-            console.log("Lista de Estados:", data); // Para depuração
-
             if (data.status === 200) {
                 this.setState({ arrayEstados: data.resultados }, () => {
                     console.log('arrayEstados:', this.state.arrayEstados); // Verifique os estados carregados
