@@ -19,9 +19,10 @@ import { getToken } from '../../services/auth';
 // Importando os novos componentes
 import SolicitacaoInfo from './SolicitacaoInfo';
 import ChecklistCredenciamento from './ChecklistCredenciamento';
+import styled from 'styled-components';
 
 const Index = () => {
-  const { user } = useContext(UserContext); // Desestruturação do contexto do usuário
+  const { user } = useContext(UserContext);
   console.log('user', user)
   const [idCredenciamento, setIdCredenciamento] = useState(0);
   const [solicitacaoInfo, setSolicitacaoInfo] = useState({});
@@ -61,7 +62,7 @@ const Index = () => {
       setChecklists(checklists);
     } catch (error) {
       console.error('Erro ao buscar checklists:', error);
-      setChecklists([]); // Set to empty array on error
+      setChecklists([]);
     }
   };
 
@@ -71,10 +72,14 @@ const Index = () => {
       setIdChecklistCredenciamento(checklist.id_checklist);
       setModalShow(true);
 
-      const instrucoesData = await listaDeInstrucoesDoChecklistApi(checklist.id_checklist);
+      const instrucoesData = await
+        listaDeInstrucoesDoChecklistApi(checklist.id_checklist);
       setInstrucoes(instrucoesData);
 
-      const documentosData = await listaDedocumentosDoCredenciamentoApi(checklist.id_checklist, idCredenciamento);
+      const documentosData = await listaDedocumentosDoCredenciamentoApi(
+        checklist.id_checklist,
+        idCredenciamento
+      );
       setDocumentos(documentosData.status === 200 ? documentosData.resultados : []);
     } catch (error) {
       console.error('Erro ao buscar documentos ou instruções:', error);

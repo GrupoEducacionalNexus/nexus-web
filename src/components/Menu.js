@@ -1,14 +1,26 @@
+// src/components/Menu.js
 import React, { useState, useEffect, useContext } from 'react';
 import { getToken, logout } from '../services/auth';
 import api from '../services/api';
 import { slide as Slide } from 'react-burger-menu';
 import nexus_white from '../assets/logo_nexus2.png';
-import { FaCog, FaRegThumbsUp, FaUpload, FaUserCog, FaUsers, FaUsersCog, FaWrench } from 'react-icons/fa';
+import {
+    FaCog,
+    FaRegThumbsUp,
+    FaUpload,
+    FaUserCog,
+    FaUsers,
+    FaUsersCog,
+    FaWrench,
+    FaSignOutAlt
+} from 'react-icons/fa';
 import UserContext from '../UserContext';
+import { Link } from 'react-router-dom';
+import './Menu.css';
 
 const Menu = () => {
     const [arrayPermissoes, setArrayPermissoes] = useState([]);
-    const { user } = useContext(UserContext);
+    const { user, setUser } = useContext(UserContext);
 
     useEffect(() => {
         const listaPermissoes = async (id_usuario) => {
@@ -31,13 +43,15 @@ const Menu = () => {
             }
         };
 
-        listaPermissoes(user.id);
-    }, [user.id]);
+        if (user && user.id) {
+            listaPermissoes(user.id);
+        }
+    }, [user]);
 
     const renderMenuItems = () => {
         return arrayPermissoes.map((item) => {
             let icon, link, label;
-            
+
             switch (item.id_permissao) {
                 case 1:
                     icon = <FaUserCog />;
@@ -92,37 +106,35 @@ const Menu = () => {
             }
 
             return (
-                <a href={link} key={item.id_permissao}>
+                <Link to={link} key={item.id_permissao} className="menu-item">
                     {icon} {label}
-                </a>
+                </Link>
             );
         });
     };
 
-    render() {
-        const arrayPermissoes = this.state.arrayPermissoes;
-        return (
-            <Slide>
-                <img id="logo" src={nexus_white} style={{ width: "100px", marginBottom: "14px" }} />
-                {arrayPermissoes.length > 0 ? (
-                    arrayPermissoes.map((item, index) => (
-                        item.id_permissao === 1 ? (<a key={index} href={`/administrador`}><FaUserCog/> ADMINISTRADOR</a>) : ("") ||
-                        item.id_permissao === 5 ? (<a key={index} href={`/bancas/orientadores`}><FaUpload/> {item.permissao.toUpperCase()}</a>) : ("") ||
-                        item.id_permissao === 6 ? (<a key={index} href={`/bancas/orientandos`}><FaRegThumbsUp /> {item.permissao.toUpperCase()}</a>) : ("") ||
-                        item.id_permissao === 7 ? (<a key={index} href={`/bancas/coordenadores`}><FaUsersCog/> {item.permissao.toUpperCase()}</a>) : ("") ||
-                        item.id_permissao === 8 ? (<a key={index} href={`/bancas/diretor`}><FaCog/> {item.permissao.toUpperCase()}</a>) : ("") ||
-                        item.id_permissao === 9 ? (<a key={index} href={`/eventos/enber/grupo_trabalho`}><FaCog/> {item.permissao.toUpperCase()}</a>) : ("") ||
-                        item.id_permissao === 11 ? (<a key={index} href={`/convenios`}><FaUsers/> {item.permissao.toUpperCase()}</a>) : ("") ||
-                        item.id_permissao === 12 ? (<a key={index} href={`/correcao_redacao`}><FaCog/> {item.permissao.toUpperCase()}</a>) : ("") ||
-                        item.id_permissao === 15 ? (<a key={index} href={`/processo_credenciamento`}><FaCog/> {item.permissao.toUpperCase()}</a>) : ("") ||
-                        <a key={index} href={`/${item.permissao.toLowerCase()}`}><FaWrench/> {item.permissao.toUpperCase()}</a>
-                    ))
-                ) : ("")}
-                <a href="/" className="nav-link" onClick={() => logout()}>
-                    <i className="nav-icon fas fa-sign-out-alt" />
-                    Sair
-                </a>
-            </Slide>
-        );
-    }
-}
+    const handleLogout = () => {
+        logout(); // Remove o token e limpa o estado de autenticação
+        setUser(null); // Limpa o usuário no contexto
+        // Redireciona para a página de login
+        window.location.href = '/';
+    };
+
+    return (
+        <Slide>
+            <div className="menu-header">
+                <img src={nexus_white} alt="Logo Nexus" className="logo" />
+            </div>
+            <nav className="menu-items">
+                {renderMenuItems()}
+            </nav>
+            <div className="menu-footer">
+                <button onClick={handleLogout} className="logout-button">
+                    <FaSignOutAlt /> Logout
+                </button>
+            </div>
+        </Slide>
+    );
+};
+
+export default Menu;
