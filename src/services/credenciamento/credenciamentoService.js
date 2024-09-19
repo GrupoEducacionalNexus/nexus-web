@@ -2,8 +2,7 @@ import api from '../api'; // Importando a base URL da API
 import { getToken } from '../auth';
 
 // Busca a solicitação de credenciamento para um usuário
-export const buscaSolicitacaoDeCredenciamento = async (idUsuario) => {
-  const token = getToken();
+export const buscaSolicitacaoDeCredenciamento = async (token, idUsuario) => {
   const response = await fetch(`${api.baseURL}/usuarios/${idUsuario}/credenciamento`, {
     method: 'GET',
     headers: {

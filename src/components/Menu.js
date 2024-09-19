@@ -99,16 +99,30 @@ const Menu = () => {
         });
     };
 
-    return (
-        <Slide>
-            <img id="logo" src={nexus_white} style={{ width: "100px", marginBottom: "14px" }} alt="Nexus Logo" />
-            {renderMenuItems()}
-            <a href="/" className="nav-link" onClick={() => logout()}>
-                <i className="nav-icon fas fa-sign-out-alt" />
-                Sair
-            </a>
-        </Slide>
-    );
-};
-
-export default Menu;
+    render() {
+        const arrayPermissoes = this.state.arrayPermissoes;
+        return (
+            <Slide>
+                <img id="logo" src={nexus_white} style={{ width: "100px", marginBottom: "14px" }} />
+                {arrayPermissoes.length > 0 ? (
+                    arrayPermissoes.map((item, index) => (
+                        item.id_permissao === 1 ? (<a key={index} href={`/administrador`}><FaUserCog/> ADMINISTRADOR</a>) : ("") ||
+                        item.id_permissao === 5 ? (<a key={index} href={`/bancas/orientadores`}><FaUpload/> {item.permissao.toUpperCase()}</a>) : ("") ||
+                        item.id_permissao === 6 ? (<a key={index} href={`/bancas/orientandos`}><FaRegThumbsUp /> {item.permissao.toUpperCase()}</a>) : ("") ||
+                        item.id_permissao === 7 ? (<a key={index} href={`/bancas/coordenadores`}><FaUsersCog/> {item.permissao.toUpperCase()}</a>) : ("") ||
+                        item.id_permissao === 8 ? (<a key={index} href={`/bancas/diretor`}><FaCog/> {item.permissao.toUpperCase()}</a>) : ("") ||
+                        item.id_permissao === 9 ? (<a key={index} href={`/eventos/enber/grupo_trabalho`}><FaCog/> {item.permissao.toUpperCase()}</a>) : ("") ||
+                        item.id_permissao === 11 ? (<a key={index} href={`/convenios`}><FaUsers/> {item.permissao.toUpperCase()}</a>) : ("") ||
+                        item.id_permissao === 12 ? (<a key={index} href={`/correcao_redacao`}><FaCog/> {item.permissao.toUpperCase()}</a>) : ("") ||
+                        item.id_permissao === 15 ? (<a key={index} href={`/processo_credenciamento`}><FaCog/> {item.permissao.toUpperCase()}</a>) : ("") ||
+                        <a key={index} href={`/${item.permissao.toLowerCase()}`}><FaWrench/> {item.permissao.toUpperCase()}</a>
+                    ))
+                ) : ("")}
+                <a href="/" className="nav-link" onClick={() => logout()}>
+                    <i className="nav-icon fas fa-sign-out-alt" />
+                    Sair
+                </a>
+            </Slide>
+        );
+    }
+}
