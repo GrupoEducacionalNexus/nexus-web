@@ -242,5 +242,4 @@ export default class Perfil extends Component {
   }
 }
 
-
 export const Form = styled.form``;
