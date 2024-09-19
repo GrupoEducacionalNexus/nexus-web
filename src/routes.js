@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { isAuthenticated } from './services/auth';
 import Login from './pages/login/index';
@@ -27,56 +27,95 @@ import Alunos from './pages/alunos/index';
 import CertificadoDigital from './pages/certificado_digital/index';
 import ProcessoCredenciamento from './pages/processo_credenciamento/index';
 
-const PrivateRoute = ({ component: Component, ...rest }) => (
-    <Route
-        // Passando as propriedades para a rota
-        {...rest}
-        // Redefindo o método render 
-        render={props =>
-            //renderizando o componente caso o usuário esteja autenticado
-            isAuthenticated() ? (<Component {...props} />
-            ) : (
-                // caso contrário o usuário é redirecionado para a rota /
-                //state impede que o usuário não perca seu histórico de rotas
-                <Redirect to={{ pathname: '/', state: { from: props.location } }} />
-            )
-        }
-    />
-);
+// Implementação de PrivateRoute para v6
+const PrivateRoute = ({ children }) => {
+    return isAuthenticated() ? children : <Navigate to="/" replace />;
+};
 
-const Routes = () => {
+const AppRoutes = () => {
     return (
         <BrowserRouter>
-            <Switch>
-                <Route exact path="/" component={Login} />
-                <Route path="/repositorio" component={Repositorio} />
-                <Route path="/eventos/enber/cadastrar" component={CadastroEventoEnber} />
-                <Route path="/eventos/enber/grupo_trabalho" component={GrupoTrabalho} />
-                <Route path="/eventos/nexus/cadastrar" component={CadastroEventoNexus} />
-                <Route path="/validacao" component={Validacao} />
-                <Route path="/teste_vocacional" component={TesteVocacional} />
-                <Route path="/abertura_turma" component={AberturaTurma} />
-                <Route path="/abertura_turma_cbie" component={AberturaTurmaCbie} />
-                <Route path="/solicitacao_credenciamento" component={SolicitacaoCredenciamento} />
-                <Route path="/certificado_digital" component={CertificadoDigital} />
-                <PrivateRoute path="/administrador" component={Administrador} />
-                <PrivateRoute path="/secretaria" component={Secretaria} />
-                <PrivateRoute path="/eventos" component={Eventos} />
-                <PrivateRoute path="/bancas/orientadores" component={Orientadores} />
-                <PrivateRoute path="/bancas/orientandos" component={Orientandos} />
-                <PrivateRoute path="/bancas/coordenadores" component={Coordenadores} />
-                <PrivateRoute path="/bancas/diretor" component={Diretor} />
-                <PrivateRoute path="/chamados" component={Chamados} />
-                <PrivateRoute path="/convenios" component={Convenios} />
-                <PrivateRoute path="/correcao_redacao" component={CorrecaoRedacao} />
-                <PrivateRoute path="/alunos" component={Alunos} />
-                <PrivateRoute path="/processo_credenciamento" component={ProcessoCredenciamento} />
-                <Route path="*" component={PageNotFound} />
-            </Switch>
+            <Routes>
+                {/* Rotas Públicas */}
+                <Route path="/" element={<Login />} />
+                <Route path="/repositorio" element={<Repositorio />} />
+                <Route path="/eventos/enber/cadastrar" element={<CadastroEventoEnber />} />
+                <Route path="/eventos/enber/grupo_trabalho" element={<GrupoTrabalho />} />
+                <Route path="/eventos/nexus/cadastrar" element={<CadastroEventoNexus />} />
+                <Route path="/validacao" element={<Validacao />} />
+                <Route path="/teste_vocacional" element={<TesteVocacional />} />
+                <Route path="/abertura_turma" element={<AberturaTurma />} />
+                <Route path="/abertura_turma_cbie" element={<AberturaTurmaCbie />} />
+                <Route path="/solicitacao_credenciamento" element={<SolicitacaoCredenciamento />} />
+                <Route path="/certificado_digital" element={<CertificadoDigital />} />
+
+                {/* Rotas Privadas */}
+                <Route path="/administrador" element={
+                    <PrivateRoute>
+                        <Administrador />
+                    </PrivateRoute>
+                } />
+                <Route path="/secretaria" element={
+                    <PrivateRoute>
+                        <Secretaria />
+                    </PrivateRoute>
+                } />
+                <Route path="/eventos" element={
+                    <PrivateRoute>
+                        <Eventos />
+                    </PrivateRoute>
+                } />
+                <Route path="/bancas/orientadores" element={
+                    <PrivateRoute>
+                        <Orientadores />
+                    </PrivateRoute>
+                } />
+                <Route path="/bancas/orientandos" element={
+                    <PrivateRoute>
+                        <Orientandos />
+                    </PrivateRoute>
+                } />
+                <Route path="/bancas/coordenadores" element={
+                    <PrivateRoute>
+                        <Coordenadores />
+                    </PrivateRoute>
+                } />
+                <Route path="/bancas/diretor" element={
+                    <PrivateRoute>
+                        <Diretor />
+                    </PrivateRoute>
+                } />
+                <Route path="/chamados" element={
+                    <PrivateRoute>
+                        <Chamados />
+                    </PrivateRoute>
+                } />
+                <Route path="/convenios" element={
+                    <PrivateRoute>
+                        <Convenios />
+                    </PrivateRoute>
+                } />
+                <Route path="/correcao_redacao" element={
+                    <PrivateRoute>
+                        <CorrecaoRedacao />
+                    </PrivateRoute>
+                } />
+                <Route path="/alunos" element={
+                    <PrivateRoute>
+                        <Alunos />
+                    </PrivateRoute>
+                } />
+                <Route path="/processo_credenciamento" element={
+                    <PrivateRoute>
+                        <ProcessoCredenciamento />
+                    </PrivateRoute>
+                } />
+
+                {/* Página 404 */}
+                <Route path="*" element={<PageNotFound />} />
+            </Routes>
         </BrowserRouter>
     );
 }
 
-export default Routes;
-
-
+export default AppRoutes;
