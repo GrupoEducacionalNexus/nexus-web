@@ -101,8 +101,8 @@ const Index = () => {
       const response = await fetch(`${api.baseURL}/documento_credenciamento`, {
         method: 'POST',
         headers: {
-          'x-access-token': getToken(),
           'Content-Type': 'application/json',
+          'x-access-token': getToken(),
         },
         body: JSON.stringify({
           id_credenciamento: idCredenciamento,
@@ -114,10 +114,12 @@ const Index = () => {
       });
 
       const data = await response.json();
+      console.log('data :>> ', data);
       if (data.status === 200) {
         const novosDocumentos = await listaDedocumentosDoCredenciamentoApi(idChecklistCredenciamento, idCredenciamento);
         setDocumentos(novosDocumentos.resultados);
         setProgressoUpload(0);
+        console.log('novosDocumentos :>> ', novosDocumentos);
       } else {
         console.error('Erro ao registrar o anexo no banco de dados:', data.msg);
       }
