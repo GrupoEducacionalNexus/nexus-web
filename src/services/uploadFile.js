@@ -38,7 +38,7 @@ export const uploadFile = async (file, path, onProgress) => {
                     } else {
                         const fileUrl = `https://${S3_BUCKET}.s3.${REGION}.amazonaws.com/${params.Key}`;
                         resolve(fileUrl);
-                        console.log('Arquivo enviado com sucesso:', data);
+                        console.log('Arquivo enviado com sucesso:', data, fileUrl);
                     }
                 });
         });
