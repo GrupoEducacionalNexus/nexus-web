@@ -104,7 +104,7 @@ const Index = () => {
       const response = await fetch(`${api.baseURL}/documento_credenciamento`, {
         method: 'POST',
         headers: {
-          'x-access-token': getToken(),
+          'x-access-token': token,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -152,7 +152,7 @@ const Index = () => {
   // };
 
   const atualizarDocumentos = async (idChecklistCredenciamento, idCredenciamento) => {
-    const documentosAtualizados = await listaDedocumentosDoCredenciamentoApi(idChecklistCredenciamento, idCredenciamento);
+    const documentosAtualizados = await listaDedocumentosDoCredenciamentoApi(idChecklistCredenciamento, idCredenciamento, token);
     setDocumentos(documentosAtualizados.resultados);
   };
 
