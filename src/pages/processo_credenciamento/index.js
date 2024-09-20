@@ -34,11 +34,13 @@ const Index = () => {
   const [progressoUpload, setProgressoUpload] = useState(0);
   const [arquivo, setArquivo] = useState(null);
   const [idChecklistCredenciamento, setIdChecklistCredenciamento] = useState(null);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = getToken();
+        setToken(token);
         const idUsuario = user.id;
         const credenciamentoData = await buscaSolicitacaoDeCredenciamento(token, idUsuario);
         const credenciamento = credenciamentoData.resultados[0];
@@ -78,7 +80,8 @@ const Index = () => {
 
       const documentosData = await listaDedocumentosDoCredenciamentoApi(
         checklist.id_checklist,
-        idCredenciamento
+        idCredenciamento,
+        token
       );
       setDocumentos(documentosData.status === 200 ? documentosData.resultados : []);
     } catch (error) {
