@@ -151,7 +151,7 @@ const Index = () => {
   //   }
   // };
 
-  const atualizarDocumentos = async (idChecklistCredenciamento, idCredenciamento) => {
+  const atualizarDocumentos = async (idChecklistCredenciamento, idCredenciamento, token) => {
     const documentosAtualizados = await listaDedocumentosDoCredenciamentoApi(idChecklistCredenciamento, idCredenciamento, token);
     setDocumentos(documentosAtualizados.resultados);
   };
