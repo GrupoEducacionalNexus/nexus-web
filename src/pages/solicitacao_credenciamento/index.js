@@ -183,9 +183,7 @@ export default class SolicitacaoCredenciamento extends Component {
                 this.setState({ success: data.msg, error: "", isLoading: false });
                 // Opcional: Redirecionar ou limpar o formulário após sucesso
                 this.limparFormulario();
-                setTimeout(() => {
-                    this.props.history.push('/');
-                }, 1500);
+                this.props.history.push('/');
             } else if (data.status === 400) {
                 this.setState({ error: data.msg || 'Erro ao solicitar credenciamento.', success: "", isLoading: false });
             } else {

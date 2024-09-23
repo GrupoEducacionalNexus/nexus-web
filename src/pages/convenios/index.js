@@ -349,6 +349,8 @@ export default class Index extends Component {
         nome_fantasia, id_credenciamento
       } = this.state;
 
+      console.log('id_credenciamento :>> ', id_credenciamento);
+
       if (!nome || !email || !telefone || !cpf ||
         !cnpj || !razao_social || !nome_fantasia) {
         this.setState({ error: "Por favor, preencher todos os campos." });
@@ -361,6 +363,7 @@ export default class Index extends Component {
         return;
       }
 
+      console.log('getToken() :>> ', getToken());
       const response = await fetch(`${api.baseURL}/credenciamento/${id_credenciamento}`, {
         method: 'PUT',
         headers: {
@@ -376,6 +379,8 @@ export default class Index extends Component {
       });
 
       const data = await response.json();
+
+      console.log('data :>> ', data);
 
       if (data.status === 200) {
         this.setState({ successAtualizarCredenciamento: data.msg, errorAtualizarCredenciamento: "" });
