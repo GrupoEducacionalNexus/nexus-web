@@ -7,10 +7,11 @@ import { handleTelefone } from '../../services/mascaraTelefone';
 import { FaListAlt } from 'react-icons/fa';
 import { handleCpf } from '../../services/mascaraCpf';
 import EstadosCidadesJson from '../../services/estados-cidades.json';
-import DadosGestor from './DadosGestor';
-import DadosInstituicao from './DadosInstituicao';
-import MensagemFeedback from './MensagemFeedback';
 import Spinner from '../../components/Spinner/Spinner'; // Importando o spinner personalizado
+import DadosInstituicao from './components/DadosInstituicao';
+import DadosGestor from './components/DadosGestor';
+import MensagemFeedback from './components/MensagemFeedback';
+import { useNavigate } from 'react-router-dom';
 
 export default class SolicitacaoCredenciamento extends Component {
     constructor(props) {
@@ -23,7 +24,7 @@ export default class SolicitacaoCredenciamento extends Component {
             cpf: '',
             senha: '',
             confirmarSenha: '',
-
+            
             // Dados da Instituição
             cnpj: '',
             razao_social: '',
@@ -31,7 +32,7 @@ export default class SolicitacaoCredenciamento extends Component {
             id_instituicao: 0,
             id_estado: '',
             cidade: '',
-
+            
             // Controle de UI
             displaySolicitar: false,
             success: '',
@@ -149,6 +150,7 @@ export default class SolicitacaoCredenciamento extends Component {
             cnpj, razao_social, nome_fantasia,
             id_instituicao, id_estado, cidade
         } = this.state;
+        const navigate = useNavigate();
 
         // Validação dos campos
         if (!nome || !email || !telefone || !cpf || !cnpj || !razao_social || !nome_fantasia || !id_estado || !cidade) {
@@ -184,7 +186,7 @@ export default class SolicitacaoCredenciamento extends Component {
                 // Opcional: Redirecionar ou limpar o formulário após sucesso
                 this.limparFormulario();
                 setTimeout(() => {
-                    this.props.history.push('/');
+                    navigate('/');
                 }, 1500);
             } else if (data.status === 400) {
                 this.setState({ error: data.msg || 'Erro ao solicitar credenciamento.', success: "", isLoading: false });

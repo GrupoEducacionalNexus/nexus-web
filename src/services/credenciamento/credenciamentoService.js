@@ -112,7 +112,11 @@ export const cadastrarDocumentoDoCredenciamentoApi = async (dados) => {
 };
 
 // Lista os documentos do credenciamento de um checklist específico
-export const listaDedocumentosDoCredenciamentoApi = async (id_checklist_credenciamento, id_credenciamento, token) => {
+export const listaDedocumentosDoCredenciamentoApi = async (
+  id_checklist_credenciamento,
+  id_credenciamento,
+  token
+) => {
   try {
     const response = await fetch(`${api.baseURL}/checklist_credenciamento/${id_checklist_credenciamento}/documento_credenciamento?id_credenciamento=${id_credenciamento}`, {
       method: 'GET',

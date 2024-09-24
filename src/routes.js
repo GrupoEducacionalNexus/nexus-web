@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { isAuthenticated } from './services/auth';
 import Login from './pages/login/index';
-import Administrador from './pages/administrador';
+import Administrador from './pages/administrador/index';
 import Secretaria from './pages/secretaria';
 import Validacao from './pages/validacao/index';
 import PageNotFound from './components/PageNotFound';
