@@ -1,314 +1,198 @@
-import React, { Component } from 'react';
-import {
-  FaUsers,
-  FaCheckSquare,
-  FaFolderOpen,
-  FaFileAlt,
-} from 'react-icons/fa';
-import {
-  Accordion,
-  Button,
-  Card,
-  Col,
-  Container,
-  Modal,
-  Row,
-  Form
-} from 'react-bootstrap';
-import styled from 'styled-components';
-import backgroundImage from '../../assets/sistema_chamados.png';
+// src/pages/solicitacao_credenciamento/index.js
+import React, { useState, useEffect, useContext } from 'react';
+import { Container, Row, Col } from 'react-bootstrap';
 import Menu from '../../components/Menu';
 import AdminNavbar from '../../components/Navbar';
 import MainContent from '../../components/MainContent';
+import DocumentsModal from './DocumentsModal';
 import UserContext from '../../UserContext';
-import { getToken } from '../../services/auth';
-import { handleTelefone } from '../../services/mascaraTelefone';
-import { handleCpf } from '../../services/mascaraCpf';
-import { listaDeStatus } from '../../services/getListaDeStatus';
+import {
+  buscaSolicitacaoDeCredenciamento,
+  listaDedocumentosDoCredenciamentoApi,
+  listaDeInstrucoesDoChecklistApi,
+  listaDoChecklistDoEstado,
+} from '../../services/credenciamento/credenciamentoService';
 import { uploadFile } from '../../services/uploadFile';
 import api from '../../services/api';
-import { alfabeto } from '../../services/alfabeto';
+import { getToken } from '../../services/auth';
 
-export default class Index extends Component {
-  static contextType = UserContext;
+// Importando os novos componentes
+import SolicitacaoInfo from './SolicitacaoInfo';
+import ChecklistCredenciamento from './ChecklistCredenciamento';
+import styled from 'styled-components';
 
-  constructor(props) {
-    super();
-    this.state = {
-      success: '',
-      error: '',
-      arrayStatus: [],
-      arrayChecklistCredenciamento: [],
-      arrayDocumentosDoCredenciamento: [],
-      arrayInstrucoesDoChecklist: [],
-      modalShowCadastrarAnexo: false,
-      nome: '',
-      email: '',
-      telefone: '',
-      cpf: '',
-      cnpj: '',
-      razao_social: '',
-      nome_fantasia: '',
-      status: '',
-      arquivo: null, // Arquivo inicializado como nulo
-      id_checklist_credenciamento: 0,
-      itemDochecklist: '',
+const Index = () => {
+  const { user } = useContext(UserContext);
+  console.log('user', user)
+  const [idCredenciamento, setIdCredenciamento] = useState(0);
+  const [solicitacaoInfo, setSolicitacaoInfo] = useState({});
+  const [checklists, setChecklists] = useState([]);
+  const [documentos, setDocumentos] = useState([]);
+  const [instrucoes, setInstrucoes] = useState([]);
+  const [modalShow, setModalShow] = useState(false);
+  const [itemDochecklist, setItemDochecklist] = useState("");
+  const [progressoUpload, setProgressoUpload] = useState(0);
+  const [arquivo, setArquivo] = useState(null);
+  const [idChecklistCredenciamento, setIdChecklistCredenciamento] = useState(null);
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = getToken();
+        setToken(token);
+        const idUsuario = user.id;
+        const credenciamentoData = await buscaSolicitacaoDeCredenciamento(token, idUsuario);
+        const credenciamento = credenciamentoData.resultados[0];
+        console.log('credenciamento', credenciamento)
+        setIdCredenciamento(credenciamento.id_credenciamento);
+        setSolicitacaoInfo(credenciamento);
+
+        // Carrega o checklist do estado
+        await loadChecklists(token, credenciamento.id_estado);
+      } catch (error) {
+        console.error('Erro ao buscar credenciamento:', error);
+      }
     };
-  }
 
-  componentDidMount() {
-    this.listaDeStatus();
-  }
+    fetchData();
+  }, [user]);
 
-  listaDeStatus = async () => {
+  const loadChecklists = async (token, idEstado) => {
     try {
-      const result = await listaDeStatus(getToken());
-      this.setState({ arrayStatus: result });
+      const checklists = await listaDoChecklistDoEstado(token, idEstado);
+      setChecklists(checklists);
     } catch (error) {
-      console.log(error);
+      console.error('Erro ao buscar checklists:', error);
+      setChecklists([]);
     }
   };
 
-  setModalShowCadastrarAnexo = (value) => {
-    this.setState({ modalShowCadastrarAnexo: value, error: '' });
+  const handleShowModal = async (checklist) => {
+    try {
+      setItemDochecklist(checklist.nome);
+      setIdChecklistCredenciamento(checklist.id_checklist);
+      setModalShow(true);
+
+      const instrucoesData = await
+        listaDeInstrucoesDoChecklistApi(checklist.id_checklist);
+      setInstrucoes(instrucoesData);
+
+      const documentosData = await listaDedocumentosDoCredenciamentoApi(
+        checklist.id_checklist,
+        idCredenciamento,
+        token
+      );
+      setDocumentos(documentosData.status === 200 ? documentosData.resultados : []);
+    } catch (error) {
+      console.error('Erro ao buscar documentos ou instruções:', error);
+    }
   };
 
-  handlerShowModalCadastrarAnexo = (checklistCredenciamento) => {
-    if (!checklistCredenciamento) return;
-    this.setModalShowCadastrarAnexo(true);
-    this.setState({
-      id_checklist_credenciamento: checklistCredenciamento.id_checklist,
-      itemDochecklist: checklistCredenciamento.nome,
-    });
-    // Call any other needed functions here.
-  };
+  const handleFileChange = (e) => setArquivo(e.target.files[0]);
 
-  handlerCloseModalCadastrarAnexo = () => {
-    this.setModalShowCadastrarAnexo(false);
-    this.setState({ success: '', error: '' });
-  };
-
-  onChangeFileInput = (e) => {
-    const file = e.target.files[0]; // Captura o primeiro arquivo
-    this.setState({ arquivo: file });
-  };
-
-  cadastrarDocumentoDoCredenciamento = async (e) => {
+  const handleFileUpload = async (e) => {
     e.preventDefault();
-    const { cnpj, razao_social, id_checklist_credenciamento, arquivo } = this.state;
-
     if (!arquivo) {
-      this.setState({ error: 'Por favor, preencher o campo de anexo!' });
+      console.error('Nenhum arquivo selecionado.');
       return;
     }
 
     try {
-      const uploadResponse = uploadFile(arquivo, `nexus/credenciamento/`);
-      const fileLink = uploadResponse.link;
+      const fileUrl = await uploadFile(arquivo, `nexus/credenciamento/`, setProgressoUpload);
 
       const response = await fetch(`${api.baseURL}/documento_credenciamento`, {
         method: 'POST',
         headers: {
-          Accept: 'application/json',
+          'x-access-token': token,
           'Content-Type': 'application/json',
-          'x-access-token': getToken(),
         },
         body: JSON.stringify({
-          id_checklist_credenciamento,
-          anexo: fileLink, // Usando o link retornado pelo upload
-          status: 8,
-          cnpj,
-          razao_social,
+          id_credenciamento: idCredenciamento,
+          id_checklist_credenciamento: idChecklistCredenciamento,
+          id_usuario: user.id,
+          anexo: fileUrl,
+          status: 1,
         }),
       });
 
       const data = await response.json();
       if (data.status === 200) {
-        this.setState({ success: data.msg });
-        // Atualize a lista de documentos após o envio
+        const novosDocumentos = await listaDedocumentosDoCredenciamentoApi(idChecklistCredenciamento, idCredenciamento);
+        setDocumentos(novosDocumentos.resultados);
+        setProgressoUpload(0);
       } else {
-        this.setState({ error: data.msg });
+        console.error('Erro ao registrar o anexo no banco de dados:', data.msg);
       }
     } catch (error) {
-      console.log(error);
-      this.setState({ error: 'Erro ao realizar upload do arquivo.' });
+      console.error('Erro ao enviar documento:', error);
     }
   };
+  // const handleDeleteDocument = async (id, anexoUrl) => {
+  //   try {
+  //     const response = await fetch(`${api.baseURL}/documento_credenciamento/${id}`, {
+  //       method: 'DELETE',
+  //       headers: {
+  //         'x-access-token': getToken(),
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ anexo: anexoUrl }),  // Enviar o nome do anexo
+  //     });
 
-  render() {
-    const { arrayChecklistCredenciamento, arrayDocumentosDoCredenciamento, arrayInstrucoesDoChecklist } = this.state;
+  //     const data = await response.json();
+  //     if (data.status === 200) {
+  //       console.log('Documento deletado com sucesso:', data);
+  //       // Atualizar a lista de documentos
+  //     } else {
+  //       console.error('Erro ao deletar documento:', data.msg);
+  //     }
+  //   } catch (error) {
+  //     console.error('Erro ao deletar o arquivo:', error);
+  //   }
+  // };
 
-    return (
-      <Container fluid style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', minHeight: '100vh' }}>
-        <Menu />
-        <Row>
-          <Col xs={12}>
-            <AdminNavbar id_usuario={this.state.id_usuario} />
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={12} id="main">
-            <MainContent>
-              <Accordion>
-                <Accordion.Item eventKey="0">
-                  <Accordion.Header>
-                    <FaUsers /> Informações da solicitação
-                  </Accordion.Header>
-                  <Accordion.Body>
-                    <Form>
-                      <Row>
-                        <Col sm={6}>
-                          <Form.Group controlId="nome">
-                            <Form.Label>Nome completo:</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="INFORME O SEU NOME"
-                              value={this.state.nome}
-                              onChange={(e) => this.setState({ nome: e.target.value })}
-                            />
-                          </Form.Group>
-                        </Col>
-                        <Col sm={6}>
-                          <Form.Group controlId="email">
-                            <Form.Label>E-mail:</Form.Label>
-                            <Form.Control
-                              type="email"
-                              placeholder="INFORME O SEU E-MAIL"
-                              value={this.state.email}
-                              onChange={(e) => this.setState({ email: e.target.value })}
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col sm={4}>
-                          <Form.Group controlId="telefone">
-                            <Form.Label>Telefone:</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="INFORME O SEU TELEFONE"
-                              value={this.state.telefone}
-                              onChange={(e) => handleTelefone(e.target.value).then((result) => this.setState({ telefone: result }))}
-                            />
-                          </Form.Group>
-                        </Col>
-                        <Col sm={4}>
-                          <Form.Group controlId="cpf">
-                            <Form.Label>CPF:</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="INFORME O SEU CPF"
-                              value={this.state.cpf}
-                              onChange={(e) => handleCpf(e.target.value).then((result) => this.setState({ cpf: result }))}
-                            />
-                          </Form.Group>
-                        </Col>
-                        <Col sm={4}>
-                          <Form.Group controlId="cnpj">
-                            <Form.Label>CNPJ:</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="INFORME O SEU CNPJ"
-                              value={this.state.cnpj}
-                              onChange={(e) => this.setState({ cnpj: e.target.value })}
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                    </Form>
-                  </Accordion.Body>
-                </Accordion.Item>
+  const atualizarDocumentos = async (idChecklistCredenciamento, idCredenciamento, token) => {
+    const documentosAtualizados = await listaDedocumentosDoCredenciamentoApi(idChecklistCredenciamento, idCredenciamento, token);
+    setDocumentos(documentosAtualizados.resultados);
+  };
 
-                <Accordion.Item eventKey="1">
-                  <Accordion.Header>
-                    <FaCheckSquare /> Checklist do credenciamento
-                  </Accordion.Header>
-                  <Accordion.Body>
-                    <div style={{ height: '350px', overflowY: 'scroll', padding: '30px' }}>
-                      <Row>
-                        {arrayChecklistCredenciamento.length > 0 ? (
-                          arrayChecklistCredenciamento.map((checklistCredenciamento, index) => (
-                            <Col sm={4} key={checklistCredenciamento.id_checklist}>
-                              <Card className="text-center font-weight-bold zoom" style={{ backgroundColor: 'rgba(255, 255, 255, 0.3)', height: '200px', border: '1px solid #000233' }}>
-                                <Card.Header>{alfabeto()[index]} - {checklistCredenciamento.nome}</Card.Header>
-                                <Card.Body>
-                                  <Button onClick={() => this.handlerShowModalCadastrarAnexo(checklistCredenciamento)}>
-                                    <FaFolderOpen /> Instruções e anexos
-                                  </Button>
-                                </Card.Body>
-                              </Card>
-                            </Col>
-                          ))
-                        ) : (
-                          <Col>Nenhum checklist encontrado</Col>
-                        )}
-                      </Row>
-                    </div>
-                  </Accordion.Body>
-                </Accordion.Item>
-              </Accordion>
+  return (
+    <Container fluid style={{ padding: '0px', minHeight: '100vh' }}>
+      <Menu />
+      <Row>
+        <Col xs={12}>
+          <AdminNavbar />
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={12}>
+          <MainContent>
+            <SolicitacaoInfo solicitacaoInfo={solicitacaoInfo} />
+            <ChecklistCredenciamento
+              checklists={checklists && checklists}
+              handleShowModal={handleShowModal}
+            />
+            <DocumentsModal
+              show={modalShow}
+              onHide={() => setModalShow(false)}
+              documentos={documentos}
+              instrucoes={instrucoes}
+              onFileChange={handleFileChange}
+              onSubmitFile={handleFileUpload}
+              progressoUpload={progressoUpload}
+              atualizarDocumentos={atualizarDocumentos}
+            // handleDeleteDocument={handleDeleteDocument}
+            />
+          </MainContent>
+        </Col>
+      </Row>
+    </Container>
+  );
+};
 
-              <Modal
-                show={this.state.modalShowCadastrarAnexo}
-                onHide={this.handlerCloseModalCadastrarAnexo}
-                size="lg"
-                centered
-              >
-                <Modal.Header closeButton>
-                  <Modal.Title>Anexos do {this.state.itemDochecklist}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  <Form onSubmit={this.cadastrarDocumentoDoCredenciamento}>
-                    <Form.Group controlId="formFile">
-                      <Form.Label>Anexar arquivo</Form.Label>
-                      <Form.Control type="file" onChange={this.onChangeFileInput} />
-                    </Form.Group>
-                    <Button variant="primary" type="submit">
-                      Enviar
-                    </Button>
-                  </Form>
-                  <hr />
-                  <h4><FaFileAlt /> Anexos</h4>
-                  <div className="table-responsive table-sm">
-                    <table className="table table-bordered table-hover text-center table-light">
-                      <thead className="thead-light">
-                        <tr>
-                          <th>Anexo</th>
-                          <th>Status</th>
-                          <th>Observação</th>
-                          <th>Data do envio</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {arrayDocumentosDoCredenciamento.length > 0 ? (
-                          arrayDocumentosDoCredenciamento.map((anexo, index) => (
-                            <tr key={index} className={anexo.id_status === 4 ? 'table-danger' : anexo.id_status === 3 ? 'table-success' : ''}>
-                              <td><a href={anexo.anexo}>Visualizar</a></td>
-                              <td>{anexo.status}</td>
-                              <td>{anexo.observacao}</td>
-                              <td>{anexo.dataHoraCriacao}</td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr className="text-center">
-                            <td colSpan="4">Nenhum anexo enviado</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </Modal.Body>
-              </Modal>
-            </MainContent>
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
-}
-
-export const FormStyled = styled.form`
+export const Form = styled.form`
   .titulo {
     color: #000233;
   }
 `;
+export default Index;

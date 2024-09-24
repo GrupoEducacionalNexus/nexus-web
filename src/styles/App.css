@@ -1,3 +1,7 @@
+:root {
+  --primary-color: #000233;
+}
+
 body {
   overflow-x: hidden;
   font-size: 12pt !important;
@@ -67,9 +71,9 @@ body {
 
 .button {
   display: block;
-  background-color: #000233;
+  background-color: var(--primary-color);
   border-radius: 5px;
-  border: 1px solid #000233;
+  border: 1px solid var(--primary-color);
   cursor: pointer;
   color: #ffffff;
   font-family: Arial;
@@ -81,7 +85,7 @@ body {
 
 .button:hover {
   background-color: #f5f5f5;
-  color: #000233;
+  color: var(--primary-color);
 }
 
 .button-salvar:active {
@@ -179,12 +183,12 @@ body {
 .nav-pills .nav-link {
   margin: 5px;
   background-color: #ffffff;
-  color: #000233;
+  color: var(--primary-color);
 }
 
 /* active*/
 .nav-pills .nav-link.active {
-  background-color: #000233;
+  background-color: var(--primary-color);
   color: white;
 }
 
@@ -200,8 +204,10 @@ body {
 }
 
 .table-wrapper {
-  max-height: 500px; /* Altura máxima da tabela */
-  overflow-y: auto; /* Habilita a rolagem vertical */
+  max-height: 500px;
+  /* Altura máxima da tabela */
+  overflow-y: auto;
+  /* Habilita a rolagem vertical */
 }
 
 @media only screen and (min-width: 320px) and (max-width: 725px) {
@@ -254,12 +260,12 @@ body {
 
 /* Color/shape of burger icon bars */
 .bm-burger-bars {
-  background: #000233;
+  background: var(--primary-color);
 }
 
 /* Color/shape of burger icon bars on hover*/
 .bm-burger-bars-hover {
-  background: #ffffff;
+  background: #000244;
 }
 
 /* Position and sizing of clickable cross button */
@@ -284,7 +290,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
 
 /* General sidebar styles */
 .bm-menu {
-  background: #ffffff;
+  background: var(--primary-color);
   padding: 2.5em 1.5em 0;
   font-size: 1.15em;
 }
@@ -303,7 +309,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
 /* Individual item */
 .bm-item {
   display: inline-block;
-  color: #000233;
+  color: var(--primary-color);
   padding: 8px;
 }
 
@@ -315,13 +321,16 @@ Note: Beware of modifying this element as it can break the animations - you shou
 .sidebar-modal {
   position: fixed;
   top: 0;
-  right: -300px; /* Define a posição inicial da barra lateral fora da tela */
+  right: -300px;
+  /* Define a posição inicial da barra lateral fora da tela */
   width: 300px;
   height: 100vh;
   background-color: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease-in-out; /* Adiciona uma transição de deslizamento lateral suave */
-  transform: translateX(100%); /* Desloca o modal para a direita */
+  transition: transform 0.3s ease-in-out;
+  /* Adiciona uma transição de deslizamento lateral suave */
+  transform: translateX(100%);
+  /* Desloca o modal para a direita */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -330,7 +339,8 @@ Note: Beware of modifying this element as it can break the animations - you shou
 }
 
 .sidebar-modal.open {
-  transform: translateX(0); /* Mostra a barra lateral quando estiver aberta */
+  transform: translateX(0);
+  /* Mostra a barra lateral quando estiver aberta */
 }
 
 .modal-left-overlay {
@@ -436,7 +446,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
 .dropdown-toggle {
   display: block;
   width: 200px;
-  background-color: #000233;
+  background-color: var(--primary-color);
   color: #fff;
   padding: 10px;
   border-radius: 5px;
@@ -448,9 +458,10 @@ Note: Beware of modifying this element as it can break the animations - you shou
 /* Estilos para o dropdown */
 .dropdown-menu {
   position: absolute;
-  top: -120%; /* Posiciona o dropdown acima do botão */
+  top: -120%;
+  /* Posiciona o dropdown acima do botão */
   right: 0;
-  background-color: #000233;
+  background-color: var(--primary-color);
   color: #fff;
   list-style: none;
   padding: 0;
@@ -478,7 +489,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
   color: #fff;
   display: block;
   padding: 10px;
-  
+
 }
 
 .dropdown-menu a:hover {
@@ -500,8 +511,10 @@ Note: Beware of modifying this element as it can break the animations - you shou
   width: 70%;
   border: none;
   height: 1px;
-  color: #333;  /* old IE */
-  background-color: #333;  /* Modern Browsers */
+  color: #333;
+  /* old IE */
+  background-color: #333;
+  /* Modern Browsers */
   margin-top: 0px;
 }
 
@@ -512,13 +525,19 @@ Note: Beware of modifying this element as it can break the animations - you shou
 
 .accordion-header {
   background-color: #ffffff !important;
-  border: 1px solid #000233 !important;
+  /* border: 1px solid var(--primary-color) !important; */
 }
 
 
 .accordion-body {
   background-color: #ffffff !important;
   padding: 10px;
-  border: 1px solid #000233 !important;
+  /* border: 1px solid var(--primary-color) !important; */
 }
 
+.card-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
