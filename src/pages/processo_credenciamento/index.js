@@ -21,6 +21,7 @@ import api from '../../services/api';
 import { getToken } from '../../services/auth';
 import apiAxios from '../../services/apiAxios';
 import socket from '../../services/socket'; // Importar o socket
+import { Spinner } from 'react-bootstrap';
 
 // Estilização com styled-components
 const StyledContainer = styled(Container)`
@@ -43,6 +44,7 @@ const Index = () => {
   const [arquivo, setArquivo] = useState(null);
   const [idChecklistCredenciamento, setIdChecklistCredenciamento] = useState(null);
   const [token, setToken] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Hook para buscar dados iniciais
   useEffect(() => {
@@ -132,6 +134,7 @@ const Index = () => {
       console.error('Nenhum arquivo selecionado.');
       return;
     }
+    setLoading(true);
 
     try {
       const fileUrl = await uploadFile(arquivo, 'nexus/credenciamento/', setProgressoUpload);
@@ -150,14 +153,21 @@ const Index = () => {
       });
 
       if (response.data.status === 200) {
-        const novosDocumentos = await listaDedocumentosDoCredenciamentoApi(idChecklistCredenciamento, idCredenciamento, token);
+        const novosDocumentos = await listaDedocumentosDoCredenciamentoApi(
+          idChecklistCredenciamento,
+          idCredenciamento,
+          token
+        );
         setDocumentos(novosDocumentos.resultados || []);
         setProgressoUpload(0);
+        setArquivo(null); // Limpar o arquivo após o envio
       } else {
         console.error('Erro ao registrar o anexo no banco de dados:', response.data.msg);
       }
     } catch (error) {
       console.error('Erro ao enviar documento:', error);
+    } finally {
+      setLoading(false);
     }
   }, [
     token,
@@ -172,7 +182,7 @@ const Index = () => {
     try {
       const documentosAtualizados = await listaDedocumentosDoCredenciamentoApi(
         idChecklistCredenciamento,
-        idCredenciamento, 
+        idCredenciamento,
         token
       );
       setDocumentos(documentosAtualizados.resultados || []);
@@ -230,6 +240,7 @@ const Index = () => {
               onSubmitFile={handleFileUpload}
               progressoUpload={progressoUpload}
               atualizarDocumentos={atualizarDocumentos}
+              loading={loading}
             />
           </MainContent>
         </Col>

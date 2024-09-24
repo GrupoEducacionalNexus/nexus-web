@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
-import { Modal, Table, Form, ProgressBar, Button, Alert } from 'react-bootstrap';
+// src/pages/processo_credenciamento/DocumentsModal.js
 
-const DocumentsModal = ({ show, onHide, documentos, instrucoes, onFileChange, onSubmitFile, progressoUpload }) => {
+import React, { useState } from 'react';
+import { Modal, Table, Form, ProgressBar, Button, Alert, Spinner } from 'react-bootstrap';
+
+const DocumentsModal = ({ show, onHide, documentos, instrucoes, onFileChange, onSubmitFile, progressoUpload, loading }) => {
     const [alertaArquivoDuplicado, setAlertaArquivoDuplicado] = useState(false);
 
     // Verifica se o último documento enviado tem status que permite novo envio
     const ultimoDocumento = documentos?.length > 0 ? documentos[documentos.length - 1] : null;
-    
-    // Status que permitem novo envio
-    const statusPermitidosParaReenvio = ["REPROVADA", "DOCUMENTO INVALIDO"];
-    
+
+    // IDs de status que permitem novo envio
+    const statusPermitidosParaReenvio = [4, 11, 12, 13];
+
     // Permitir reenvio apenas se o status estiver nos permitidos
-    const permiteNovoEnvio = !ultimoDocumento || statusPermitidosParaReenvio.includes(ultimoDocumento.status);
+    const permiteNovoEnvio = !ultimoDocumento || statusPermitidosParaReenvio.includes(ultimoDocumento.id_status);
 
     // Função para verificar se o arquivo com o mesmo nome já foi enviado
     const handleFileChange = (e) => {
@@ -60,10 +62,24 @@ const DocumentsModal = ({ show, onHide, documentos, instrucoes, onFileChange, on
                                 <Form onSubmit={onSubmitFile}>
                                     <Form.Group controlId="formFile" className="mb-3">
                                         <Form.Label>Escolha um arquivo</Form.Label>
-                                        <Form.Control type="file" onChange={handleFileChange} />
+                                        <Form.Control type="file" onChange={handleFileChange} disabled={loading} />
                                     </Form.Group>
                                     {progressoUpload > 0 && <ProgressBar now={progressoUpload} label={`${progressoUpload}%`} />}
-                                    <Button className='button' type="submit" disabled={alertaArquivoDuplicado}>Salvar</Button>
+                                    <Button className='button' type="submit" disabled={alertaArquivoDuplicado || loading}>
+                                        {loading ? (
+                                            <>
+                                                <Spinner
+                                                    as="span"
+                                                    animation="border"
+                                                    size="sm"
+                                                    role="status"
+                                                    aria-hidden="true"
+                                                /> Enviando...
+                                            </>
+                                        ) : (
+                                            'Salvar'
+                                        )}
+                                    </Button>
                                 </Form>
                                 {alertaArquivoDuplicado && (
                                     <Alert variant="danger" className="mt-3">
