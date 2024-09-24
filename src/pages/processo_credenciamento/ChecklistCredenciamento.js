@@ -1,7 +1,7 @@
 import React from 'react';
 import { Accordion, Card, Button, Row, Col } from 'react-bootstrap';
 
-const ChecklistCredenciamento = ({ checklists, handleShowModal }) => {
+const ChecklistCredenciamento = ({ checklists, onShowModal }) => {
   return (
     <Accordion defaultActiveKey="1">
       <Card>
@@ -17,7 +17,7 @@ const ChecklistCredenciamento = ({ checklists, handleShowModal }) => {
                     <Card.Body>
                       <Button
                         className="button"
-                        onClick={() => handleShowModal(checklist)}>
+                        onClick={() => onShowModal(checklist)}>
                         Ver Anexos e Instruções
                       </Button>
                     </Card.Body>

@@ -34,9 +34,11 @@ export const uploadFile = async (file, path, onProgress) => {
                 .send((err, data) => {
                     if (err) {
                         reject(err);
+                        console.error('Erro ao enviar o anexo:', err);
                     } else {
                         const fileUrl = `https://${S3_BUCKET}.s3.${REGION}.amazonaws.com/${params.Key}`;
                         resolve(fileUrl);
+                        console.log('Arquivo enviado com sucesso:', data, fileUrl);
                     }
                 });
         });

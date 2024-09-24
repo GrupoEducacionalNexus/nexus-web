@@ -134,9 +134,8 @@ export const listaDedocumentosDoCredenciamentoApi = async (
 };
 
 // Lista as instruções do checklist
-export const listaDeInstrucoesDoChecklistApi = async (id_checklist) => {
+export const listaDeInstrucoesDoChecklistApi = async (id_checklist, token) => {
   try {
-    const token = getToken();
     const response = await fetch(`${api.baseURL}/checklist_credenciamento/${id_checklist}/instrucoes`, {
       method: 'GET',
       headers: {
