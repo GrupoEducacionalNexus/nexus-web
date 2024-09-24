@@ -24,5 +24,4 @@ const SolicitacaoInfo = ({ solicitacaoInfo }) => {
     </Accordion>
   );
 };
-
 export default SolicitacaoInfo;
