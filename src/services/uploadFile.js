@@ -1,4 +1,4 @@
-//uploadFile.js
+// src/services/uploadFile.js
 import AWS from 'aws-sdk';
 
 // Função para upload de arquivo

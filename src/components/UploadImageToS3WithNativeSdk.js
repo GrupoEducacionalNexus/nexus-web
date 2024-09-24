@@ -1,3 +1,4 @@
+// src/components/UploadImageToS3WithNativeSdk.js
 import React, { useState } from 'react';
 import AWS from 'aws-sdk'
 
@@ -5,8 +6,8 @@ const S3_BUCKET = 'gestor-administrativo';
 const REGION = 'us-east-1';
 
 AWS.config.update({
-    accessKeyId: 'AKIAWH3VX2V54PRTMJFO',
-    secretAccessKey: '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'
+    accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY
 })
 
 const myBucket = new AWS.S3({
