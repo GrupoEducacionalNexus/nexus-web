@@ -1,4 +1,13 @@
-import { FaCalendarWeek, FaCheckSquare, FaClipboardList, FaDochub, FaFilter, FaListAlt, FaPlus, FaRegCreditCard, FaRegFolderOpen, FaRegSave, FaSchool, FaSearch, FaSpinner, FaUserEdit, FaUserGraduate, FaUserTie, FaUsers, FaWpforms } from 'react-icons/fa';
+import {
+  FaCalendarWeek,
+  FaClipboardList,
+  FaDochub,
+  FaPlus,
+  FaSchool,
+  FaUserEdit,
+  FaUserTie,
+  FaRegSave
+} from 'react-icons/fa';
 import React, { Component } from 'react';
 import api from '../../services/api';
 import { getToken } from '../../services/auth';
@@ -15,7 +24,6 @@ import { handleCpf } from '../../services/mascaraCpf';
 import { listaDeStatus } from '../../services/getListaDeStatus';
 import { listaDochecklistDoCredenciamento } from '../../services/getListaDochecklistDoCredenciamento';
 import Plot from 'react-plotly.js';
-
 
 export default class Index extends Component {
   constructor(props) {
@@ -34,8 +42,6 @@ export default class Index extends Component {
 
       success: '',
       error: '',
-      arrayAberturaDeTurmasDoDia: [],
-      arrayAberturaDeTurmas: [],
       arrayCredenciamento: [],
       dataAtual: new Date(),
 
@@ -89,7 +95,6 @@ export default class Index extends Component {
       descricao_instrucao: '',
 
       item_checklist: '',
-      idAberturaTurma: 0,
 
       arrayQuantidadeSolicitacoesPorEstado: [],
       layoutQuantidadeSolicitacoesPorEstado: {},
@@ -97,16 +102,12 @@ export default class Index extends Component {
       layoutPercentualStatusSolicitacoes: {},
       arrayQuantidadeSolicitacoesDasInstituicoesPorEstado: [],
       layoutQuantidadeSolicitacoesDasInstituicoesPorEstado: {},
-      arraySolicitacoesDeAberturaDeTurmaMensal: [],
-      layoutSolicitacoesDeAberturaDeTurmaMensal: {},
       totInstituicoesQueEnviaramDocDoCredenciamento: 0
     }
   }
 
   componentDidMount() {
-    this.listaDeAberturaDeTurmas(getToken(), `${parseInt(this.state.dataAtual.getMonth()) + 1 <= 9 ? `${this.state.dataAtual.getFullYear()}-0${this.state.dataAtual.getMonth() + 1}-${parseInt(this.state.dataAtual.getDate()) <= 9 ? `0${this.state.dataAtual.getDate()}` : this.state.dataAtual.getDate()}` :
-      `${this.state.dataAtual.getFullYear()}-${this.state.dataAtual.getMonth() + 1}-${parseInt(this.state.dataAtual.getDate()) <= 9 ? `0${this.state.dataAtual.getDate()}` : this.state.dataAtual.getDate()}`}`);
-    this.listaDeAberturaDeTurmas(getToken());
+    ;
     this.listaDeEstados();
     listaDeStatus(getToken()).then(result => result.length > 0 ?
       this.setState({ arrayStatus: result }) : this.setState({ arrayStatus: [] }));
@@ -172,7 +173,7 @@ export default class Index extends Component {
   }
 
   handlerShowModalAvaliacaoDoAnexoDoCredenciamento(documento) {
-    console.log(documento)
+    console.log("documento:", documento)
     this.setModalShowAvaliacaoDoAnexoDoCredenciamento(true);
     this.setState({
       id_documento_credenciamento: documento.id_documento_credenciamento,
@@ -214,9 +215,6 @@ export default class Index extends Component {
 
   handlerShowModalDashboard() {
     this.setModalShowDashboard(true);
-    this.quantidadeDeSolicitacoesDeAberturaDeTurmaPorEstado(getToken());
-    this.percentualDoStatusDasSolicitacoesDeAberturaDeTurma(getToken());
-    this.solicitacoesDeAberturaDeTurmaMensal(getToken(), 0);
   }
 
   handlerCloseModalDashboard() {
@@ -273,36 +271,6 @@ export default class Index extends Component {
     this.setModalShowCadastrarInstrucaoDoChecklist(false);
   };
 
-  listaDeAberturaDeTurmas = async (token, dataAtual = "", cnpj = "", nome_fantasia = "", data_solicitacao = "", estado = "") => {
-    try {
-      const response = await fetch(`${api.baseURL}/abertura_turma?dataAtual=${dataAtual}&cnpj=${cnpj}&nome_fantasia=${nome_fantasia}&data_solicitacao=${data_solicitacao}&estado=${estado}`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'x-access-token': token
-          }
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.status === 200) {
-
-        if (dataAtual !== "") {
-          this.setState({ arrayAberturaDeTurmasDoDia: data.resultados });
-          return;
-        }
-
-        this.setState({ arrayAberturaDeTurmas: data.resultados });
-
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   listaDeEstados = async () => {
     try {
       const response = await fetch(`${api.baseURL}/estados`, {
@@ -323,154 +291,6 @@ export default class Index extends Component {
       console.log(error)
     }
 
-  }
-
-  quantidadeDeSolicitacoesDeAberturaDeTurmaPorEstado = async (token) => {
-    try {
-      const response = await fetch(`${api.baseURL}/abertura_turma/quantidade_solicitacoes`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'x-access-token': token
-        }
-      });
-
-      const data = await response.json();
-      console.log(data);
-      if (data.status === 200) {
-        this.setState({
-          layoutQuantidadeSolicitacoesPorEstado: {
-            title: 'Aberturas de turma por estado em 2023',
-            xaxis: { title: 'Estado' },
-            yaxis: { title: 'Quantidade de solicitações' },
-            width: 600
-          },
-          arrayQuantidadeSolicitacoesPorEstado: [
-            {
-              x: data.resultados[0],
-              y: data.resultados[1],
-              type: 'bar',
-              marker: { color: 'blue' },
-            },
-          ]
-        });
-      }
-
-    } catch (error) {
-      console.log(error)
-    }
-
-  }
-
-  percentualDoStatusDasSolicitacoesDeAberturaDeTurma = async (token) => {
-    try {
-      const response = await fetch(`${api.baseURL}/abertura_turma/percentual_solicitacoes`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'x-access-token': token
-        }
-      });
-
-      const data = await response.json();
-      console.log(data);
-      if (data.status === 200) {
-        this.setState({
-          arrayPercentualStatusSolicitacoes: [
-            {
-              labels: data.resultados[0],
-              values: data.resultados[1],
-              type: 'pie',
-            },
-          ],
-
-          layoutPercentualStatusSolicitacoes: {
-            title: 'Status das solicitações de abertura de turma',
-            width: 600
-          }
-        });
-      }
-
-    } catch (error) {
-      console.log(error)
-    }
-
-  }
-
-  quantidadeDeSolicitacoesDeAberturaDeTurmaDasInstituicoesPorEstado = async (token, estado) => {
-    try {
-      const response = await fetch(`${api.baseURL}/abertura_turma/quantidade_solicitacoes_instituicoes?estado=${estado}`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'x-access-token': token
-        }
-      });
-
-      const data = await response.json();
-      console.log(data);
-      if (data.status === 200) {
-        this.setState({
-          layoutQuantidadeSolicitacoesDasInstituicoesPorEstado: {
-            title: 'Aberturas de turma por instituições em 2023',
-            xaxis: { title: 'Instituições' },
-            yaxis: { title: 'Quantidade de solicitações' },
-            width: 600
-          },
-          arrayQuantidadeSolicitacoesDasInstituicoesPorEstado: [
-            {
-              x: data.resultados[0],
-              y: data.resultados[1],
-              type: 'bar',
-              marker: { color: 'blue' },
-            },
-          ]
-        });
-      }
-
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  solicitacoesDeAberturaDeTurmaMensal = async (token, ano) => {
-    try {
-      const response = await fetch(`${api.baseURL}/abertura_turma/solicitacao_mensal?ano=${ano}`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'x-access-token': token
-        }
-      });
-
-      const data = await response.json();
-      console.log(data);
-      if (data.status === 200) {
-        this.setState({
-          layoutSolicitacoesDeAberturaDeTurmaMensal: {
-            title: 'Aberturas de turma mensal',
-            xaxis: { title: 'Meses' },
-            yaxis: { title: 'Quantidade de solicitações' },
-            width: 600
-          },
-          arraySolicitacoesDeAberturaDeTurmaMensal: [
-            {
-              x: data.resultados[0],
-              y: data.resultados[1],
-              type: 'bar',
-              marker: { color: 'blue' },
-            },
-          ]
-        });
-      }
-
-    } catch (error) {
-      console.log(error)
-    }
   }
 
   listaDeCredenciamentoPorEstado = async (token, idEstado) => {
@@ -529,6 +349,8 @@ export default class Index extends Component {
         nome_fantasia, id_credenciamento
       } = this.state;
 
+      console.log('id_credenciamento :>> ', id_credenciamento);
+
       if (!nome || !email || !telefone || !cpf ||
         !cnpj || !razao_social || !nome_fantasia) {
         this.setState({ error: "Por favor, preencher todos os campos." });
@@ -541,6 +363,7 @@ export default class Index extends Component {
         return;
       }
 
+      console.log('getToken() :>> ', getToken());
       const response = await fetch(`${api.baseURL}/credenciamento/${id_credenciamento}`, {
         method: 'PUT',
         headers: {
@@ -556,6 +379,8 @@ export default class Index extends Component {
       });
 
       const data = await response.json();
+
+      console.log('data :>> ', data);
 
       if (data.status === 200) {
         this.setState({ successAtualizarCredenciamento: data.msg, errorAtualizarCredenciamento: "" });
@@ -823,46 +648,7 @@ export default class Index extends Component {
       console.log(error);
     }
   }
-
-
-  alterarStatusDeAberturaDeTurma = async (idAberturaTurma, idStatus, email_solicitante,
-    razao_social, nome_fantasia, telefone, observacao, cnpj) => {
-    try {
-      const response = await fetch(`${api.baseURL}/abertura_turma/${idAberturaTurma}`, {
-        method: 'PUT',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'x-access-token': getToken()
-        },
-        body: JSON.stringify({
-          idStatus, email_solicitante,
-          razao_social, nome_fantasia,
-          telefone, observacao, cnpj
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.status === 200) {
-        this.listaDeAberturaDeTurmas(getToken(), `${parseInt(this.state.dataAtual.getMonth()) + 1 <= 9 ? `${this.state.dataAtual.getFullYear()}-0${this.state.dataAtual.getMonth() + 1}-${parseInt(this.state.dataAtual.getDate()) <= 9 ? `0${this.state.dataAtual.getDate()}` : this.state.dataAtual.getDate()}` :
-          `${this.state.dataAtual.getFullYear()}-${this.state.dataAtual.getMonth() + 1}-${parseInt(this.state.dataAtual.getDate()) <= 9 ? `0${this.state.dataAtual.getDate()}` : this.state.dataAtual.getDate()}`}`);
-        this.listaDeAberturaDeTurmas(getToken());
-      }
-
-      if (data.status === 400) {
-        this.setState({ error: data.msg });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-
-
   render() {
-    const arrayAberturaDeTurmasDoDia = this.state.arrayAberturaDeTurmasDoDia;
-    const arrayAberturaDeTurmas = this.state.arrayAberturaDeTurmas;
     const arrayEstados = this.state.arrayEstados;
     const arrayCredenciamento = this.state.arrayCredenciamento;
     const arrayAnexosDoCredenciamento = this.state.arrayAnexosDoCredenciamento;
@@ -905,176 +691,12 @@ export default class Index extends Component {
               </FloatingMenu>
 
               <div className='container-fluid mb-5'>
-                <Tabs
+                <div
                   defaultActiveKey="aberturaTurmasDiario"
                   id="justify-tab-example"
                   className="justify-content-center mb-3"
                   variant='pills'>
-                  <Tab eventKey="aberturaTurmasDiario" title="Abertura de turmas do dia">
-                    {/* <h4 className='text-light'><FaUserEdit /> Abertura de turmas</h4> */}
-                    <div class="table-responsive table-sm">
-                      <div class="table-wrapper">
-                        <table class="table text-center table-hover mb-5 table-light" style={{ fontSize: "10pt" }}>
-                          <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)' }}>
-                            <tr>
-                              <th scope="col">CNPJ</th>
-                              <th scope="col">Nome fantasia</th>
-                              <th scope="col">Razão social</th>
-                              <th scope="col">Telefone</th>
-                              <th scope="col">Observação</th>
-                              <th scope="col">Metodologia</th>
-                              <th scope="col">Curso</th>
-                              <th scope="col">Data da solicitação</th>
-                              <th scope="col">Estado</th>
-                              <th scope="col">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {arrayAberturaDeTurmasDoDia.length > 0 ? (
-                              arrayAberturaDeTurmasDoDia.map((abertura_turma, index) => (
-                                <tr key={index} className={parseInt(abertura_turma.id_status) === 2 ? `table-success` : parseInt(abertura_turma.id_status) === 10 ? `table-danger` : ``}>
-                                  <td>{abertura_turma.cnpj}</td>
-                                  <td>{abertura_turma.nome_fantasia}</td>
-                                  <td>{abertura_turma.razao_social}</td>
-                                  <td>{abertura_turma.telefone}</td>
-                                  <td>{abertura_turma.observacao}</td>
-                                  <td>{abertura_turma.metodologia !== null ? abertura_turma.metodologia : "-"}</td>
-                                  <td>{abertura_turma.curso !== null ? abertura_turma.curso : "-"}</td>
-                                  <td>{abertura_turma.dataHoraCriacao}</td>
-                                  <td>{abertura_turma.estado}</td>
-                                  <td>
-                                    <select class="form-control form-control-sm" id="status"
-                                      value={abertura_turma.id_status}
-                                      onChange={e => this.alterarStatusDeAberturaDeTurma(abertura_turma.id_abertura_turma, e.target.value, abertura_turma.email_solicitante,
-                                        abertura_turma.razao_social, abertura_turma.nome_fantasia,
-                                        abertura_turma.telefone, abertura_turma.observacao, abertura_turma.cnpj)}
-                                      style={{ width: "200px" }}>
-                                      <option value="0">Selecionar</option>
-                                      {this.state.arrayStatus.length > 0 ? (
-                                        this.state.arrayStatus.map(item =>
-                                          parseInt(item.id) === 1 || parseInt(item.id) === 2 || parseInt(item.id) === 10 ? (<option value={item.id}>{item.nome}</option>) : "")
-                                      ) : (
-                                        <option value="0">Nenhum resultado encontrado</option>
-                                      )}
-                                    </select>
-                                  </td>
-                                </tr>
-                              ))
-                            ) : (<tr>
-                              <td colSpan="12">Nenhum resultado encontrado</td>
-                            </tr>)}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </Tab>
-
-                  <Tab eventKey="profile" title="Abertura de turmas gerais">
-                    <div className='container'>
-                      <div className='row justify-content-center text-light'>
-                        <div className='col-md-3 mb-2'>
-                          <div className="form-group">
-                            <label for="staticEmail2">CNPJ</label>
-                            <input class="form-control form-control-sm" type="text" id="cnpj" name="start" placeholder='CNPJ'
-                              onChange={e => this.setState({ cnpj: e.target.value.trim() })}
-                            />
-                          </div>
-                        </div>
-                        <div className='col-md-3 mb-2'>
-                          <div className="form-group">
-                            <label for="staticEmail2">Nome fantasia</label>
-                            <input class="form-control form-control-sm" type="text" id="nome_fanstasia" name="start" placeholder='Nome fantasia'
-                              onChange={e => this.setState({ nome_fantasia: e.target.value.trim() })}
-                            />
-                          </div>
-                        </div>
-                        <div className='col-md-3 mb-2'>
-                          <div className="form-group">
-                            <label for="staticEmail2">Data de solicitação</label>
-                            <input class="form-control form-control-sm" type="date" id="data_diario" name="start"
-                              min="2022-01" value={this.state.data_solicitacao}
-                              onChange={e => this.setState({ data_solicitacao: e.target.value })}
-                            />
-                          </div>
-                        </div>
-                        <div className='col-md-3 mb-2'>
-                          <div class="form-group">
-                            <label htmlFor="selectEstado">Estado:</label>
-                            <select className="form-control form-control-sm" id="selectEstado"
-                              onChange={e => this.setState({ id_estado: e.target.value })}>
-                              <option value={0}>Selecione um estado</option>
-                              {arrayEstados.length > 0 ?
-                                arrayEstados.map(item => (
-                                  <option value={item.id}>{item.nome}</option>
-                                ))
-                                : (<option value="">Nenhum resultado foi encontrado</option>)}
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="row d-flex justify-content-center mt-4 mb-4">
-                      <div class="col-lg-12 col-lg-offset-6 text-center">
-                        <div className="ml-auto">
-                          <button className='btn btn-sm btn-outline-light mr-2' onClick={() => this.listaDeAberturaDeTurmas(getToken(), "", this.state.cnpj !== "" ? this.state.cnpj : "", this.state.nome_fantasia !== "" ? this.state.nome_fantasia : "", this.state.data_solicitacao !== "" ? this.state.data_solicitacao : "", this.state.id_estado !== "" ? this.state.id_estado : "")}>Buscar <FaSearch /> </button>
-                          <button className='btn btn-sm btn-outline-light mr-2' onClick={() => this.listaDeAberturaDeTurmas(getToken(), ``)}><FaFilter /> Limpar filtro</button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="table-responsive table-sm mb-5 container">
-                      <div class="table-wrapper">
-                        <table class="table text-center table-hover mb-5 table-light">
-                          <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#ffffff', color: 'rgb(0, 2, 51)' }}>
-                            <tr>
-                              <th scope="col">CNPJ</th>
-                              <th scope="col">Nome fantasia</th>
-                              <th scope="col">Razão social</th>
-                              <th scope="col">Metodologia</th>
-                              <th scope="col">Curso</th>
-                              <th scope="col">Data de solicitação</th>
-                              <th scope="col">Estado</th>
-                              <th scope="col">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {arrayAberturaDeTurmas.length > 0 ? (
-                              arrayAberturaDeTurmas.map((abertura_turma, index) => (
-                                <tr key={index} className={parseInt(abertura_turma.id_status) === 2 ? `table-success` : parseInt(abertura_turma.id_status) === 10 ? `table-danger` : ``}>
-                                  <td>{abertura_turma.cnpj}</td>
-                                  <td>{abertura_turma.nome_fantasia}</td>
-                                  <td>{abertura_turma.razao_social}</td>
-                                  <td>{abertura_turma.metodologia !== null ? abertura_turma.metodologia : "-"}</td>
-                                  <td>{abertura_turma.curso !== null ? abertura_turma.curso : "-"}</td>
-                                  <td>{abertura_turma.dataHoraCriacao}</td>
-                                  <td>{abertura_turma.estado}</td>
-                                  <td><select class="form-control form-control-sm" id="status"
-                                    value={abertura_turma.id_status}
-                                    onChange={e => this.alterarStatusDeAberturaDeTurma(abertura_turma.id_abertura_turma, e.target.value, abertura_turma.email_solicitante,
-                                      abertura_turma.razao_social, abertura_turma.nome_fantasia,
-                                      abertura_turma.telefone, abertura_turma.observacao, abertura_turma.cnpj)}
-                                    style={{ width: "150px" }}>
-                                    <option value="0">Selecionar</option>
-                                    {this.state.arrayStatus.length > 0 ? (
-                                      this.state.arrayStatus.map(item =>
-                                        parseInt(item.id) === 1 || parseInt(item.id) === 2 || parseInt(item.id) === 10 ? (<option value={item.id}>{item.nome}</option>) : "")
-                                    ) : (
-                                      <option value="0">Nenhum resultado encontrado</option>
-                                    )}
-                                  </select>
-                                  </td>
-                                </tr>
-                              ))
-                            ) : (<tr>
-                              <td colSpan="12">Nenhum resultado encontrado</td>
-                            </tr>)}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </Tab>
-                  <Tab eventKey="credenciamento" title="Credenciamento">
+                  <div eventKey="credenciamento" title="Credenciamento">
                     <div className='container' style={{ height: "500px", overflowY: "scroll", padding: "10px" }}>
                       <div className="row">
                         {arrayEstados.length > 0 ? (
@@ -1092,8 +714,8 @@ export default class Index extends Component {
                         ) : ("")}
                       </div>
                     </div>
-                  </Tab>
-                </Tabs>
+                  </div>
+                </div>
               </div>
 
               <Modal
@@ -1312,7 +934,13 @@ export default class Index extends Component {
                                         <td><a href={documento.anexo}>visualizar</a></td>
                                         <td>{parseInt(documento.observacao) !== 0 ? documento.observacao : ``}</td>
                                         <td>{documento.dataHoraCriacao}</td>
-                                        <td><button className='button' onClick={() => this.handlerShowModalAvaliacaoDoAnexoDoCredenciamento(documento)}>Avaliar</button></td>
+                                        <td>
+                                          <button
+                                            className='button'
+                                            onClick={() =>
+                                              this.handlerShowModalAvaliacaoDoAnexoDoCredenciamento(documento)}>Avaliar
+                                          </button>
+                                        </td>
                                       </tr>
                                     ))
                                   ) : (
@@ -1428,13 +1056,23 @@ export default class Index extends Component {
                   <Form onSubmit={this.avaliarDocumentoDoCredenciamento}>
                     <div class="form-group">
                       <label for="selectStatus">Status:</label>
-                      <select class="form-control form-control-sm" id="selectStatus"
-                        value={this.state.id_status}
+                      <select
+                        class="form-control form-control-sm"
+                        id="selectStatus"
+                        value={this.state.status}
                         onChange={e => this.setState({ id_status: e.target.value })}>
                         {this.state.arrayStatus.length > 0 ? (
                           this.state.arrayStatus.map(item =>
-                            item.id === 3 || item.id === 4 || item.id === 8 ?
-                              (<option value={item.id}>{item.nome}</option>) : "")
+                            item.id === 3 || 
+                            item.id === 4 || 
+                            item.id === 8 ?
+                              (
+                                <option
+                                  key={item.id}
+                                  value={item.id}>
+                                  {item.nome}
+                                </option>
+                              ) : "")
                         ) : (
                           <option value="0">Nenhum resultado encontrado</option>
                         )}
@@ -1713,8 +1351,6 @@ export default class Index extends Component {
 
                 </Modal.Body>
               </Modal>
-
-
               <Modal
                 show={this.state.modalShowDashboard}
                 onHide={() => this.handlerCloseModalDashboard()}
@@ -1729,16 +1365,6 @@ export default class Index extends Component {
                 </Modal.Header>
                 <Modal.Body>
                   <div className='row justify-content-center text-center mb-2 '>
-                    <div className='col-md-3 mb-2 border mr-2 p-3'>
-                      <FaUsers style={{ width: '30px', height: '30px', marginBottom: '10px' }} />
-                      <h5 className='titulo'>Total de abertura de turmas do dia</h5>
-                      <h6>{arrayAberturaDeTurmasDoDia.length}</h6>
-                    </div>
-                    <div className='col-md-3 mb-2 border p-3'>
-                      <FaClipboardList style={{ width: '30px', height: '30px', marginBottom: '10px' }} />
-                      <h5 className='titulo'>Total de abertura de turmas</h5>
-                      <h6>{arrayAberturaDeTurmas.length}</h6>
-                    </div>
                   </div>
                   <hr />
                   <div className='row'>
@@ -1748,38 +1374,6 @@ export default class Index extends Component {
                     </div>
                     <div className='col-sm-6'>
                       <Plot data={this.state.arrayPercentualStatusSolicitacoes} layout={this.state.layoutPercentualStatusSolicitacoes} />
-                    </div>
-                  </div>
-
-                  <div className='row mt-3'>
-                    <div className='col-sm-6'>
-                      <div class="form-group">
-                        <label htmlFor="selectEstado">Estado:</label>
-                        <select className="form-control form-control-sm" id="selectEstado"
-                          onChange={e => this.quantidadeDeSolicitacoesDeAberturaDeTurmaDasInstituicoesPorEstado(getToken(), e.target.value)}>
-                          <option value={0}>Selecione um estado</option>
-                          {arrayEstados.length > 0 ?
-                            arrayEstados.map(item => (
-                              <option value={item.id}>{item.nome}</option>
-                            ))
-                            : (<option value="">Nenhum resultado foi encontrado</option>)}
-                        </select>
-                      </div>
-                      <Plot data={this.state.arrayQuantidadeSolicitacoesDasInstituicoesPorEstado}
-                        layout={this.state.layoutQuantidadeSolicitacoesDasInstituicoesPorEstado} />
-                    </div>
-
-                    <div className='col-sm-6'>
-                      <label htmlFor="ano">Selecione um ano:</label>
-                      <select className="form-control form-control-sm" id="ano" name="ano" onChange={e => this.solicitacoesDeAberturaDeTurmaMensal(getToken(), e.target.value)}>
-                        <option value="0">0</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                        <option value="2022">2022</option>
-                        <option value="2021">2021</option>
-                      </select>
-                      <Plot data={this.state.arraySolicitacoesDeAberturaDeTurmaMensal}
-                        layout={this.state.layoutSolicitacoesDeAberturaDeTurmaMensal} />
                     </div>
                   </div>
                 </Modal.Body>

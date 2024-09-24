@@ -1,14 +1,26 @@
+// src/components/Menu.js
 import React, { useState, useEffect, useContext } from 'react';
 import { getToken, logout } from '../services/auth';
 import api from '../services/api';
 import { slide as Slide } from 'react-burger-menu';
 import nexus_white from '../assets/logo_nexus2.png';
-import { FaCog, FaRegThumbsUp, FaUpload, FaUserCog, FaUsers, FaUsersCog, FaWrench } from 'react-icons/fa';
+import {
+    FaCog,
+    FaRegThumbsUp,
+    FaUpload,
+    FaUserCog,
+    FaUsers,
+    FaUsersCog,
+    FaWrench,
+    FaSignOutAlt
+} from 'react-icons/fa';
 import UserContext from '../UserContext';
+import { Link } from 'react-router-dom';
+import './Menu.css';
 
 const Menu = () => {
     const [arrayPermissoes, setArrayPermissoes] = useState([]);
-    const { user } = useContext(UserContext);
+    const { user, setUser } = useContext(UserContext);
 
     useEffect(() => {
         const listaPermissoes = async (id_usuario) => {
@@ -31,13 +43,15 @@ const Menu = () => {
             }
         };
 
-        listaPermissoes(user.id);
-    }, [user.id]);
+        if (user && user.id) {
+            listaPermissoes(user.id);
+        }
+    }, [user]);
 
     const renderMenuItems = () => {
         return arrayPermissoes.map((item) => {
             let icon, link, label;
-            
+
             switch (item.id_permissao) {
                 case 1:
                     icon = <FaUserCog />;
@@ -92,21 +106,33 @@ const Menu = () => {
             }
 
             return (
-                <a href={link} key={item.id_permissao}>
+                <Link to={link} key={item.id_permissao} className="menu-item">
                     {icon} {label}
-                </a>
+                </Link>
             );
         });
     };
 
+    const handleLogout = () => {
+        logout(); // Remove o token e limpa o estado de autenticação
+        setUser(null); // Limpa o usuário no contexto
+        // Redireciona para a página de login
+        window.location.href = '/';
+    };
+
     return (
         <Slide>
-            <img id="logo" src={nexus_white} style={{ width: "100px", marginBottom: "14px" }} alt="Nexus Logo" />
-            {renderMenuItems()}
-            <a href="/" className="nav-link" onClick={() => logout()}>
-                <i className="nav-icon fas fa-sign-out-alt" />
-                Sair
-            </a>
+            <div className="menu-header">
+                <img src={nexus_white} alt="Logo Nexus" className="logo" />
+            </div>
+            <nav className="menu-items">
+                {renderMenuItems()}
+            </nav>
+            <div className="menu-footer">
+                <button onClick={handleLogout} className="logout-button">
+                    <FaSignOutAlt /> Logout
+                </button>
+            </div>
         </Slide>
     );
 };

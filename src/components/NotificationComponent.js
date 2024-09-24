@@ -159,8 +159,8 @@ const NotificationComponent = ({ id_usuario, listaDeChamados }) => {
         <div className='container' style={{ maxHeight: "300px", overflowY: "scroll" }}>
           {notificacoes.length > 0 ?
             notificacoes.map(notificacao => (
-              <Alert variant={`light`} style={{ border: "1px solid #000233" }} key={notificacao.id}>
-                <p >{notificacao.descricao + ` na data ` + notificacao.dataHoraCriacao}</p><br />
+              <Alert key={notificacao.id} variant={`light`} style={{ border: "1px solid #000233" }}>
+                <p>{notificacao.descricao + ` na data ` + notificacao.dataHoraCriacao}</p><br />
                 {!notificacao.descricao.includes('status') ? (
                   <div className='d-flex justify-content-center'>
                     <button className='button mt-2' onClick={() => openModalModalRight(notificacao)}>Visualizar</button>
@@ -183,7 +183,7 @@ const NotificationComponent = ({ id_usuario, listaDeChamados }) => {
           {notificacao.id_tipo_notificacao === 1 && (
             comentarios.length > 0 ? (
               comentarios.map((comentario, index) => (
-                <div className="card w-100" key={index} style={{ border: "1px solid #000233" }}>
+                <div key={index} className="card w-100" style={{ border: "1px solid #000233" }}>
                   <div className="card-header font-weight-bold">
                     {comentario.nome} - {comentario.dataHoraCriacao}
                   </div>

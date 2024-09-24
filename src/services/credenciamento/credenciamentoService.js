@@ -2,8 +2,7 @@ import api from '../api'; // Importando a base URL da API
 import { getToken } from '../auth';
 
 // Busca a solicitação de credenciamento para um usuário
-export const buscaSolicitacaoDeCredenciamento = async (idUsuario) => {
-  const token = getToken();
+export const buscaSolicitacaoDeCredenciamento = async (token, idUsuario) => {
   const response = await fetch(`${api.baseURL}/usuarios/${idUsuario}/credenciamento`, {
     method: 'GET',
     headers: {
@@ -113,9 +112,12 @@ export const cadastrarDocumentoDoCredenciamentoApi = async (dados) => {
 };
 
 // Lista os documentos do credenciamento de um checklist específico
-export const listaDedocumentosDoCredenciamentoApi = async (id_checklist_credenciamento, id_credenciamento) => {
+export const listaDedocumentosDoCredenciamentoApi = async (
+  id_checklist_credenciamento,
+  id_credenciamento,
+  token
+) => {
   try {
-    const token = getToken();
     const response = await fetch(`${api.baseURL}/checklist_credenciamento/${id_checklist_credenciamento}/documento_credenciamento?id_credenciamento=${id_credenciamento}`, {
       method: 'GET',
       headers: {
