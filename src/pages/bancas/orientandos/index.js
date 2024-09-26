@@ -585,7 +585,6 @@ export default class Index extends Component {
 																		<Card.Text> Data/hora prevista {orientacao.dataHoraPrevistaTb}</Card.Text>
 																		<button className='btn btn-sm btn-outline-light btn-block' onClick={() => this.handlerShowModalEditarOrientacao(orientacao)}>Anexos da orientação</button>
 																		<button className='btn btn-sm btn-outline-light btn-block' onClick={() => this.handlerShowModalEditarMeusAnexos(orientacao)}>Meus anexos</button>
-
 																	</Card.Body>
 																</Card>
 															</div>

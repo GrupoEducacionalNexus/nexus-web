@@ -33,7 +33,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
     <Route
         // Passando as propriedades para a rota
         {...rest}
-        // Redefindo o método render 
+        // Redefindo o método render
         render={props =>
             //renderizando o componente caso o usuário esteja autenticado
             isAuthenticated() ? (<Component {...props} />

@@ -30,7 +30,7 @@ import RODAPE2 from '../../../assets/rodape2.png';
 import RODAPE3 from '../../../assets/rodape3.png';
 import RODAPE4 from '../../../assets/rodape4.png';
 import BACKGROUND_ENBER from '../../../assets/background_enber.png';
-import ASSINATURA_JOSUE from '../../../assets/assinatura_josue.png'
+import ASSINATURA_JOSUE from '../../../assets/assinatura_josue.png';
 
 export default class Index extends Component {
 	static contextType = UserContext;

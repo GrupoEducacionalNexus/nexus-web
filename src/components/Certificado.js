@@ -17,11 +17,11 @@ export const Certificado = (props) => {
     // </Container>
     <Container>
       <span className='paragrafo_principal text-uppercase'>
-        {props.tipo_membro === 1 ? (<p>Certificamos que <b>{props.nomeMembro}</b> participou como Apresentador no grupo de trabalho "<b>{props.grupo_trabalho}</b>" no "<b>{props.temaEvento}</b>", cujo o tema: <b>Ciência, globalização e tecnologias na Pós Graduação: Desafios e Perspectivas na contemporaneidade </b> 
-          realizado nos dias 11 e 12 de maio de 2023, contabilizando {props.cargaHoraria} horas de carga horária.</p>
+        {props.tipo_membro === 1 ? (<p>Certificamos que <b>{props.nomeMembro}</b> participou como Apresentador no grupo de trabalho "<b>{props.grupo_trabalho}</b>" no "<b>{props.temaEvento}</b>", cujo o tema: <b>Educação, Inteligência Artificial e Ética: Impactos na produção do conhecimento </b> 
+          realizado nos dias 07 e 08 de maio de 2024, contabilizando {props.cargaHoraria} horas de carga horária.</p>
         ) : (<p>
-          Certificamos que <b>{props.nomeMembro}</b> participou do "<b>{props.temaEvento}</b>" , cujo o tema: <b>Ciência, globalização e tecnologias na Pós Graduação: Desafios e Perspectivas na contemporaneidade </b>, 
-          realizado nos dias 11 e 12 de maio de 2023, contabilizando {props.cargaHoraria} horas de carga horária.
+          Certificamos que <b>{props.nomeMembro}</b> participou do "<b>{props.temaEvento}</b>" , cujo o tema: <b>Educação, Inteligência Artificial e Ética: Impactos na produção do conhecimento </b>, 
+          realizado nos dias 07 e 08 de maio de 2024, contabilizando {props.cargaHoraria} horas de carga horária.
         </p>)}
       </span>
 

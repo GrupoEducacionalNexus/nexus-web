@@ -263,7 +263,7 @@ export default class Index extends Component {
 					<Col xs={12} >
 						<MainContent>
 							<div className='container mb-3'>
-								<h3 className='font-weight-bold mb-3 border-bottom' style={{ fontSize: "12pt", color: "#000233" }}><FaRegUser /> {this.state.nomeMembro.trim()}, seja bem-vindo ao sistema de eventos da enber!</h3>
+								<h3 className='font-weight-bold mb-3 border-bottom' style={{ fontSize: "12pt", color: "#000233" }}><FaRegUser /> {this.state.nomeMembro}, seja bem-vindo ao sistema de eventos da enber!</h3>
 								<p><FaHandsHelping /> Em caso de dúvidas acesse o <a href='https://api.whatsapp.com/send/?phone=13213009710&text&app_absent=0' target="_blank">link</a></p>
 								<div className='row'>
 									{eventos.length > 0 ? (
@@ -375,7 +375,7 @@ export default class Index extends Component {
 														</Accordion> */}
 
 														<div className='container text-center'>
-															{/* <button className='button mb-2' onClick={() => this.handlerShowModalEditarCertificado(evento)}>Visualizar certificado</button> */}
+															<button className='button mb-2' onClick={() => this.handlerShowModalEditarCertificado(evento)}>Visualizar certificado</button>
 															{/* <button className='button' onClick={() => this.handlerShowModalCadastrarAnexo(evento)}>Anexar o trabalho completo</button> */}
 														</div>
 													</Card.Body>
