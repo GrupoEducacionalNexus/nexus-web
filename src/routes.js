@@ -7,7 +7,6 @@ import Administrador from './pages/administrador';
 import Secretaria from './pages/secretaria';
 import Validacao from './pages/validacao/index';
 import ValidacaoCertificado from './pages/validacao_certificado/index';
-
 import PageNotFound from './components/PageNotFound';
 import CadastroEventoEnber from './pages/eventos/enber/cadastrar/index';
 import GrupoTrabalho from './pages/eventos/enber/grupo_trabalho/index';
@@ -31,15 +30,11 @@ import ProcessoCredenciamento from './pages/processo_credenciamento/index';
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
     <Route
-        // Passando as propriedades para a rota
         {...rest}
-        // Redefindo o método render
         render={props =>
-            //renderizando o componente caso o usuário esteja autenticado
-            isAuthenticated() ? (<Component {...props} />
+            isAuthenticated() ? (
+                <Component {...props} />
             ) : (
-                // caso contrário o usuário é redirecionado para a rota /
-                //state impede que o usuário não perca seu histórico de rotas
                 <Redirect to={{ pathname: '/', state: { from: props.location } }} />
             )
         }
@@ -81,5 +76,3 @@ const Routes = () => {
 }
 
 export default Routes;
-
-
