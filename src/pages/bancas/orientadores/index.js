@@ -1769,8 +1769,6 @@ export default class Index extends Component {
 		const array_declaracoes = this.state.array_declaracoes;
 		const arrayAnexosDaOrientacao = this.state.arrayAnexosDaOrientacao;
 		const arrayAnexosDoOrientando = this.state.arrayAnexosDoOrientando;
-		const arrayMembrosExternos = this.state.arrayMembrosExternos;
-		const arrayMembrosInternos = this.state.arrayMembrosInternos;
 
 		return (
 			<Container fluid style={{
@@ -1866,7 +1864,7 @@ export default class Index extends Component {
 															<option value="0">Selecione</option>
 															{linhasDePesquisas.length > 0 ?
 																linhasDePesquisas.map(linha => (
-																	<option key={linha.id} value={linha.id}>{linha.linha_pesquisa}</option>
+																	<option value={linha.id}>{linha.linha_pesquisa}</option>
 																))
 																: (<option>0</option>)
 															}
@@ -1886,9 +1884,9 @@ export default class Index extends Component {
 															<option value="0">Selecione</option>
 															{tiposDeBanca.length > 0 ?
 																tiposDeBanca.map(tipo => (
-																	<option key={tipo.id} value={tipo.id}>{tipo.nome}</option>
+																	<option value={tipo.id}>{tipo.nome}</option>
 																))
-																: (<option key={0} value="0">Nenhum resultado encontrado</option>)}
+																: (<option value="0">Nenhum resultado encontrado</option>)}
 														</select>
 													</div>
 												</div>
@@ -1950,50 +1948,50 @@ export default class Index extends Component {
 													<h4 className='text-center lead font-weight-bold'><FaPencilAlt /> Qualificação</h4>
 													<Container style={{ maxHeight: "400px", overflowY: 'scroll', textAlign: 'center' }}>
 														<Accordion>
-															{Array.isArray(bancasQ) && bancasQ.length > 0 ? (
+															{bancasQ.length > 0 ?
 																bancasQ.map(banca => (
 																	<Accordion key={banca.id} defaultActiveKey="0" flush style={{ backgroundColor: banca.status_confirmacaoBancaD === "FINALIZADA" ? "#00ff87" : "" }}>
-																		<Accordion.Item eventKey={banca.id} style={{ backgroundColor: '#ffffff', marginBottom: '5px' }}>
+																		<Accordion.Item eventKey={banca.id} style={{ backgroundColor: '#fffffff', marginBottom: '5px' }}>
 																			<Accordion.Header>
-																				<h5><FaLayerGroup /> {banca.orientando ? banca.orientando.toLocaleUpperCase() : ""} - {banca.status_confirmacaoBancaD}</h5>
+																				<h5><FaLayerGroup /> {banca.orientando_nome ? banca.orientando_nome : ""} - {banca.status_confirmacaoBancaD}</h5>
 																				<h6 className="list-group-item">Curso: {banca.curso}</h6>
 																				<h6 className="list-group-item">Data e hora prevista: {banca.dataHoraPrevistaFormatada}</h6>
 																			</Accordion.Header>
 																			<Accordion.Body style={{ overflowY: "scroll", height: "350px" }}>
+
 																				<div className='d-flex flex-column'>
 																					<button className='button' onClick={() => this.handlerShowModalAtualizarBanca(banca)}><FaRegPlusSquare /> Atualizar banca </button>
-																					{banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA" ? (
-																						<button className='button mt-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>Declaração de participação</button>
-																					) : null}
-																					{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata === null ? (
-																						<button className='button mt-2' onClick={() => this.handlerShowModalEmitirAta(banca)}>Emitir ATA</button>
-																					) : null}
-																					{/* ... outros botões ... */}
+																					{banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA" ? (<button className='button mt-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>Declaração de participação</button>) : ""}
+																					{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata === null ? (<button className='button mt-2 ' onClick={() => this.handlerShowModalEmitirAta(banca)}>Emitir ATA</button>) : ""}
+																					{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_ata !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalAtualizarAta(banca)}>Atualizar ATA</button>) : ""}
+																					{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_ata !== null ? (<button className='button mt-2 ' onClick={() => this.handlerShowModalVisualizarAta(banca)}>ATA</button>) : ""}
+																					{banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.id_fichaAvaliacao === null ? (<button className='button mt-2' onClick={() => this.handlerShowModalEmitirFichaDeAvaliacao(banca)}>Emitir ficha de avaliação</button>) : ""}
+																					{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_fichaAvaliacao !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalEditarFichaDeAvaliacao(banca)}>Atualizar ficha de avaliação</button>) : ""}
+																					{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_fichaAvaliacao !== null ? (<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarFichaDeAvaliacao(banca)}>Visualizar ficha de avaliação</button>) : ""}
+																					<button className='button mt-2' onClick={() => this.handlerShowModalExcluirBanca(banca)}>Excluir banca</button>
+																					{banca.status_confirmacaoBancaQ === "CONFIRMADO" ? (<button className='button mt-2' onClick={() => this.handlerShowModalFinalizarBanca(banca)}>Finalizar banca</button>) : ""}
 																				</div>
 																			</Accordion.Body>
 																		</Accordion.Item>
 																	</Accordion>
-																))
-															) : (
-																<Spinner animation="border" role="status">
-																	<span className="visually-hidden">Carregando...</span>
-																</Spinner>
-															)}
+																)) : (
+																	<Spinner animation="border" role="status">
+																		<span className="visually-hidden"></span>
+																	</Spinner>
+																)}
 														</Accordion>
-
 													</Container>
 												</div>
 												<div className='col-sm-6'>
 													<h4 className='text-center lead font-weight-bold'><FaShieldAlt /> Defesa</h4>
 													<Container style={{ maxHeight: "400px", overflowY: 'scroll', textAlign: 'center' }}>
 														<Accordion>
-															{bancasD?.length > 0 ?
+															{bancasD.length > 0 ?
 																bancasD.map(banca => (
 																	<Accordion key={banca.id} defaultActiveKey="0" flush style={{ backgroundColor: banca.status_confirmacaoBancaD === "FINALIZADA" ? "#00ff87" : "" }}>
-																		<Accordion.Item eventKey={banca.id} style={{ backgroundColor: '#fffffff', marginBottom: '5px' }}>
+																		<Accordion.Item  eventKey={banca.id} style={{ backgroundColor: '#fffffff', marginBottom: '5px' }}>
 																			<Accordion.Header>
-																				<h5><FaLayerGroup /> {
-																					banca.orientando ? banca.orientando.toLocaleUpperCase() : ""} - {banca.status_confirmacaoBancaD}</h5>
+																				<h5><FaLayerGroup /> {banca.orientando_nome.length > 0 ? banca.orientando_nome.toLocaleUpperCase() : ""} - {banca.status_confirmacaoBancaD}</h5>
 																				<h6 className="list-group-item">Curso: {banca.curso}</h6>
 																				<h6 className="list-group-item">Data e hora prevista: {banca.dataHoraPrevistaFormatada}</h6>																			</Accordion.Header>
 																			<Accordion.Body style={{ overflowY: "scroll", height: "350px" }}>
@@ -2077,7 +2075,7 @@ export default class Index extends Component {
 														{tiposDeBanca.length > 0 ?
 															tiposDeBanca.map(tipo =>
 																parseInt(tipo.id) < 3 ? (
-																	<option key={tipo.id} value={tipo.id}>{tipo.nome}</option>
+																	<option value={tipo.id}>{tipo.nome}</option>
 																) : ""
 															)
 															: (<option value="0">Nenhum resultado encontrado</option>)}
@@ -2090,7 +2088,7 @@ export default class Index extends Component {
 														value={this.state.idAreaConcentracao}>
 														{areas_concentracao.length > 0 ?
 															areas_concentracao.map(area => (
-																area.id === this.state.idAreaConcentracao && (<option key={area.id} value={area.id}>{area.nome}</option>)
+																area.id === this.state.idAreaConcentracao && (<option value={area.id}>{area.nome}</option>)
 															))
 															: (<option>0</option>)
 														}
@@ -2104,7 +2102,7 @@ export default class Index extends Component {
 														<option value="0">Selecione</option>
 														{linhasDePesquisas.length > 0 ?
 															linhasDePesquisas.map(linha => (
-																<option key={linha.id} value={linha.id}>{linha.linha_pesquisa}</option>
+																<option value={linha.id}>{linha.linha_pesquisa}</option>
 															))
 															: (<option>0</option>)
 														}
@@ -2140,7 +2138,7 @@ export default class Index extends Component {
 													/>
 												</div>
 
-												<div className="form-group">
+												{/* <div className="form-group">
 													<label htmlFor="nome">Membro externo:*</label>
 													<select class="form-control form-control-sm" id="selectOrientador"
 														onChange={e => this.setState({ id_membroExterno: e.target.value })}>
@@ -2152,7 +2150,7 @@ export default class Index extends Component {
 															: (<option>0</option>)
 														}
 													</select>
-												</div>
+												</div> */}
 
 												<div class="form-group">
 													<label for="exampleFormControlTextarea1">Titulo:</label>
@@ -2270,7 +2268,7 @@ export default class Index extends Component {
 														<option value="0">Selecione</option>
 														{this.state.array_cursos.length > 0 ?
 															this.state.array_cursos.map(curso => (
-																<option key={curso.id} value={curso.id}>{curso.nome}</option>
+																<option value={curso.id}>{curso.nome}</option>
 															))
 															: (<option>0</option>)
 														}
@@ -2317,7 +2315,7 @@ export default class Index extends Component {
 														<option value="0">Selecione</option>
 														{tiposDeBanca.length > 0 ?
 															tiposDeBanca.map(tipo => (
-																<option key={tipo.id} value={tipo.id}>{tipo.nome}</option>
+																<option value={tipo.id}>{tipo.nome}</option>
 															))
 															: (<option value="0">Nenhum resultado encontrado</option>)}
 													</select>
@@ -2449,7 +2447,7 @@ export default class Index extends Component {
 														{this.state.array_cursos.length > 0 ?
 															this.state.array_cursos.map(curso => (
 																this.state.idAreaConcentracao === curso.id_areaConcentracao ? (
-																	<option key={curso.id} value={curso.id}>{curso.nome}</option>
+																	<option value={curso.id}>{curso.nome}</option>
 																) : ("")
 
 															))
@@ -2467,7 +2465,7 @@ export default class Index extends Component {
 														<option value="0">Selecione</option>
 														{tiposDeBanca.length > 0 ?
 															tiposDeBanca.map(tipo => (
-																<option key={tipo.id} value={tipo.id}>{tipo.nome}</option>
+																<option value={tipo.id}>{tipo.nome}</option>
 															))
 															: (<option value="0">Nenhum resultado encontrado</option>)}
 													</select>
@@ -2704,7 +2702,7 @@ export default class Index extends Component {
 												<option value="0">Selecionar</option>
 												{listaDeStatus.length > 0 ? (
 													listaDeStatus.map(item =>
-														parseInt(item.id) > 2 ? (<option key={item.id} value={item.id}>{item.nome}</option>) : "")
+														parseInt(item.id) > 2 ? (<option value={item.id}>{item.nome}</option>) : "")
 												) : (
 													<option value="0">Nenhum resultado encontrado</option>
 												)}
@@ -2760,7 +2758,7 @@ export default class Index extends Component {
 												<option value="0">Selecionar</option>
 												{listaDeStatus.length > 0 ? (
 													listaDeStatus.map(item =>
-														parseInt(item.id) > 2 ? (<option key={item.id} value={item.id}>{item.nome}</option>) : "")
+														parseInt(item.id) > 2 ? (<option value={item.id}>{item.nome}</option>) : "")
 												) : (
 													<option value="0">Nenhum resultado encontrado</option>
 												)}
@@ -2844,7 +2842,7 @@ export default class Index extends Component {
 														{orientandos.length > 0 ?
 															orientandos.map(orientando =>
 																(this.state.id_orientando === orientando.id) ?
-																	(<option key={orientando.id} value={orientando.id}>{orientando.nome}</option>) : ("")
+																	(<option value={orientando.id}>{orientando.nome}</option>) : ("")
 															)
 															: (<option>0</option>)
 														}
@@ -2860,7 +2858,7 @@ export default class Index extends Component {
 														{this.state.array_cursos.length > 0 ?
 															this.state.array_cursos.map(curso =>
 																this.state.id_curso === curso.id ? (
-																	<option key={curso.id} value={curso.id}>{curso.nome}</option>
+																	<option value={curso.id}>{curso.nome}</option>
 																) : ("")
 															)
 															: (<option>0</option>)
@@ -2881,7 +2879,7 @@ export default class Index extends Component {
 														{areas_concentracao.length > 0 ?
 															areas_concentracao.map(area =>
 																this.state.idAreaConcentracao === area.id ?
-																	(<option key={area.id} value={area.id}>{area.nome}</option>) : ("")
+																	(<option value={area.id}>{area.nome}</option>) : ("")
 															)
 															: (<option>0</option>)
 														}
@@ -2897,7 +2895,7 @@ export default class Index extends Component {
 														{linhasDePesquisas.length > 0 ?
 															linhasDePesquisas.map(linha =>
 																this.state.idLinhaPesquisa === linha.id ?
-																	(<option key={linha.id} value={linha.id}>{linha.linha_pesquisa}</option>) : ("")
+																	(<option value={linha.id}>{linha.linha_pesquisa}</option>) : ("")
 															)
 															: (<option>0</option>)
 														}
@@ -3297,7 +3295,7 @@ export default class Index extends Component {
 														{orientandos.length > 0 ?
 															orientandos.map(orientando =>
 																(this.state.id_orientando === orientando.id) ?
-																	(<option key={orientando.id} value={orientando.id}>{orientando.nome}</option>) : ("")
+																	(<option value={orientando.id}>{orientando.nome}</option>) : ("")
 															)
 															: (<option>0</option>)
 														}
@@ -3314,7 +3312,7 @@ export default class Index extends Component {
 														{this.state.array_cursos.length > 0 ?
 															this.state.array_cursos.map(curso =>
 																this.state.id_curso === curso.id ? (
-																	<option key={curso.id} value={curso.id}>{curso.nome}</option>
+																	<option value={curso.id}>{curso.nome}</option>
 																) : ("")
 															)
 															: (<option>0</option>)
@@ -3339,7 +3337,7 @@ export default class Index extends Component {
 														{areas_concentracao.length > 0 ?
 															areas_concentracao.map(area =>
 																this.state.idAreaConcentracao === area.id ?
-																	(<option key={area.id} value={area.id}>{area.nome}</option>) : ("")
+																	(<option value={area.id}>{area.nome}</option>) : ("")
 															)
 															: (<option>0</option>)
 														}
@@ -3355,7 +3353,7 @@ export default class Index extends Component {
 														{linhasDePesquisas.length > 0 ?
 															linhasDePesquisas.map(linha =>
 																this.state.idLinhaPesquisa === linha.id ?
-																	(<option key={linha.id} value={linha.id}>{linha.linha_pesquisa}</option>) : ("")
+																	(<option value={linha.id}>{linha.linha_pesquisa}</option>) : ("")
 															)
 															: (<option>0</option>)
 														}
@@ -4110,7 +4108,7 @@ export default class Index extends Component {
 												<option value="0">Selecione</option>
 												{arrayMembrosDaDeclaracaoDeParticipacao.length > 0 ?
 													arrayMembrosDaDeclaracaoDeParticipacao.map(membro => (
-														<option key={membro.id} value={membro.id}>{membro.nome + ` - ` + membro.tipo}</option>
+														<option value={membro.id}>{membro.nome + ` - ` + membro.tipo}</option>
 													))
 													: (<option>0</option>)
 												}
@@ -4226,7 +4224,7 @@ export default class Index extends Component {
 													<option value="0">Selecione</option>
 													{orientandos.length > 0 ?
 														orientandos.map(orientando => (
-															<option key={orientando.id} value={orientando.id}>{orientando.nome}</option>
+															<option value={orientando.id}>{orientando.nome}</option>
 														))
 														: (<option>0</option>)
 													}
@@ -4763,7 +4761,7 @@ export default class Index extends Component {
 														<option value="0">Selecione</option>
 														{orientandos.length > 0 ?
 															orientandos.map(orientando => (
-																<option key={orientando.id} value={orientando.id}>{orientando.nome.toUpperCase()}</option>
+																<option value={orientando.id}>{orientando.nome.toUpperCase()}</option>
 															))
 															: (<option>0</option>)
 														}
@@ -4779,7 +4777,7 @@ export default class Index extends Component {
 														{tiposDeBanca.length > 0 ?
 															tiposDeBanca.map(tipo =>
 																parseInt(tipo.id) < 3 ? (
-																	<option key={tipo.id} value={tipo.id}>{tipo.nome}</option>
+																	<option value={tipo.id}>{tipo.nome}</option>
 																) : ""
 															)
 															: (<option value="0">Nenhum resultado encontrado</option>)}
@@ -4792,7 +4790,7 @@ export default class Index extends Component {
 														value={this.state.idAreaConcentracao}>
 														{areas_concentracao.length > 0 ?
 															areas_concentracao.map(area => (
-																area.id === this.state.idAreaConcentracao && (<option key={area.id} value={area.id}>{area.nome}</option>)
+																area.id === this.state.idAreaConcentracao && (<option value={area.id}>{area.nome}</option>)
 															))
 															: (<option>0</option>)
 														}
@@ -4806,7 +4804,7 @@ export default class Index extends Component {
 														<option value="0">Selecione</option>
 														{linhasDePesquisas.length > 0 ?
 															linhasDePesquisas.map(linha => (
-																<option key={linha.id} value={linha.id}>{linha.linha_pesquisa}</option>
+																<option value={linha.id}>{linha.linha_pesquisa}</option>
 															))
 															: (<option>0</option>)
 														}
@@ -4845,7 +4843,7 @@ export default class Index extends Component {
 													/>
 												</div>
 
-												<div className="form-group">
+												{/* <div className="form-group">
 													<label htmlFor="nome">Membro externo:*</label>
 													<select class="form-control form-control-sm" id="selectOrientador"
 														onChange={e => this.setState({ id_membroExterno: e.target.value })}>
@@ -4857,7 +4855,7 @@ export default class Index extends Component {
 															: (<option>0</option>)
 														}
 													</select>
-												</div>
+												</div> */}
 
 												<div class="form-group">
 													<label for="exampleFormControlTextarea1">Titulo:</label>
