@@ -1,0 +1,73 @@
+// src/pages/bancas/orientadores/perguntas.js
+export const getPerguntas = (state) => [
+    {
+        numeroPergunta: 1,
+        textoPergunta: 'O título do projeto reflete o estudo a ser realizado',
+        nomeEstadoResposta: 'titulo_projeto',
+        nomeEstadoResumo: 'resumoQ1',
+        valorSelecionado: state.titulo_projeto,
+        valorResumo: state.resumoQ1,
+    },
+    {
+        numeroPergunta: 2,
+        textoPergunta: 'A pergunta condutora está explicitada?',
+        nomeEstadoResposta: 'pergunta_condutora',
+        nomeEstadoResumo: 'resumoQ2',
+        valorSelecionado: state.pergunta_condutora,
+        valorResumo: state.resumoQ2,
+    },
+    // Adicione as demais perguntas seguindo o mesmo padrão
+    {
+        numeroPergunta: 3,
+        textoPergunta: 'A hipótese está redigida de forma clara e o estudo proposto permite testá-la?',
+        nomeEstadoResposta: 'hipotese',
+        nomeEstadoResumo: 'resumoQ3',
+        valorSelecionado: state.hipotese,
+        valorResumo: state.resumoQ3,
+    },
+    {
+        numeroPergunta: 4,
+        textoPergunta: 'A fundamentação teórica e empírica dá sustentação ao estudo?',
+        nomeEstadoResposta: 'fundamentacao_teorica',
+        nomeEstadoResumo: 'resumoQ4',
+        valorSelecionado: state.fundamentacao_teorica,
+        valorResumo: state.resumoQ4,
+    },
+    {
+        numeroPergunta: 5,
+        textoPergunta: 'Os objetivos estão redigidos de forma clara e poderão ser atingidos?',
+        nomeEstadoResposta: 'objetivo',
+        nomeEstadoResumo: 'resumoQ5',
+        valorSelecionado: state.objetivo,
+        valorResumo: state.resumoQ5,
+    },
+    {
+        numeroPergunta: 6,
+        textoPergunta: 'O método contempla os passos necessários para garantir a validação interna da pesquisa?',
+        nomeEstadoResposta: 'metodo',
+        nomeEstadoResumo: 'resumoQ6',
+        valorSelecionado: state.metodo,
+        valorResumo: state.resumoQ6,
+    },
+    {
+        numeroPergunta: 7,
+        textoPergunta: 'O cronograma proposto é compatível com a proposta?',
+        nomeEstadoResposta: 'cronograma',
+        nomeEstadoResumo: 'resumoQ7',
+        valorSelecionado: state.cronograma,
+        valorResumo: state.resumoQ7,
+    },
+    {
+        numeroPergunta: 8,
+        textoPergunta: 'Conclusão da avaliação',
+        nomeEstadoResposta: 'conclusao_avaliacao',
+        nomeEstadoResumo: 'resumoQ8',
+        valorSelecionado: state.conclusao_avaliacao,
+        valorResumo: state.resumoQ8,
+        opcoes: [
+            'APROVADO SEM MODIFICAÇÕES',
+            'APROVADO COM NECESSIDADE DE OBSERVAR AS ALTERAÇÕES SUGERIDAS E LIBERAÇÃO DO ORIENTADOR',
+            'ENCAMINHADO PARA NOVA QUALIFICAÇÃO DE PROJETO APÓS OBSERVADAS AS ALTERAÇÕES SUGERIDAS COM OS MESMOS COMPONENTES DA BANCA QUE FEZ A AVALIAÇÃO INICIAL',
+        ],
+    },
+]

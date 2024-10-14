@@ -14,7 +14,6 @@ import { Certificado } from '../../components/Certificado';
 import { listaDeOrientadores } from '../../services/getListaDeOrientadores';
 import { listaTipoDeDocumentos } from '../../services/getListaTipoDeDocumentos';
 import { listaDeStatus } from '../../services/getListaDeStatus';
-import { listaDeAreasConcentracao } from '../../services/getListaDeAreasConcentracao';
 import { listaDeLinhasDePesquisas } from '../../services/getListaDeLinhasDePesquisas';
 import { listaDeOrientandos } from '../../services/getListaDeOrientandos';
 import { print } from '../../services/print';
@@ -29,6 +28,7 @@ import MainContent from '../../components/MainContent';
 import FloatingMenu from '../../components/FloatingMenu';
 import AdminNavbar from '../../components/Navbar';
 import Select from 'react-select';
+import { listaDeAreasConcentracao } from '../bancas/apiServices';
 
 export default class Index extends Component {
 	constructor(props) {

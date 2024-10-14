@@ -16,27 +16,50 @@ import SignatureBlock from './SignatureBlock';
 import DocumentContainer from './DocumentContainer';
 
 import {
+	handlerMostrarModalCadastrarBanca,
+	handlerFecharModalCadastrarBanca,
+	handlerMostrarModalAtualizarBanca,
+	handlerFecharModalAtualizarBanca,
+	handlerMostrarModalExcluirBanca,
+	handlerFecharModalExcluirBanca,
+	handlerMostrarModalFinalizarBanca,
+	handlerFecharModalFinalizarBanca,
+	handleCadastrarOrientando,
+	handleAtualizarOrientando,
+	handleCadastrarBanca,
+	handleAtualizarBanca,
+	handleExcluirBanca,
+	handleOptionChange,
+	handleResumoChange,
+	getMemberRoleEnglish,
+	getMemberRolePortuguese,
+	getCourseTypeEnglish,
+	getCourseTypePortuguese,
+	getBancaTypeEnglish,
+	getBancaTypePortuguese,
+	getProgramNameEnglish,
+	getProgramNamePortuguese,
+	handlerFecharModalVisualizarDeclaracao,
+	carregarMembrosDaDeclaracaoDeParticipacao, // Adicionado
+} from './funcoesBanca';
+
+import {
 	FaUserGraduate,
 	FaLayerGroup,
 	FaCalendarWeek,
 	FaRegEdit,
-	FaRegPlusSquare,
 	FaRegSave,
 	FaWpforms,
 	FaPlus,
 } from 'react-icons/fa';
 
-import { listaDeAreasConcentracao } from '../../../services/getListaDeAreasConcentracao';
 import { listaDeLinhasDePesquisas } from '../../../services/getListaDeLinhasDePesquisas';
-import { listaDeOrientadores } from '../../../services/getListaDeOrientadores';
-import { listaDeMembrosExternos } from '../../../services/getListaDeMembrosExternos';
 import { print } from '../../../services/print';
 import { AtaDefesa } from '../../../components/AtaDefesa';
 import { FolhaDeAprovacao } from '../../../components/FolhaDeAprovacao';
 import Menu from '../../../components/Menu';
 import backgroundImage from '../../../assets/sistema_chamados.png';
 import MainContent from '../../../components/MainContent';
-import FloatingMenu from '../../../components/FloatingMenu';
 import UserContext from '../../../UserContext';
 import Select from 'react-select';
 import RODAPE1 from '../../../assets/rodape1.png';
@@ -69,7 +92,8 @@ import {
 	buscaInformacoesDoOrientador,
 	cadastrarEatualizarFolhaDeAprovacao,
 	cadastrarEatualizarDeclaracaoDeOrientacao,
-} from './apiServices';
+} from '../apiServices';
+
 import AdminNavbar from '../../../components/Navbar';
 import PerguntaAvaliacao from './PerguntaAvaliacao';
 import MemberList from './MemberList';
@@ -78,7 +102,7 @@ import FichaDeAvaliacao from './FichaAvaliacao';
 import SuccessErrorMessage from './SuccessErrorMessage';
 import FormMultiSelect from './FormMultiSelect';
 import MemberSignatures from './MemberSignatures';
-import ConfirmButton from './ConfirmButton';
+import ConfirmButton from './ConfirmeButton';
 import FormField from './FormField';
 import FormModal from './FormModal';
 import ConfirmationModal from './ConfirmationModal';
@@ -87,6 +111,7 @@ import OrientandosTab from './OrientandosTab';
 import StatisticsPanel from './StatisticsPanel';
 import BancasTab from './BancasTab';
 import { MenuFlutuante } from './MenuFlutuante';
+import { getPerguntas } from './perguntas';
 
 export default class Index extends Component {
 	static contextType = UserContext;
@@ -231,7 +256,111 @@ export default class Index extends Component {
 
 	}
 
+	// Métodos que chamam as funções importadas
+
+	handlerFecharModalCadastrarBanca = () => {
+		handlerFecharModalCadastrarBanca(this);
+	};
+
+	// Modais de Atualizar Banca
+	handlerMostrarModalAtualizarBanca = (banca) => {
+		handlerMostrarModalAtualizarBanca(this, banca);
+	};
+
+	handlerFecharModalAtualizarBanca = () => {
+		handlerFecharModalAtualizarBanca(this);
+	};
+
+	// Modais de Excluir Banca
+	handlerMostrarModalExcluirBanca = (banca) => {
+		handlerMostrarModalExcluirBanca(this, banca);
+	};
+
+	handlerFecharModalExcluirBanca = () => {
+		handlerFecharModalExcluirBanca(this);
+	};
+
+	// Modais de Finalizar Banca
+	handlerMostrarModalFinalizarBanca = (banca) => {
+		handlerMostrarModalFinalizarBanca(this, banca);
+	};
+
+	handlerFecharModalFinalizarBanca = () => {
+		handlerFecharModalFinalizarBanca(this);
+	};
+
+	// Manipulação de Formulários
+	handleCadastrarOrientando = (e) => {
+		handleCadastrarOrientando(this, e);
+	};
+
+	handleAtualizarOrientando = (e) => {
+		handleAtualizarOrientando(this, e);
+	};
+
+	handleCadastrarBanca = (e) => {
+		handleCadastrarBanca(this, e);
+	};
+
+	handleAtualizarBanca = (e) => {
+		handleAtualizarBanca(this, e);
+	};
+
+	handleExcluirBanca = (e) => {
+		handleExcluirBanca(this, e);
+	};
+
+	// Manipulação de Opções e Resumos
+	handleOptionChange = (nomeEstadoResposta, valor) => {
+		handleOptionChange(this, nomeEstadoResposta, valor);
+	};
+
+	handleResumoChange = (nomeEstadoResumo, valor) => {
+		handleResumoChange(this, nomeEstadoResumo, valor);
+	};
+
+	// Funções Utilitárias
+	obterPapelMembroEmInglês = (membroNome) => {
+		return getMemberRoleEnglish(this, membroNome);
+	};
+
+	obterPapelMembroEmPortuguês = (membroNome) => {
+		return getMemberRolePortuguese(this, membroNome);
+	};
+
+	obterTipoCursoEmInglês = () => {
+		return getCourseTypeEnglish(this);
+	};
+
+	obterTipoCursoEmPortuguês = () => {
+		return getCourseTypePortuguese(this);
+	};
+
+	obterTipoBancaEmInglês = () => {
+		return getBancaTypeEnglish(this);
+	};
+
+	obterTipoBancaEmPortuguês = () => {
+		return getBancaTypePortuguese(this);
+	};
+
+	obterNomeProgramaEmInglês = () => {
+		return getProgramNameEnglish(this);
+	};
+
+	obterNomeProgramaEmPortuguês = () => {
+		return getProgramNamePortuguese(this);
+	};
+
+	// Fechar Modal de Visualizar Declaração
+	handlerFecharModalVisualizarDeclaracao = () => {
+		handlerFecharModalVisualizarDeclaracao(this);
+	};
 	componentDidMount() {
+		// Carregar membros da declaração de participação
+		carregarMembrosDaDeclaracaoDeParticipacao(this);
+
+		// Carregar outras informações necessárias
 		this.loadInformacoesDoOrientador();
 		this.loadOrientandos();
 		this.loadBancas(1);
@@ -265,6 +394,13 @@ export default class Index extends Component {
 		}
 	};
 
+	// Função para obter o tipo de membro em português
+	getMemberRolePortuguese = (membroNome) => {
+		const membro = this.state.arrayMembrosDaDeclaracaoDeParticipacao.find(
+			(membro) => membro.nome === membroNome
+		);
+		return membro ? membro.tipo : '';
+	};x
 	loadTiposDeBanca = async () => {
 		const tiposBancaData = await listaDeTiposDeBanca(getToken());
 		this.setState({ array_tiposBanca: tiposBancaData });
@@ -275,593 +411,33 @@ export default class Index extends Component {
 		this.setState({ array_cursos: cursosData });
 	};
 
-	// Funções para manipular modais e eventos
-
-	// Modal Cadastrar Banca
-	setModalShowCadastrarBanca = (valor) => {
-		this.setState({ modalShowCadastrarBanca: valor });
+	// Defina as funções como métodos da classe, chamando as funções importadas
+	handlerMostrarModalCadastrarBanca = () => {
+		handlerMostrarModalCadastrarBanca(this);
 	};
 
-	handlerShowModalCadastrarBanca = async () => {
-		this.setModalShowCadastrarBanca(true);
-		await this.loadTiposDeBanca();
-		const areasConcentracaoData = await listaDeAreasConcentracao();
-		this.setState({ arrayAreaConcentracao: areasConcentracaoData });
-
-		const linhasDePesquisasData = await listaDeLinhasDePesquisas(this.state.idAreaConcentracao);
-		this.setState({ arrayLinhasDePesquisas: linhasDePesquisasData });
-
-		const orientadoresData = await listaDeOrientadores(0);
-		let arrayMembrosInternos = [];
-		if (orientadoresData.length > 0) {
-			orientadoresData.forEach((item) => {
-				if (item.id_usuario !== this.context.user.id) {
-					arrayMembrosInternos.push({ value: item.id_usuario, label: item.nome });
-				}
-			});
-			this.setState({ arrayMembrosInternos });
-		}
-
-		const membrosExternosData = await listaDeMembrosExternos();
-		let arrayMembrosExternos = [];
-		if (membrosExternosData.length > 0) {
-			membrosExternosData.forEach((item) => {
-				arrayMembrosExternos.push({ value: item.id_usuario, label: item.nome });
-			});
-			this.setState({ arrayMembrosExternos });
-		}
+	handlerFecharModalCadastrarBanca = () => {
+		handlerFecharModalCadastrarBanca(this);
 	};
 
-	handlerCloseModalCadastrarBanca = () => {
-		this.setModalShowCadastrarBanca(false);
-		this.setState({
-			success: '',
-			error: '',
-			id_orientando: '',
-			id_tipoBanca: '',
-			data_horaPrevista: '',
-			arraySelectedMembrosInternos: [],
-			arraySelectedMembrosExternos: [],
-			titulo: '',
-			title: '',
-			resumo: '',
-			palavra_chave: '',
-		});
+	handlerMostrarModalAtualizarBanca = (banca) => {
+		handlerMostrarModalAtualizarBanca(this, banca);
 	};
 
-	// Modal Atualizar Banca
-	setModalShowAtualizarBanca = (valor) => {
-		this.setState({ modalShowAtualizarBanca: valor });
-	};
-
-	handlerShowModalAtualizarBanca = async (banca) => {
-		this.setModalShowAtualizarBanca(true);
-		this.setState({
-			id_banca: banca.id,
-			id_orientador: banca.id_orientador,
-			id_orientando: banca.id_orientando,
-			id_tipoBanca: banca.id_tipoBanca,
-			idAreaConcentracao: banca.id_areaConcentracao,
-			idLinhaPesquisa: banca.id_linhaPesquisa,
-			data_horaPrevista: banca.dataHoraPrevista,
-			titulo: banca.titulo,
-			title: banca.title,
-			resumo: banca.resumo,
-			palavra_chave: banca.palavra_chave,
-		});
-
-		// Carregar membros da banca
-		const membrosDaBancaData = await listaDeMembrosDaBanca(banca.id);
-		let arraySelectedMembrosInternos = [];
-		let arraySelectedMembrosExternos = [];
-
-		membrosDaBancaData.forEach((membro) => {
-			if (membro.id_tipo === 2) {
-				arraySelectedMembrosInternos.push({ value: membro.id, label: membro.nome });
-			}
-			if (membro.id_tipo === 3) {
-				arraySelectedMembrosExternos.push({ value: membro.id, label: membro.nome });
-			}
-		});
-
-		this.setState({ arraySelectedMembrosInternos, arraySelectedMembrosExternos });
-
-		await this.loadTiposDeBanca();
-		const areasConcentracaoData = await listaDeAreasConcentracao();
-		this.setState({ arrayAreaConcentracao: areasConcentracaoData });
-
-		const linhasDePesquisasData = await listaDeLinhasDePesquisas(this.state.idAreaConcentracao);
-		this.setState({ arrayLinhasDePesquisas: linhasDePesquisasData });
-
-		const orientadoresData = await listaDeOrientadores(0);
-		let arrayMembrosInternos = [];
-		if (orientadoresData.length > 0) {
-			orientadoresData.forEach((item) => {
-				if (item.id_usuario !== this.context.user.id) {
-					arrayMembrosInternos.push({ value: item.id_usuario, label: item.nome });
-				}
-			});
-			this.setState({ arrayMembrosInternos });
-		}
-
-		const membrosExternosData = await listaDeMembrosExternos();
-		let arrayMembrosExternos = [];
-		if (membrosExternosData.length > 0) {
-			membrosExternosData.forEach((item) => {
-				arrayMembrosExternos.push({ value: item.id_usuario, label: item.nome });
-			});
-			this.setState({ arrayMembrosExternos });
-		}
-	};
-
-	handlerCloseModalAtualizarBanca = () => {
-		this.setModalShowAtualizarBanca(false);
-		this.setState({
-			success: '',
-			error: '',
-			id_orientando: '',
-			id_tipoBanca: '',
-			data_horaPrevista: '',
-			arraySelectedMembrosInternos: [],
-			arraySelectedMembrosExternos: [],
-			titulo: '',
-			title: '',
-			resumo: '',
-			palavra_chave: '',
-		});
-	};
-
-	// Modal Excluir Banca
-	setModalShowExcluirBanca = (valor) => {
-		this.setState({ modalShowExcluirBanca: valor });
-	};
-
-	handlerShowModalExcluirBanca = (banca) => {
-		this.setState({
-			id_banca: banca.id,
-			tipo_banca: banca.tipo_banca,
-			nome: banca.orientando,
-			id_tipoBanca: banca.id_tipoBanca,
-			id_orientando: banca.id_orientando,
-		});
-		this.setModalShowExcluirBanca(true);
-	};
-
-	handlerCloseModalExcluirBanca = () => {
-		this.setModalShowExcluirBanca(false);
-		this.setState({
-			success: '',
-			error: '',
-			id_banca: '',
-			tipo_banca: '',
-			nome: '',
-		});
-	};
-
-	// Modal Finalizar Banca
-	setModalShowFinalizarBanca = (valor) => {
-		this.setState({ modalShowFinalizarBanca: valor });
-	};
-
-	handlerShowModalFinalizarBanca = (banca) => {
-		this.setState({
-			id_banca: banca.id,
-			tipo_banca: banca.tipo_banca,
-			nome: banca.orientando,
-			id_tipoBanca: banca.id_tipoBanca,
-			id_orientando: banca.id_orientando,
-		});
-		this.setModalShowFinalizarBanca(true);
-	};
-
-	handlerCloseModalFinalizarBanca = () => {
-		this.setModalShowFinalizarBanca(false);
-		this.setState({
-			success: '',
-			error: '',
-			id_banca: '',
-			tipo_banca: '',
-			nome: '',
-		});
-	};
-
-	// Funções de manipulação de formulários
-
-	// Cadastrar Orientando
-	handleCadastrarOrientando = async (e) => {
-		e.preventDefault();
-
-		const {
-			nome,
-			email,
-			senha,
-			confirmarSenha,
-			id_curso,
-			informacoes_adicionais,
-			fase_processo,
-			dataHoraInicialFaseProcesso,
-			dataHoraFinalFaseProcesso,
-			dataHoraConclusao,
-		} = this.state;
-
-		if (
-			!nome ||
-			!email ||
-			!senha ||
-			!confirmarSenha ||
-			!id_curso ||
-			!informacoes_adicionais ||
-			!fase_processo ||
-			!dataHoraInicialFaseProcesso ||
-			!dataHoraFinalFaseProcesso ||
-			!dataHoraConclusao
-		) {
-			this.setState({ error: 'Por favor, preencher todos os campos!' });
-			return;
-		}
-
-		if (senha !== confirmarSenha) {
-			this.setState({ error: 'Por favor, informe senhas iguais!' });
-			return;
-		}
-
-		const orientandoData = {
-			nome,
-			email,
-			senha,
-			id_curso: parseInt(id_curso),
-			informacoes_adicionais,
-			fase_processo,
-			dataHoraInicialFaseProcesso,
-			dataHoraFinalFaseProcesso,
-			dataHoraConclusao,
-		};
-
-		const result = await cadastrarOrientando(orientandoData);
-
-		if (result.status === 200) {
-			this.setState({ success: result.msg });
-			this.loadOrientandos();
-			this.handlerCloseModalCadastrarOrientando();
-		} else {
-			this.setState({ error: result.msg || 'Erro ao cadastrar orientando' });
-		}
-	};
-
-	// Atualizar Orientando
-	handleAtualizarOrientando = async (e) => {
-		e.preventDefault();
-
-		const {
-			id_usuario,
-			id_orientando,
-			nome,
-			email,
-			senha,
-			confirmarSenha,
-			id_curso,
-			informacoes_adicionais,
-			fase_processo,
-			dataHoraInicialFaseProcesso,
-			dataHoraFinalFaseProcesso,
-			dataHoraConclusao,
-		} = this.state;
-
-		if (!nome || !email || !senha || !confirmarSenha || !id_curso) {
-			this.setState({ error: 'Por favor, preencher todos os campos!' });
-			return;
-		}
-
-		if (senha !== confirmarSenha) {
-			this.setState({ error: 'Por favor, informe senhas iguais!' });
-			return;
-		}
-
-		const orientandoData = {
-			id_usuario,
-			nome,
-			email,
-			senha,
-			id_curso: parseInt(id_curso),
-			informacoes_adicionais,
-			fase_processo,
-			dataHoraInicialFaseProcesso,
-			dataHoraFinalFaseProcesso,
-			dataHoraConclusao,
-		};
-
-		const result = await atualizarOrientando(id_orientando, orientandoData);
-
-		if (result.status === 200) {
-			this.setState({ success: result.msg });
-			this.loadOrientandos();
-			this.handlerCloseModalEditarOrientando();
-		} else {
-			this.setState({ error: result.msg || 'Erro ao atualizar orientando' });
-		}
-	};
-
-	// Cadastrar Banca
-	handleCadastrarBanca = async (e) => {
-		e.preventDefault();
-
-		const {
-			id_orientando,
-			id_tipoBanca,
-			data_horaPrevista,
-			idLinhaPesquisa,
-			arraySelectedMembrosInternos,
-			arraySelectedMembrosExternos,
-			titulo,
-			title,
-			resumo,
-			palavra_chave,
-		} = this.state;
-
-		if (
-			!id_orientando ||
-			!id_tipoBanca ||
-			!idLinhaPesquisa ||
-			!data_horaPrevista ||
-			arraySelectedMembrosInternos.length === 0 ||
-			arraySelectedMembrosExternos.length === 0
-		) {
-			this.setState({ error: 'Por favor, preencher todos os campos!' });
-			return;
-		}
-
-		const bancaData = {
-			id_orientando,
-			id_tipoBanca,
-			id_linhaPesquisa: idLinhaPesquisa,
-			arraySelectedMembrosInternos,
-			arraySelectedMembrosExternos,
-			data_horaPrevista,
-			titulo,
-			title,
-			resumo,
-			palavra_chave,
-		};
-
-		const result = await cadastrarBanca(bancaData);
-
-		if (result.status === 200) {
-			this.setState({ success: result.msg });
-			this.loadBancas(1);
-			this.loadBancas(2);
-			this.handlerCloseModalCadastrarBanca();
-		} else {
-			this.setState({ error: result.msg || 'Erro ao cadastrar banca' });
-		}
-	};
-
-	// Atualizar Banca
-	handleAtualizarBanca = async (e) => {
-		e.preventDefault();
-
-		const {
-			id_banca,
-			id_orientador,
-			id_orientando,
-			id_tipoBanca,
-			data_horaPrevista,
-			idLinhaPesquisa,
-			arraySelectedMembrosInternos,
-			arraySelectedMembrosExternos,
-			titulo,
-			title,
-			resumo,
-			palavra_chave,
-		} = this.state;
-
-		if (
-			!id_orientando ||
-			!id_tipoBanca ||
-			!idLinhaPesquisa ||
-			!data_horaPrevista ||
-			arraySelectedMembrosInternos.length === 0 ||
-			arraySelectedMembrosExternos.length === 0
-		) {
-			this.setState({ error: 'Por favor, preencher todos os campos!' });
-			return;
-		}
-
-		const bancaData = {
-			id_orientador,
-			id_orientando,
-			id_tipoBanca,
-			idLinhaPesquisa,
-			arraySelectedMembrosInternos,
-			arraySelectedMembrosExternos,
-			data_horaPrevista,
-			titulo,
-			title,
-			resumo,
-			palavra_chave,
-		};
-
-		const result = await atualizarBanca(id_banca, bancaData);
-
-		if (result.status === 200) {
-			this.setState({ success: result.msg });
-			this.loadBancas(1);
-			this.loadBancas(2);
-			this.handlerCloseModalAtualizarBanca();
-		} else {
-			this.setState({ error: result.msg || 'Erro ao atualizar banca' });
-		}
-	};
-
-	// Excluir Banca
-	handleExcluirBanca = async (e) => {
-		e.preventDefault();
-		const { id_banca, id_tipoBanca, id_orientando } = this.state;
-
-		const result = await excluirBanca(id_banca, id_tipoBanca, id_orientando);
-
-		if (result.status === 200) {
-			this.setState({ success: result.msg });
-			this.loadBancas(1);
-			this.loadBancas(2);
-			this.handlerCloseModalExcluirBanca();
-		} else {
-			this.setState({ error: result.msg || 'Erro ao excluir banca' });
-		}
+	handlerFecharModalAtualizarBanca = () => {
+		handlerFecharModalAtualizarBanca(this);
 	};
 
 	handleOptionChange = (nomeEstadoResposta, valor) => {
-		this.setState({ [nomeEstadoResposta]: valor });
+		handleOptionChange(this, nomeEstadoResposta, valor);
 	};
 
 	handleResumoChange = (nomeEstadoResumo, valor) => {
-		this.setState({ [nomeEstadoResumo]: valor });
-	};
-
-	// Função para obter o tipo de membro em inglês
-	getMemberRoleEnglish = (membroNome) => {
-		const membro = this.state.arrayMembrosDaDeclaracaoDeParticipacao.find(
-			(membro) => membro.nome.slice(0, membro.nome.indexOf(' -')) === membroNome
-		);
-		if (membro) {
-			const tipo = membro.nome.slice(membro.nome.indexOf('-') + 1).trim();
-			if (tipo === 'presidente') return 'President';
-			if (tipo === 'membro externo') return 'External Member';
-			if (tipo === 'membro interno') return 'Internal Member';
-		}
-		return '';
-	};
-
-	// Função para obter o tipo de membro em português
-	getMemberRolePortuguese = (membroNome) => {
-		const membro = this.state.arrayMembrosDaDeclaracaoDeParticipacao.find(
-			(membro) => membro.nome === membroNome
-		);
-		return membro ? membro.tipo : '';
-	};
-
-	// Função para obter o tipo de curso em inglês
-	getCourseTypeEnglish = () => {
-		const { id_curso } = this.state;
-		if (id_curso === 1 || id_curso === 3) return 'DISSERTATION';
-		if (id_curso === 2 || id_curso === 4) return 'THESIS';
-		return '';
-	};
-
-	// Função para obter o tipo de curso em português
-	getCourseTypePortuguese = () => {
-		const { id_curso } = this.state;
-		if (id_curso === 1 || id_curso === 3) return ' DA DISSERTAÇÃO';
-		if (id_curso === 2 || id_curso === 4) return ' DE TESE';
-		return '';
-	};
-
-	// Função para obter o tipo de banca em inglês
-	getBancaTypeEnglish = () => {
-		return this.state.id_tipoBanca === 1 ? 'QUALIFICATION' : 'DEFENSE';
-	};
-
-	// Função para obter o tipo de banca em português
-	getBancaTypePortuguese = () => {
-		return this.state.id_tipoBanca === 1 ? 'QUALIFICAÇÃO' : 'DEFESA';
-	};
-
-	// Função para obter o nome do programa em inglês
-	getProgramNameEnglish = () => {
-		const { id_curso } = this.state;
-		if (id_curso === 1) return "Master's Program in EDUCATION SCIENCES";
-		if (id_curso === 2) return 'Doctoral Program in EDUCATIONAL SCIENCES';
-		if (id_curso === 3) return "Master's Program in THEOLOGY";
-		if (id_curso === 4) return 'Doctoral Program in THEOLOGY';
-		return '';
-	};
-
-	// Função para obter o nome do programa em português
-	getProgramNamePortuguese = () => {
-		const { id_curso } = this.state;
-		if (id_curso === 1 || id_curso === 2) return 'Programa de Pós-Graduação em Ciências da Educação';
-		if (id_curso === 3 || id_curso === 4) return 'Programa de Pós-Graduação em Teologia';
-		return '';
-	};
-
-	handlerCloseModalVisualizarDeclaracao = () => {
-		this.setState({ modalShowVisualizarDeclaracao: false });
+		handleResumoChange(this, nomeEstadoResumo, valor);
 	};
 
 	// Renderização
 	render() {
-		// const perguntas = [
-		const perguntas = [
-			{
-				numeroPergunta: 1,
-				textoPergunta: 'O título do projeto reflete o estudo a ser realizado',
-				nomeEstadoResposta: 'titulo_projeto',
-				nomeEstadoResumo: 'resumoQ1',
-				valorSelecionado: this.state.titulo_projeto,
-				valorResumo: this.state.resumoQ1,
-			},
-			{
-				numeroPergunta: 2,
-				textoPergunta: 'A pergunta condutora está explicitada?',
-				nomeEstadoResposta: 'pergunta_condutora',
-				nomeEstadoResumo: 'resumoQ2',
-				valorSelecionado: this.state.pergunta_condutora,
-				valorResumo: this.state.resumoQ2,
-			},
-			// Adicione as demais perguntas seguindo o mesmo padrão
-			{
-				numeroPergunta: 3,
-				textoPergunta: 'A hipótese está redigida de forma clara e o estudo proposto permite testá-la?',
-				nomeEstadoResposta: 'hipotese',
-				nomeEstadoResumo: 'resumoQ3',
-				valorSelecionado: this.state.hipotese,
-				valorResumo: this.state.resumoQ3,
-			},
-			{
-				numeroPergunta: 4,
-				textoPergunta: 'A fundamentação teórica e empírica dá sustentação ao estudo?',
-				nomeEstadoResposta: 'fundamentacao_teorica',
-				nomeEstadoResumo: 'resumoQ4',
-				valorSelecionado: this.state.fundamentacao_teorica,
-				valorResumo: this.state.resumoQ4,
-			},
-			{
-				numeroPergunta: 5,
-				textoPergunta: 'Os objetivos estão redigidos de forma clara e poderão ser atingidos?',
-				nomeEstadoResposta: 'objetivo',
-				nomeEstadoResumo: 'resumoQ5',
-				valorSelecionado: this.state.objetivo,
-				valorResumo: this.state.resumoQ5,
-			},
-			{
-				numeroPergunta: 6,
-				textoPergunta: 'O método contempla os passos necessários para garantir a validação interna da pesquisa?',
-				nomeEstadoResposta: 'metodo',
-				nomeEstadoResumo: 'resumoQ6',
-				valorSelecionado: this.state.metodo,
-				valorResumo: this.state.resumoQ6,
-			},
-			{
-				numeroPergunta: 7,
-				textoPergunta: 'O cronograma proposto é compatível com a proposta?',
-				nomeEstadoResposta: 'cronograma',
-				nomeEstadoResumo: 'resumoQ7',
-				valorSelecionado: this.state.cronograma,
-				valorResumo: this.state.resumoQ7,
-			},
-			{
-				numeroPergunta: 8,
-				textoPergunta: 'Conclusão da avaliação',
-				nomeEstadoResposta: 'conclusao_avaliacao',
-				nomeEstadoResumo: 'resumoQ8',
-				valorSelecionado: this.state.conclusao_avaliacao,
-				valorResumo: this.state.resumoQ8,
-				opcoes: [
-					'APROVADO SEM MODIFICAÇÕES',
-					'APROVADO COM NECESSIDADE DE OBSERVAR AS ALTERAÇÕES SUGERIDAS E LIBERAÇÃO DO ORIENTADOR',
-					'ENCAMINHADO PARA NOVA QUALIFICAÇÃO DE PROJETO APÓS OBSERVADAS AS ALTERAÇÕES SUGERIDAS COM OS MESMOS COMPONENTES DA BANCA QUE FEZ A AVALIAÇÃO INICIAL',
-				],
-			},
-		];
 
 		const {
 			array_orientandos,
@@ -1779,7 +1355,7 @@ export default class Index extends Component {
 								/>
 
 								{/* Renderização das perguntas utilizando o componente PerguntaAvaliacao */}
-								{perguntas.map((pergunta) => (
+								{getPerguntas(this.state).map((pergunta) => (
 									<PerguntaAvaliacao
 										key={pergunta.numeroPergunta}
 										numeroPergunta={pergunta.numeroPergunta}
@@ -1866,8 +1442,8 @@ export default class Index extends Component {
 									</div>
 								</div>
 
-								{/* Renderização das perguntas utilizando o componente PerguntaAvaliacao */}
-								{perguntas.map((pergunta) => (
+								{/* Renderização das getPerguntas utilizando o componente PerguntaAvaliacao */}
+								{getPerguntas(this).map((pergunta) => (
 									<PerguntaAvaliacao
 										key={pergunta.numeroPergunta}
 										numeroPergunta={pergunta.numeroPergunta}
@@ -1968,21 +1544,22 @@ export default class Index extends Component {
 														the following members:
 													</p>
 												) : (
-													<p className="text-justify p-4">
-														&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Atestamos que{' '}
-														{this.state.sexo === 'M' ? 'o ' : 'a '}
-														{this.state.sexo === 'M' ? 'Prof. Dr. ' : 'Prof(a). Dr(a). '}
-														<b>{this.state.membro.toUpperCase()}</b>, participou em{' '}
-														{this.state.data_horaPrevistaPtBr}, como{' '}
-														{this.getMemberRolePortuguese(this.state.membro)} da Comissão Examinadora da{' '}
-														{this.getBancaTypePortuguese()}
-														{this.getCourseTypePortuguese()} de{' '}
-														<b>{this.state.orientando.toUpperCase()}</b>, discente regular do{' '}
-														{this.getProgramNamePortuguese()}, Curso de{' '}
-														{this.state.curso ? this.state.curso.split(' ', 1)[0] : ''}, cujo trabalho se
-														intitula <b>{this.state.titulo_banca.toUpperCase()}</b>. A Comissão Examinadora foi
-														constituída pelos seguintes membros:
-													</p>
+													<>nada</>
+													// <p className="text-justify p-4">
+													// 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Atestamos que{' '}
+													// 	{this.state.sexo === 'M' ? 'o ' : 'a '}
+													// 	{this.state.sexo === 'M' ? 'Prof. Dr. ' : 'Prof(a). Dr(a). '}
+													// 	{/* <b>{this.state.membro.toUpperCase()}</b>, participou em{' '} */}
+													// 	{this.state.data_horaPrevistaPtBr}, como{' '}
+													// 	{this.getMemberRolePortuguese(this.state.membro)} da Comissão Examinadora da{' '}
+													// 	{this.getBancaTypePortuguese}
+													// 	{this.getCourseTypePortuguese()} de{' '}
+													// 	<b>{this.state.orientando.toUpperCase()}</b>, discente regular do{' '}
+													// 	{this.getProgramNamePortuguese()}, Curso de{' '}
+													// 	{this.state.curso ? this.state.curso.split(' ', 1)[0] : ''}, cujo trabalho se
+													// 	intitula <b>{this.state.titulo_banca.toUpperCase()}</b>. A Comissão Examinadora foi
+													// 	constituída pelos seguintes membros:
+													// </p>
 												)}
 
 												{/* Lista de Membros */}
@@ -2068,14 +1645,15 @@ export default class Index extends Component {
 														{this.getProgramNameEnglish()}, titled <b>{this.state.title.toUpperCase()}</b>.
 													</p>
 												) : (
-													<p style={{ fontSize: '12pt', textAlign: 'justify' }} className="p-3">
-														&nbsp;&nbsp;&nbsp;&nbsp;Declaramos que {this.state.sexo === 'M' ? 'o ' : 'a '}
-														{this.state.sexo === 'M' ? 'Prof. Dr. ' : 'Prof(a). Dr(a). '}
-														<b>{this.state.orientador}</b>, do(a) {this.getProgramNamePortuguese()}, realizou a orientação da{' '}
-														{this.getCourseTypePortuguese()} de {this.state.orientando.toUpperCase()}, discente regular do{' '}
-														{this.getProgramNamePortuguese()}, no curso de {this.state.curso.split(' ', 1)[0]}, cujo trabalho se
-														intitula: <b>{this.state.titulo}</b>.
-													</p>
+													<>nada</>
+													// <p style={{ fontSize: '12pt', textAlign: 'justify' }} className="p-3">
+													// 	&nbsp;&nbsp;&nbsp;&nbsp;Declaramos que {this.state.sexo === 'M' ? 'o ' : 'a '}
+													// 	{this.state.sexo === 'M' ? 'Prof. Dr. ' : 'Prof(a). Dr(a). '}
+													// 	<b>{this.state.orientador}</b>, do(a) {this.getProgramNamePortuguese()}, realizou a orientação da{' '}
+													// 	{this.getCourseTypePortuguese()} de {this.state.orientando.toUpperCase()}, discente regular do{' '}
+													// 	{this.getProgramNamePortuguese()}, no curso de {this.state.curso.split(' ', 1)[0]}, cujo trabalho se
+													// 	intitula: <b>{this.state.titulo}</b>.
+													// </p>
 												)}
 
 												<p className="text-right p-3">
@@ -2141,7 +1719,10 @@ export default class Index extends Component {
 											</p>
 
 											{/* Utilizando o componente MemberSignatures */}
-											<MemberSignatures membros={this.state.arrayMembrosDaDeclaracaoDeParticipacao} />
+											<MemberSignatures
+												membros={
+													arrayMembrosDaDeclaracaoDeParticipacao
+												} />
 
 											<DocumentFooter />
 										</DocumentContainer>
@@ -2195,7 +1776,9 @@ export default class Index extends Component {
 											nome={this.state.nome}
 											id_curso={this.state.idAreaConcentracao}
 											titulo={this.state.titulo}
-											arrayMembrosDaDeclaracaoDeParticipacao={this.state.arrayMembrosDaDeclaracaoDeParticipacao}
+											arrayMembrosDaDeclaracaoDeParticipacao={
+												this.state.arrayMembrosDaDeclaracaoDeParticipacao
+											}
 											dtFolhaAprovacaoFormatada={this.state.dtFolhaAprovacaoFormatada}
 										/>
 									</div>

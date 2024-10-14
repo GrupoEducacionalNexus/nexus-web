@@ -8,7 +8,6 @@ import Accordion from 'react-bootstrap/Accordion';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { Card, Col, Container, Row } from 'react-bootstrap';
-import { listaDeAreasConcentracao } from '../../../services/getListaDeAreasConcentracao';
 import { listaDeLinhasDePesquisas } from '../../../services/getListaDeLinhasDePesquisas';
 import { listaDeOrientadores } from '../../../services/getListaDeOrientadores';
 import { listaDeVinculoInstitucional } from '../../../services/getListaDeVinculoInstitucional';
@@ -22,6 +21,7 @@ import backgroundImage from '../../../assets/sistema_chamados.png';
 import UserContext from '../../../UserContext';
 import AccordionOrientadores from '../../../components/AccordionOrientadores';
 import { listaDeTiposDeBanca } from '../../../services/getListaDeTiposDeBanca';
+import { listaDeAreasConcentracao } from '../apiServices';
 
 export default class Index extends Component {
 	static contextType = UserContext;
