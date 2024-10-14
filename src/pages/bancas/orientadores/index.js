@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { getToken } from '../../../services/auth';
 import Logo_ATA from '../../../assets/logo_ata.jpg';
-import { Button, Card, Col, Container, Row } from 'react-bootstrap';
+import { Button, Col, Container, Row } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import Modal from 'react-bootstrap/Modal';
@@ -22,12 +22,7 @@ import {
 	FaRegEdit,
 	FaRegPlusSquare,
 	FaRegSave,
-	FaPencilAlt,
-	FaShieldAlt,
-	FaFileAlt,
-	FaPaste,
 	FaWpforms,
-	FaClipboardList,
 	FaPlus,
 } from 'react-icons/fa';
 
@@ -50,9 +45,6 @@ import RODAPE3 from '../../../assets/rodape3.png';
 import RODAPE4 from '../../../assets/rodape4.png';
 import BACKGROUND_ENBER from '../../../assets/background_enber.png';
 import ASSINATURA_JOSUE from '../../../assets/assinatura_josue.png';
-import BancaList from './BancaList';
-import OrientandosTable from './OrientandosTable';
-import FilterForm from './FilterForm';
 
 import {
 	listaDeCursos,
@@ -81,6 +73,20 @@ import {
 import AdminNavbar from '../../../components/Navbar';
 import PerguntaAvaliacao from './PerguntaAvaliacao';
 import MemberList from './MemberList';
+import CustomModal from './CustomModal';
+import FichaDeAvaliacao from './FichaAvaliacao';
+import SuccessErrorMessage from './SuccessErrorMessage';
+import FormMultiSelect from './FormMultiSelect';
+import MemberSignatures from './MemberSignatures';
+import ConfirmButton from './ConfirmButton';
+import FormField from './FormField';
+import FormModal from './FormModal';
+import ConfirmationModal from './ConfirmationModal';
+import DataTable from './DataTable';
+import OrientandosTab from './OrientandosTab';
+import StatisticsPanel from './StatisticsPanel';
+import BancasTab from './BancasTab';
+import { MenuFlutuante } from './MenuFlutuante';
 
 export default class Index extends Component {
 	static contextType = UserContext;
@@ -459,8 +465,6 @@ export default class Index extends Component {
 		});
 	};
 
-	// Continue ajustando os outros modais e funções de manipulação de eventos...
-
 	// Funções de manipulação de formulários
 
 	// Cadastrar Orientando
@@ -705,8 +709,6 @@ export default class Index extends Component {
 		}
 	};
 
-	// Continue ajustando as outras funções de manipulação de formulários seguindo o mesmo padrão...
-
 	handleOptionChange = (nomeEstadoResposta, valor) => {
 		this.setState({ [nomeEstadoResposta]: valor });
 	};
@@ -714,8 +716,6 @@ export default class Index extends Component {
 	handleResumoChange = (nomeEstadoResumo, valor) => {
 		this.setState({ [nomeEstadoResumo]: valor });
 	};
-
-	// Dentro do seu componente principal
 
 	// Função para obter o tipo de membro em inglês
 	getMemberRoleEnglish = (membroNome) => {
@@ -786,7 +786,6 @@ export default class Index extends Component {
 	handlerCloseModalVisualizarDeclaracao = () => {
 		this.setState({ modalShowVisualizarDeclaracao: false });
 	};
-
 
 	// Renderização
 	render() {
@@ -878,6 +877,7 @@ export default class Index extends Component {
 			array_declaracoes,
 			arrayAnexosDaOrientacao,
 			arrayAnexosDoOrientando,
+			nome,
 		} = this.state;
 
 		return (
@@ -901,1498 +901,1034 @@ export default class Index extends Component {
 				<Row>
 					<Col xs={12} id="main">
 						<MainContent>
-							<FloatingMenu>
-								<ul className="dropdown-menu">
-									<li>
-										<a className='button' onClick={() => this.handlerShowModalCadastrarBanca()}><FaRegPlusSquare /> Registrar banca </a>
-									</li>
-									{this.state.id_orientando !== 0 ? (
-										<li>
-											<a className='button' onClick={() => this.handlerShowModalCadastrarEAtualizarOrientacao()}> Registrar orientação</a>
-										</li>
-									) : ("")}
-
-									<li>
-										<a>Para adicionar novas opções entre em contato com o desenvolvedor </a>
-									</li>
-								</ul>
-							</FloatingMenu>
+							<MenuFlutuante
+								handlerShowModalCadastrarBanca={this.handlerShowModalCadastrarBanca}
+								handlerShowModalCadastrarEAtualizarOrientacao={this.handlerShowModalCadastrarEAtualizarOrientacao}
+								id_orientando={this.state.id_orientando}
+							>
+							</MenuFlutuante>
 							<div className="content">
 								<div className="content">
-									<div className="row d-flex justify-content-center text-center" style={{ marginBottom: "10px" }}>
-										<div className="col-sm-3 mb-2">
-											<FaUserGraduate style={{ width: '30px', height: '30px', marginBottom: '10px' }} />
-											<h5 style={{ fontSize: "12pt" }}>Total de Orientandos Registrados</h5>
-											<h6>{array_orientandos.length}</h6>
-										</div>
+									{/* Painel de Estatísticas */}
+									<StatisticsPanel
+										array_orientandos={array_orientandos}
+										array_bancasQ={array_bancasQ}
+										array_bancasD={array_bancasD}
+									/>
 
-										<div className="col-sm-3 mb-2">
-											<FaClipboardList style={{ width: '30px', height: '30px', marginBottom: '10px' }} />
-											<h5 style={{ fontSize: "12pt" }}>Total de Bancas de Qualificação</h5>
-											<h6>{array_bancasQ.length}</h6>
-										</div>
-
-										<div className="col-sm-3 mb-2">
-											<FaClipboardList style={{ width: '30px', height: '30px', marginBottom: '10px' }} />
-											<h5 style={{ fontSize: "12pt" }}>Total de Bancas de Defesa</h5>
-											<h6>{array_bancasD.length}</h6>
-										</div>
-									</div>
-
+									{/* Abas */}
 									<Tabs
 										variant="pills"
 										defaultActiveKey="bancas"
 										transition={false}
 										id="panel-admin"
-										className="justify-content-center">
+										className="justify-content-center"
+									>
 										<Tab eventKey="orientandos" title="Orientandos">
-											<div className='container'>
-												{/* Formulário de Filtros */}
-												<FilterForm
-													nome={this.state.nome}
-													linhasDePesquisas={arrayLinhasDePesquisas}
-													tiposDeBanca={array_tiposBanca}
-													onNomeChange={(e) => {
-														this.setState({ nome: e.target.value });
-														this.loadOrientandos(e.target.value);
-													}}
-													onLinhaPesquisaChange={(e) => {
-														this.setState({ idLinhaPesquisa: e.target.value });
-														this.loadOrientandos("", e.target.value, 0);
-													}}
-													onFaseProcessoChange={(e) => {
-														this.setState({ fase_processo: e.target.value });
-														this.loadOrientandos("", 0, e.target.value);
-													}}
-												/>
-
-												{/* Tabela de Orientandos */}
-												<OrientandosTable
-													orientandos={array_orientandos}
-													onEditarOrientando={this.handlerShowModalEditarOrientando}
-												/>
-
-												{/* Total de Registros */}
-												<div className="text-center text-white font-weight-bold mt-3 mb-5">
-													Total de Registros: {array_orientandos.length}
-												</div>
-											</div>
+											<OrientandosTab
+												nome={nome}
+												array_orientandos={array_orientandos}
+												arrayLinhasDePesquisas={arrayLinhasDePesquisas}
+												array_tiposBanca={array_tiposBanca}
+												handlerShowModalEditarOrientando={
+													this.handlerShowModalEditarOrientando
+												}
+												loadOrientandos={this.loadOrientandos}
+												setState={this.setState.bind(this)}
+											/>
 										</Tab>
 
 										<Tab eventKey="bancas" title="Bancas">
-											<Container style={{ backgroundColor: "#F8F9FA", padding: "20px" }}>
-												<div className='row d-flex justify-content-center'>
-
-													{/* Seção de Qualificação */}
-													<BancaList
-														title="Qualificação"
-														icon={<FaPencilAlt />}
-														bancas={array_bancasQ}
-														statusField="status_confirmacaoBancaQ"
-														renderButtons={(banca) => (
-															<>
-																<button className='button' onClick={() => this.handlerShowModalAtualizarBanca(banca)}>
-																	<FaRegPlusSquare /> Atualizar banca
-																</button>
-																{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && (
-																	<button className='button mt-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>
-																		Declaração de participação
-																	</button>
-																)}
-																{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_ata === null && (
-																	<button className='button mt-2' onClick={() => this.handlerShowModalEmitirAta(banca)}>
-																		Emitir ATA
-																	</button>
-																)}
-																{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_ata !== null && (
-																	<>
-																		<button className='button mt-2' onClick={() => this.handlerShowModalAtualizarAta(banca)}>
-																			Atualizar ATA
-																		</button>
-																		<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarAta(banca)}>
-																			ATA
-																		</button>
-																	</>
-																)}
-																{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.id_fichaAvaliacao === null) && (
-																	<button className='button mt-2' onClick={() => this.handlerShowModalEmitirFichaDeAvaliacao(banca)}>
-																		Emitir ficha de avaliação
-																	</button>
-																)}
-																{(banca.status_confirmacaoBancaQ === "CONFIRMADO" || banca.status_confirmacaoBancaQ === "FINALIZADA") && banca.id_fichaAvaliacao !== null && (
-																	<>
-																		<button className='button mt-2' onClick={() => this.handlerShowModalEditarFichaDeAvaliacao(banca)}>
-																			Atualizar ficha de avaliação
-																		</button>
-																		<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarFichaDeAvaliacao(banca)}>
-																			Visualizar ficha de avaliação
-																		</button>
-																	</>
-																)}
-																<button className='button mt-2' onClick={() => this.handlerShowModalExcluirBanca(banca)}>
-																	Excluir banca
-																</button>
-																{banca.status_confirmacaoBancaQ === "CONFIRMADO" && (
-																	<button className='button mt-2' onClick={() => this.handlerShowModalFinalizarBanca(banca)}>
-																		Finalizar banca
-																	</button>
-																)}
-															</>
-														)}
-													/>
-
-													{/* Seção de Defesa */}
-													<BancaList
-														title="Defesa"
-														icon={<FaShieldAlt />}
-														bancas={array_bancasD}
-														statusField="status_confirmacaoBancaD"
-														renderButtons={(banca) => (
-															<>
-																<button className='button' onClick={() => this.handlerShowModalAtualizarBanca(banca)}>
-																	<FaRegPlusSquare /> Atualizar banca
-																</button>
-																<button className='button mt-2' onClick={() => this.handlerShowModalEmitirDeclaracaoDeOrientacao(banca)}>
-																	Emitir declaração de orientação
-																</button>
-																<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao({ ...banca, documentoEmIngles: false })}>
-																	Declaração de orientação
-																</button>
-																<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarDeclaracaoDeOrientacao({ ...banca, documentoEmIngles: true })}>
-																	Guidance statement
-																</button>
-																{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && (
-																	<button className='button mt-2' onClick={() => this.handlerShowModalEmitirDeclaracao(banca)}>
-																		Declaração de participação
-																	</button>
-																)}
-																{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata === null && (
-																	<button className='button mt-2' onClick={() => this.handlerShowModalEmitirAta(banca)}>
-																		Emitir ATA
-																	</button>
-																)}
-																{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null && (
-																	<>
-																		<button className='button mt-2' onClick={() => this.handlerShowModalAtualizarAta(banca)}>
-																			Atualizar ATA
-																		</button>
-																		<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarAta(banca)}>
-																			ATA
-																		</button>
-																	</>
-																)}
-																{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.id_fichaAvaliacao === null) && (
-																	<button className='button mt-2' onClick={() => this.handlerShowModalEmitirFichaDeAvaliacao(banca)}>
-																		Emitir ficha de avaliação
-																	</button>
-																)}
-																{(banca.status_confirmacaoBancaD === "CONFIRMADO" || banca.status_confirmacaoBancaD === "FINALIZADA") && banca.id_ata !== null && banca.id_fichaAvaliacao !== null && (
-																	<>
-																		<button className='button mt-2' onClick={() => this.handlerShowModalEditarFichaDeAvaliacao(banca)}>
-																			Atualizar ficha de avaliação
-																		</button>
-																		<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarFichaDeAvaliacao(banca)}>
-																			Visualizar ficha de avaliação
-																		</button>
-																	</>
-																)}
-																{banca.status_confirmacaoBancaD === "FINALIZADA" && (
-																	<>
-																		<button className='button mt-2' onClick={() => this.handlerShowModalCadastrarEAtualizarFolhaDeAprovacao(banca)}>
-																			Emitir folha de aprovação
-																		</button>
-																		<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarFolhaDeAprovacao(banca)}>
-																			Folha de aprovação
-																		</button>
-																		<button className='button mt-2' onClick={() => this.handlerShowModalVisualizarCertificadoDeAprovacao(banca)}>
-																			Certificado de aprovação
-																		</button>
-																	</>
-																)}
-																<button className='button mt-2' onClick={() => this.handlerShowModalExcluirBanca(banca)}>
-																	Excluir
-																</button>
-																{banca.status_confirmacaoBancaD === "CONFIRMADO" && (
-																	<button className='button mt-2' onClick={() => this.handlerShowModalFinalizarBanca(banca)}>
-																		Finalizar
-																	</button>
-																)}
-															</>
-														)}
-													/>
-
-												</div>
-											</Container>
+											<BancasTab
+												array_bancasQ={array_bancasQ}
+												array_bancasD={array_bancasD}
+												handlerShowModalAtualizarBanca={this.handlerShowModalAtualizarBanca}
+												handlerShowModalEmitirDeclaracao={this.handlerShowModalEmitirDeclaracao}
+												handlerShowModalEmitirAta={this.handlerShowModalEmitirAta}
+												handlerShowModalAtualizarAta={this.handlerShowModalAtualizarAta}
+												handlerShowModalVisualizarAta={this.handlerShowModalVisualizarAta}
+												handlerShowModalEmitirFichaDeAvaliacao={
+													this.handlerShowModalEmitirFichaDeAvaliacao
+												}
+												handlerShowModalEditarFichaDeAvaliacao={
+													this.handlerShowModalEditarFichaDeAvaliacao
+												}
+												handlerShowModalVisualizarFichaDeAvaliacao={
+													this.handlerShowModalVisualizarFichaDeAvaliacao
+												}
+												handlerShowModalExcluirBanca={this.handlerShowModalExcluirBanca}
+												handlerShowModalFinalizarBanca={this.handlerShowModalFinalizarBanca}
+												handlerShowModalEmitirDeclaracaoDeOrientacao={
+													this.handlerShowModalEmitirDeclaracaoDeOrientacao
+												}
+												handlerShowModalVisualizarDeclaracaoDeOrientacao={
+													this.handlerShowModalVisualizarDeclaracaoDeOrientacao
+												}
+												handlerShowModalCadastrarEAtualizarFolhaDeAprovacao={
+													this.handlerShowModalCadastrarEAtualizarFolhaDeAprovacao
+												}
+												handlerShowModalVisualizarFolhaDeAprovacao={
+													this.handlerShowModalVisualizarFolhaDeAprovacao
+												}
+												handlerShowModalVisualizarCertificadoDeAprovacao={
+													this.handlerShowModalVisualizarCertificadoDeAprovacao
+												}
+											/>
 										</Tab>
 									</Tabs>
-
 								</div>
 								{/* /.content */}
 								<br />
 							</div>
 
-							<Modal
+							{/* Modal Cadastrar Banca */}
+
+							<CustomModal
 								show={this.state.modalShowCadastrarBanca}
-								onHide={() => this.handlerCloseModalCadastrarBanca()}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size='xl'
-								centered>
-								<Form onSubmit={this.handleCadastrarBanca}>
-									<Modal.Header closeButton>
-										<h4 className='titulo'><FaLayerGroup /> Registrar uma nova banca</h4>
-									</Modal.Header>
-									<Modal.Body>
-										<div className='row' style={{ maxHeight: "380px", overflowY: "scroll" }}>
-											<div className='col-sm-6'>
-												{/* Orientando */}
-												<div className="form-group">
-													<label>Orientando:*</label>
-													<select
-														className="form-control form-control-sm"
-														id="selectOrientando"
-														value={this.state.id_orientando}
-														onChange={(e) => this.setState({ id_orientando: e.target.value })}
-													>
-														<option value="0">Selecione</option>
-														{this.state.array_orientandos.length > 0 ? (
-															this.state.array_orientandos.map((orientando) => (
-																<option key={orientando.id} value={orientando.id}>
-																	{orientando.nome.toUpperCase()}
-																</option>
-															))
-														) : (
-															<option value="0">Nenhum orientando encontrado</option>
-														)}
-													</select>
-												</div>
-
-												{/* Tipo da banca */}
-												<div className="form-group">
-													<label>Tipo da banca:*</label>
-													<select
-														className="form-control form-control-sm"
-														id="selectTipoBanca"
-														value={this.state.id_tipoBanca}
-														onChange={(e) => this.setState({ id_tipoBanca: e.target.value })}
-													>
-														<option value="0">Selecione</option>
-														{this.state.array_tiposBanca.length > 0 ? (
-															this.state.array_tiposBanca.map((tipo) =>
-																parseInt(tipo.id) < 3 ? (
-																	<option key={tipo.id} value={tipo.id}>
-																		{tipo.nome}
-																	</option>
-																) : null
-															)
-														) : (
-															<option value="0">Nenhum resultado encontrado</option>
-														)}
-													</select>
-												</div>
-
-												{/* Área de concentração */}
-												<div className="form-group">
-													<label>Área de concentração:* </label>
-													<select
-														className="form-control form-control-sm"
-														id="selectAreaConcentracao"
-														value={this.state.idAreaConcentracao}
-														readOnly
-													>
-														{this.state.arrayAreaConcentracao.length > 0 ? (
-															this.state.arrayAreaConcentracao.map((area) =>
-																area.id === this.state.idAreaConcentracao ? (
-																	<option key={area.id} value={area.id}>
-																		{area.nome}
-																	</option>
-																) : null
-															)
-														) : (
-															<option value="0">Nenhuma área encontrada</option>
-														)}
-													</select>
-												</div>
-
-												{/* Linha de pesquisa */}
-												<div className="form-group">
-													<label>Linha de pesquisa:*</label>
-													<select
-														className="form-control form-control-sm"
-														id="selectLinhaPesquisa"
-														value={this.state.idLinhaPesquisa}
-														onChange={(e) => this.setState({ idLinhaPesquisa: e.target.value })}
-													>
-														<option value="0">Selecione</option>
-														{this.state.arrayLinhasDePesquisas.length > 0 ? (
-															this.state.arrayLinhasDePesquisas.map((linha) => (
-																<option key={linha.id} value={linha.id}>
-																	{linha.linha_pesquisa}
-																</option>
-															))
-														) : (
-															<option value="0">Nenhuma linha de pesquisa encontrada</option>
-														)}
-													</select>
-												</div>
-
-												{/* Data e hora prevista */}
-												<div className="form-group">
-													<label htmlFor="dataHoraPrevista">Data e hora prevista:</label>
-													<input
-														className="form-control form-control-sm"
-														type="datetime-local"
-														id="dataHoraPrevista"
-														name="dataHoraPrevista"
-														min="2022-01"
-														value={this.state.data_horaPrevista}
-														onChange={(e) => this.setState({ data_horaPrevista: e.target.value })}
-													/>
-												</div>
-
-												{/* Membros internos */}
-												<div className="form-group">
-													<label htmlFor="selectMembrosInternos">Membros internos:*</label>
-													<Select
-														closeMenuOnSelect={false}
-														isMulti
-														options={this.state.arrayMembrosInternos}
-														onChange={(e) => this.setState({ arraySelectedMembrosInternos: e })}
-														value={this.state.arraySelectedMembrosInternos}
-													/>
-												</div>
-											</div>
-											<div className='col-sm-6'>
-												{/* Membros externos */}
-												<div className="form-group">
-													<label htmlFor="selectMembrosExternos">Membros externos:*</label>
-													<Select
-														closeMenuOnSelect={false}
-														isMulti
-														options={this.state.arrayMembrosExternos}
-														onChange={(e) => this.setState({ arraySelectedMembrosExternos: e })}
-														value={this.state.arraySelectedMembrosExternos}
-													/>
-												</div>
-
-												{/* Título */}
-												<div className="form-group">
-													<label htmlFor="titulo">Título:</label>
-													<textarea
-														className="form-control form-control-sm"
-														id="titulo"
-														rows="3"
-														value={this.state.titulo}
-														onChange={(e) => this.setState({ titulo: e.target.value })}
-													></textarea>
-												</div>
-
-												{/* Título em inglês */}
-												<div className="form-group">
-													<label htmlFor="title">Título em inglês:</label>
-													<textarea
-														className="form-control form-control-sm"
-														id="title"
-														rows="3"
-														value={this.state.title}
-														onChange={(e) => this.setState({ title: e.target.value })}
-													></textarea>
-												</div>
-
-												{/* Resumo */}
-												<div className="form-group">
-													<label htmlFor="resumo">Resumo:</label>
-													<textarea
-														className="form-control form-control-sm"
-														id="resumo"
-														rows="3"
-														value={this.state.resumo}
-														onChange={(e) => this.setState({ resumo: e.target.value })}
-													></textarea>
-												</div>
-
-												{/* Palavra-chave */}
-												<div className="form-group">
-													<label htmlFor="palavra_chave">Palavra-chave:</label>
-													<textarea
-														className="form-control form-control-sm"
-														id="palavra_chave"
-														rows="3"
-														value={this.state.palavra_chave}
-														onChange={(e) => this.setState({ palavra_chave: e.target.value })}
-													></textarea>
-												</div>
-											</div>
-										</div>
-
-										{/* Mensagens de Sucesso ou Erro */}
-										<div className="row mt-2">
-											<div className="col-sm-12">
-												{this.state.success && (
-													<div className="alert alert-success text-center" role="alert">
-														{this.state.success}
-													</div>
-												)}
-												{this.state.error && (
-													<div className="alert alert-danger text-center" role="alert">
-														{this.state.error}
-													</div>
-												)}
-											</div>
-										</div>
-
-										{/* Botão de Salvar */}
-										<div className='d-flex justify-content-center'>
-											<button className='button'><FaRegSave /> Salvar</button>
-										</div>
-									</Modal.Body>
-								</Form>
-
-							</Modal>
-
-							{/* Modal for Registering a New Orientando */}
-							<Modal
-								show={this.state.modalShowCadastrarOrientando}
-								onHide={this.handlerCloseModalCadastrarOrientando}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size="md"
-								centered
+								onHide={this.handlerCloseModalCadastrarBanca}
+								title={
+									<>
+										<FaLayerGroup /> Registrar uma nova banca
+									</>
+								}
+								size="xl"
 							>
-								<Form onSubmit={this.handleCadastrarOrientando}>
-									<Modal.Header closeButton>
-										<h4 className="titulo">
-											<FaUserGraduate /> Cadastrar um novo orientando
-										</h4>
-									</Modal.Header>
-									<Modal.Body>
-										<p className="text-danger">
-											As informações cadastrais serão utilizadas pelo aluno para acessar a
-											plataforma.
-										</p>
-										<div className="row">
-											<div className="col-sm-6">
-												{/* Nome */}
-												<div className="form-group">
-													<label htmlFor="nome">Nome</label>
-													<input
-														type="text"
-														className="form-control"
-														id="nome"
-														placeholder="Digite seu nome completo"
-														value={this.state.nome}
-														onChange={(e) => this.setState({ nome: e.target.value })}
-													/>
-												</div>
+								<Form onSubmit={this.handleCadastrarBanca}>
+									<div className="row" style={{ maxHeight: '380px', overflowY: 'scroll' }}>
+										<div className="col-sm-6">
+											{/* Orientando */}
+											<FormSelect
+												label="Orientando:*"
+												id="selectOrientando"
+												value={this.state.id_orientando}
+												onChange={(e) => this.setState({ id_orientando: e.target.value })}
+												options={[
+													<option key="0" value="0">
+														Selecione
+													</option>,
+													this.state.array_orientandos.length > 0
+														? this.state.array_orientandos.map((orientando) => (
+															<option key={orientando.id} value={orientando.id}>
+																{orientando.nome.toUpperCase()}
+															</option>
+														))
+														: <option key="0" value="0">Nenhum orientando encontrado</option>,
+												]}
+											/>
 
-												{/* Email */}
-												<div className="form-group">
-													<label htmlFor="email">Email</label>
-													<input
-														type="email"
-														className="form-control"
-														id="email"
-														placeholder="Informe o seu email"
-														value={this.state.email}
-														onChange={(e) => this.setState({ email: e.target.value })}
-													/>
-												</div>
-
-												{/* Curso */}
-												<div className="form-group">
-													<label>Curso:*</label>
-													<select
-														className="form-control"
-														id="selectCurso"
-														value={this.state.id_curso}
-														onChange={(e) => this.setState({ id_curso: e.target.value })}
-													>
-														<option value="0">Selecione</option>
-														{this.state.array_cursos.length > 0 ? (
-															this.state.array_cursos.map((curso) => (
-																<option key={curso.id} value={curso.id}>
-																	{curso.nome}
-																</option>
-															))
-														) : (
-															<option value="0">Nenhum curso encontrado</option>
-														)}
-													</select>
-												</div>
-
-												{/* Senha */}
-												<div className="row" style={{ marginBottom: 20 }}>
-													<div className="col-md-6">
-														<div className="form-group">
-															<label htmlFor="senha">Senha</label>
-															<input
-																type="password"
-																className="form-control"
-																id="senha"
-																placeholder="Informe sua senha"
-																value={this.state.senha}
-																onChange={(e) => this.setState({ senha: e.target.value })}
-															/>
-														</div>
-													</div>
-
-													{/* Repetir Senha */}
-													<div className="col-md-6">
-														<div className="form-group">
-															<label htmlFor="confirmarSenha">Repetir Senha</label>
-															<input
-																type="password"
-																className="form-control"
-																id="confirmarSenha"
-																placeholder="Informe sua senha novamente"
-																value={this.state.confirmarSenha}
-																onChange={(e) =>
-																	this.setState({ confirmarSenha: e.target.value })
-																}
-															/>
-														</div>
-													</div>
-												</div>
-
-												{/* Fase do processo */}
-												<div className="form-group">
-													<label>Fase do processo:*</label>
-													<select
-														className="form-control"
-														id="selectFaseProcesso"
-														value={this.state.fase_processo}
-														onChange={(e) =>
-															this.setState({ fase_processo: e.target.value })
-														}
-													>
-														<option value="0">Selecione</option>
-														{this.state.array_tiposBanca.length > 0 ? (
-															this.state.array_tiposBanca.map((tipo) => (
+											{/* Tipo da banca */}
+											<FormSelect
+												label="Tipo da banca:*"
+												id="selectTipoBanca"
+												value={this.state.id_tipoBanca}
+												onChange={(e) => this.setState({ id_tipoBanca: e.target.value })}
+												options={[
+													<option key="0" value="0">
+														Selecione
+													</option>,
+													this.state.array_tiposBanca.length > 0
+														? this.state.array_tiposBanca.map((tipo) =>
+															parseInt(tipo.id) < 3 ? (
 																<option key={tipo.id} value={tipo.id}>
 																	{tipo.nome}
 																</option>
-															))
-														) : (
-															<option value="0">Nenhum resultado encontrado</option>
-														)}
-													</select>
-												</div>
-											</div>
+															) : null
+														)
+														: <option key="0" value="0">Nenhum resultado encontrado</option>,
+												]}
+											/>
 
-											<div className="col-sm-6">
-												{/* Informações adicionais */}
-												<div className="form-group">
-													<label htmlFor="informacoes_adicionais">
-														Informações adicionais
-													</label>
-													<textarea
-														className="form-control"
-														id="informacoes_adicionais"
-														rows="3"
-														value={this.state.informacoes_adicionais}
-														onChange={(e) =>
-															this.setState({ informacoes_adicionais: e.target.value })
-														}
-													></textarea>
-												</div>
+											{/* Área de concentração */}
+											<FormSelect
+												label="Área de concentração:*"
+												id="selectAreaConcentracao"
+												value={this.state.idAreaConcentracao}
+												onChange={() => { }}
+												options={
+													this.state.arrayAreaConcentracao.length > 0
+														? this.state.arrayAreaConcentracao.map((area) =>
+															area.id === this.state.idAreaConcentracao ? (
+																<option key={area.id} value={area.id}>
+																	{area.nome}
+																</option>
+															) : null
+														)
+														: [
+															<option key="0" value="0">
+																Nenhuma área encontrada
+															</option>,
+														]
+												}
+												readOnly
+											/>
 
-												{/* Data/hora inicial do processo */}
-												<div className="form-group">
-													<label htmlFor="dataHoraInicialFaseProcesso">
-														Data/hora inicial do processo:
-													</label>
-													<input
-														className="form-control"
-														type="datetime-local"
-														id="dataHoraInicialFaseProcesso"
-														name="dataHoraInicialFaseProcesso"
-														min="2022-01"
-														value={this.state.dataHoraInicialFaseProcesso}
-														onChange={(e) =>
-															this.setState({ dataHoraInicialFaseProcesso: e.target.value })
-														}
-													/>
-												</div>
+											{/* Linha de pesquisa */}
+											<FormSelect
+												label="Linha de pesquisa:*"
+												id="selectLinhaPesquisa"
+												value={this.state.idLinhaPesquisa}
+												onChange={(e) => this.setState({ idLinhaPesquisa: e.target.value })}
+												options={[
+													<option key="0" value="0">
+														Selecione
+													</option>,
+													this.state.arrayLinhasDePesquisas.length > 0
+														? this.state.arrayLinhasDePesquisas.map((linha) => (
+															<option key={linha.id} value={linha.id}>
+																{linha.linha_pesquisa}
+															</option>
+														))
+														: <option key="0" value="0">Nenhuma linha de pesquisa encontrada</option>,
+												]}
+											/>
 
-												{/* Data/hora final do processo */}
-												<div className="form-group">
-													<label htmlFor="dataHoraFinalFaseProcesso">
-														Data/hora final do processo:
-													</label>
-													<input
-														className="form-control"
-														type="datetime-local"
-														id="dataHoraFinalFaseProcesso"
-														name="dataHoraFinalFaseProcesso"
-														min="2022-01"
-														value={this.state.dataHoraFinalFaseProcesso}
-														onChange={(e) =>
-															this.setState({ dataHoraFinalFaseProcesso: e.target.value })
-														}
-													/>
-												</div>
+											{/* Data e hora prevista */}
+											<FormInput
+												label="Data e hora prevista:"
+												id="dataHoraPrevista"
+												type="datetime-local"
+												value={this.state.data_horaPrevista}
+												onChange={(e) => this.setState({ data_horaPrevista: e.target.value })}
+												min="2022-01"
+											/>
 
-												{/* Data/hora de conclusão */}
-												<div className="form-group">
-													<label htmlFor="dataHoraConclusao">
-														Data/hora de conclusão:
-													</label>
-													<input
-														className="form-control"
-														type="datetime-local"
-														id="dataHoraConclusao"
-														name="dataHoraConclusao"
-														min="2022-01"
-														value={this.state.dataHoraConclusao}
-														onChange={(e) =>
-															this.setState({ dataHoraConclusao: e.target.value })
-														}
-													/>
-												</div>
-											</div>
+											{/* Membros internos */}
+											<FormMultiSelect
+												label="Membros internos:*"
+												options={this.state.arrayMembrosInternos}
+												value={this.state.arraySelectedMembrosInternos}
+												onChange={(e) => this.setState({ arraySelectedMembrosInternos: e })}
+											/>
 										</div>
+										<div className="col-sm-6">
+											{/* Membros externos */}
+											<FormMultiSelect
+												label="Membros externos:*"
+												options={this.state.arrayMembrosExternos}
+												value={this.state.arraySelectedMembrosExternos}
+												onChange={(e) => this.setState({ arraySelectedMembrosExternos: e })}
+											/>
 
-										{/* Mensagens de Sucesso ou Erro */}
-										<div className="row mt-2">
-											<div className="col-sm-12">
-												{this.state.success && (
-													<div className="alert alert-success text-center" role="alert">
-														{this.state.success}
-													</div>
-												)}
-												{this.state.error && (
-													<div className="alert alert-danger text-center" role="alert">
-														{this.state.error}
-													</div>
-												)}
-											</div>
+											{/* Título */}
+											<FormTextarea
+												label="Título:"
+												id="titulo"
+												rows="3"
+												value={this.state.titulo}
+												onChange={(e) => this.setState({ titulo: e.target.value })}
+											/>
+
+											{/* Título em inglês */}
+											<FormTextarea
+												label="Título em inglês:"
+												id="title"
+												rows="3"
+												value={this.state.title}
+												onChange={(e) => this.setState({ title: e.target.value })}
+											/>
+
+											{/* Resumo */}
+											<FormTextarea
+												label="Resumo:"
+												id="resumo"
+												rows="3"
+												value={this.state.resumo}
+												onChange={(e) => this.setState({ resumo: e.target.value })}
+											/>
+
+											{/* Palavra-chave */}
+											<FormTextarea
+												label="Palavra-chave:"
+												id="palavra_chave"
+												rows="3"
+												value={this.state.palavra_chave}
+												onChange={(e) => this.setState({ palavra_chave: e.target.value })}
+											/>
 										</div>
-									</Modal.Body>
+									</div>
 
-									<Modal.Footer>
+									{/* Mensagens de Sucesso ou Erro */}
+									<SuccessErrorMessage
+										success={this.state.success}
+										error={this.state.error}
+									/>
+
+									{/* Botão de Salvar */}
+									<div className="d-flex justify-content-center">
 										<button className="button">
 											<FaRegSave /> Salvar
 										</button>
-									</Modal.Footer>
+									</div>
 								</Form>
-							</Modal>
+							</CustomModal>
 
-							{/* Modal for Editing an Existing Orientando */}
-							<Modal
-								show={this.state.modalShowEditarOrientando}
-								onHide={this.handlerCloseModalEditarOrientando}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size="lg"
-								centered
+							{/* Modal Cadastrar Orientando */}
+							<FormModal
+								show={this.state.modalShowCadastrarOrientando}
+								onHide={this.handlerCloseModalCadastrarOrientando}
+								title={
+									<>
+										<FaUserGraduate /> Cadastrar um novo orientando
+									</>
+								}
+								size="md"
+								onSubmit={this.handleCadastrarOrientando}
 							>
-								<Modal.Header closeButton>
-									<h4 className="titulo">
-										<FaUserGraduate /> Atualizar as informações do orientando -{' '}
-										{this.state.nome}
-									</h4>
-								</Modal.Header>
-								<Modal.Body>
-									<p className="text-danger">
-										As informações cadastrais serão utilizadas pelo aluno para acessar a
-										plataforma.
-									</p>
+								<p className="text-danger">
+									As informações cadastrais serão utilizadas pelo aluno para acessar a plataforma.
+								</p>
+								<div className="row">
+									<div className="col-sm-6">
+										{/* Nome */}
+										<FormField
+											label="Nome"
+											id="nome"
+											value={this.state.nome}
+											onChange={(e) => this.setState({ nome: e.target.value })}
+											placeholder="Digite seu nome completo"
+										/>
 
-									<Form onSubmit={this.handleAtualizarOrientando}>
-										<div className="row">
-											<div className="col-sm-6">
-												{/* Nome */}
-												<div className="form-group">
-													<label htmlFor="nome">Nome</label>
-													<input
-														type="text"
-														className="form-control form-control-sm"
-														id="nome"
-														placeholder="Digite seu nome completo"
-														value={this.state.nome}
-														onChange={(e) => this.setState({ nome: e.target.value })}
-													/>
-												</div>
-											</div>
-											<div className="col-sm-6">
-												{/* Email */}
-												<div className="form-group">
-													<label htmlFor="email">Email</label>
-													<input
-														type="email"
-														className="form-control form-control-sm"
-														id="email"
-														placeholder="Informe o seu email"
-														value={this.state.email}
-														onChange={(e) => this.setState({ email: e.target.value })}
-													/>
-												</div>
-											</div>
-										</div>
+										{/* Email */}
+										<FormField
+											label="Email"
+											id="email"
+											type="email"
+											value={this.state.email}
+											onChange={(e) => this.setState({ email: e.target.value })}
+											placeholder="Informe o seu email"
+										/>
 
-										<div className="row">
-											{/* Curso */}
-											<div className="col-sm-6">
-												<div className="form-group">
-													<label>Curso:*</label>
-													<select
-														className="form-control form-control-sm"
-														id="selectCurso"
-														value={this.state.id_curso}
-														onChange={(e) => this.setState({ id_curso: e.target.value })}
-													>
-														<option value="0">Selecione</option>
-														{this.state.array_cursos.length > 0 ? (
-															this.state.array_cursos.map((curso) =>
-																this.state.idAreaConcentracao === curso.id_areaConcentracao ? (
-																	<option key={curso.id} value={curso.id}>
-																		{curso.nome}
-																	</option>
-																) : null
-															)
-														) : (
-															<option value="0">Nenhum curso encontrado</option>
-														)}
-													</select>
-												</div>
-											</div>
-
-											{/* Fase do processo */}
-											<div className="col-sm-6">
-												<div className="form-group">
-													<label>Fase do processo:*</label>
-													<select
-														className="form-control form-control-sm"
-														id="selectFaseProcesso"
-														value={this.state.fase_processo}
-														onChange={(e) =>
-															this.setState({ fase_processo: e.target.value })
-														}
-													>
-														<option value="0">Selecione</option>
-														{this.state.array_tiposBanca.length > 0 ? (
-															this.state.array_tiposBanca.map((tipo) => (
-																<option key={tipo.id} value={tipo.id}>
-																	{tipo.nome}
-																</option>
-															))
-														) : (
-															<option value="0">Nenhum resultado encontrado</option>
-														)}
-													</select>
-												</div>
-											</div>
-										</div>
+										{/* Curso */}
+										<FormField
+											label="Curso:*"
+											id="selectCurso"
+											value={this.state.id_curso}
+											onChange={(e) => this.setState({ id_curso: e.target.value })}
+											isSelect
+											options={[
+												<option key="0" value="0">
+													Selecione
+												</option>,
+												this.state.array_cursos.length > 0
+													? this.state.array_cursos.map((curso) => (
+														<option key={curso.id} value={curso.id}>
+															{curso.nome}
+														</option>
+													))
+													: [
+														<option key="0" value="0">
+															Nenhum curso encontrado
+														</option>,
+													],
+											]}
+										/>
 
 										{/* Senha */}
-										<div className="row">
+										<div className="row" style={{ marginBottom: 20 }}>
 											<div className="col-md-6">
-												<div className="form-group">
-													<label htmlFor="senha">Senha</label>
-													<input
-														type="password"
-														className="form-control form-control-sm"
-														id="senha"
-														placeholder="Informe sua senha"
-														value={this.state.senha}
-														onChange={(e) => this.setState({ senha: e.target.value })}
-													/>
-												</div>
+												<FormField
+													label="Senha"
+													id="senha"
+													type="password"
+													value={this.state.senha}
+													onChange={(e) => this.setState({ senha: e.target.value })}
+													placeholder="Informe sua senha"
+												/>
 											</div>
 
 											{/* Repetir Senha */}
 											<div className="col-md-6">
-												<div className="form-group">
-													<label htmlFor="confirmarSenha">Repetir Senha</label>
-													<input
-														type="password"
-														className="form-control form-control-sm"
-														id="confirmarSenha"
-														placeholder="Informe sua senha novamente"
-														value={this.state.confirmarSenha}
-														onChange={(e) =>
-															this.setState({ confirmarSenha: e.target.value })
-														}
-													/>
-												</div>
+												<FormField
+													label="Repetir Senha"
+													id="confirmarSenha"
+													type="password"
+													value={this.state.confirmarSenha}
+													onChange={(e) => this.setState({ confirmarSenha: e.target.value })}
+													placeholder="Informe sua senha novamente"
+												/>
 											</div>
 										</div>
 
+										{/* Fase do processo */}
+										<FormField
+											label="Fase do processo:*"
+											id="selectFaseProcesso"
+											value={this.state.fase_processo}
+											onChange={(e) => this.setState({ fase_processo: e.target.value })}
+											isSelect
+											options={[
+												<option key="0" value="0">
+													Selecione
+												</option>,
+												this.state.array_tiposBanca.length > 0
+													? this.state.array_tiposBanca.map((tipo) => (
+														<option key={tipo.id} value={tipo.id}>
+															{tipo.nome}
+														</option>
+													))
+													: [
+														<option key="0" value="0">
+															Nenhum resultado encontrado
+														</option>,
+													],
+											]}
+										/>
+									</div>
+
+									<div className="col-sm-6">
 										{/* Informações adicionais */}
-										<div className="form-group">
-											<label htmlFor="informacoes_adicionais">Informações adicionais</label>
-											<textarea
-												className="form-control form-control-sm"
-												id="informacoes_adicionais"
-												rows="3"
-												value={this.state.informacoes_adicionais}
-												onChange={(e) =>
-													this.setState({ informacoes_adicionais: e.target.value })
-												}
-											></textarea>
-										</div>
+										<FormField
+											label="Informações adicionais"
+											id="informacoes_adicionais"
+											value={this.state.informacoes_adicionais}
+											onChange={(e) => this.setState({ informacoes_adicionais: e.target.value })}
+											isTextarea
+										/>
 
-										{/* Datas */}
-										<div className="row">
-											{/* Data/hora inicial do processo */}
-											<div className="col-sm-4">
-												<div className="form-group">
-													<label htmlFor="dataHoraInicialFaseProcesso">
-														Data/hora inicial do processo:
-													</label>
-													<input
-														className="form-control form-control-sm"
-														type="datetime-local"
-														id="dataHoraInicialFaseProcesso"
-														name="dataHoraInicialFaseProcesso"
-														min="2022-01"
-														value={this.state.dataHoraInicialFaseProcesso}
-														onChange={(e) =>
-															this.setState({ dataHoraInicialFaseProcesso: e.target.value })
-														}
-													/>
-												</div>
-											</div>
+										{/* Data/hora inicial do processo */}
+										<FormField
+											label="Data/hora inicial do processo:"
+											id="dataHoraInicialFaseProcesso"
+											type="datetime-local"
+											value={this.state.dataHoraInicialFaseProcesso}
+											onChange={(e) => this.setState({ dataHoraInicialFaseProcesso: e.target.value })}
+											additionalProps={{ min: '2022-01' }}
+										/>
 
-											{/* Data/hora final do processo */}
-											<div className="col-sm-4">
-												<div className="form-group">
-													<label htmlFor="dataHoraFinalFaseProcesso">
-														Data/hora final do processo:
-													</label>
-													<input
-														className="form-control form-control-sm"
-														type="datetime-local"
-														id="dataHoraFinalFaseProcesso"
-														name="dataHoraFinalFaseProcesso"
-														min="2022-01"
-														value={this.state.dataHoraFinalFaseProcesso}
-														onChange={(e) =>
-															this.setState({ dataHoraFinalFaseProcesso: e.target.value })
-														}
-													/>
-												</div>
-											</div>
+										{/* Data/hora final do processo */}
+										<FormField
+											label="Data/hora final do processo:"
+											id="dataHoraFinalFaseProcesso"
+											type="datetime-local"
+											value={this.state.dataHoraFinalFaseProcesso}
+											onChange={(e) => this.setState({ dataHoraFinalFaseProcesso: e.target.value })}
+											additionalProps={{ min: '2022-01' }}
+										/>
 
-											{/* Data/hora de conclusão */}
-											<div className="col-sm-4">
-												<div className="form-group">
-													<label htmlFor="dataHoraConclusao">
-														Data/hora de conclusão:
-													</label>
-													<input
-														className="form-control form-control-sm"
-														type="datetime-local"
-														id="dataHoraConclusao"
-														name="dataHoraConclusao"
-														min="2022-01"
-														value={this.state.dataHoraConclusao}
-														onChange={(e) =>
-															this.setState({ dataHoraConclusao: e.target.value })
-														}
-													/>
-												</div>
-											</div>
-										</div>
+										{/* Data/hora de conclusão */}
+										<FormField
+											label="Data/hora de conclusão:"
+											id="dataHoraConclusao"
+											type="datetime-local"
+											value={this.state.dataHoraConclusao}
+											onChange={(e) => this.setState({ dataHoraConclusao: e.target.value })}
+											additionalProps={{ min: '2022-01' }}
+										/>
+									</div>
+								</div>
 
-										{/* Mensagens de Sucesso ou Erro */}
-										<div className="row mt-2">
-											<div className="col-sm-12">
-												{this.state.success && (
-													<div className="alert alert-success text-center" role="alert">
-														{this.state.success}
-													</div>
-												)}
-												{this.state.error && (
-													<div className="alert alert-danger text-center" role="alert">
-														{this.state.error}
-													</div>
-												)}
-											</div>
-										</div>
+								{/* Mensagens de Sucesso ou Erro */}
+								<SuccessErrorMessage success={this.state.success} error={this.state.error} />
+							</FormModal>
 
-										{/* Botão de Salvar */}
-										<div className="float-right">
-											<button className="button">
-												<FaRegSave /> Salvar
-											</button>
-										</div>
-									</Form>
+							{/* Modal Editar Orientando */}
+							<FormModal
+								show={this.state.modalShowEditarOrientando}
+								onHide={this.handlerCloseModalEditarOrientando}
+								title={
+									<>
+										<FaUserGraduate /> Atualizar as informações do orientando - {this.state.nome}
+									</>
+								}
+								size="lg"
+								onSubmit={this.handleAtualizarOrientando}
+							>
+								<p className="text-danger">
+									As informações cadastrais serão utilizadas pelo aluno para acessar a plataforma.
+								</p>
 
-									{/* Orientações */}
-									<hr />
+								<div className="row">
+									<div className="col-sm-6">
+										{/* Nome */}
+										<FormField
+											label="Nome"
+											id="nome"
+											value={this.state.nome}
+											onChange={(e) => this.setState({ nome: e.target.value })}
+											placeholder="Digite seu nome completo"
+											className="form-control form-control-sm"
+										/>
+									</div>
+									<div className="col-sm-6">
+										{/* Email */}
+										<FormField
+											label="Email"
+											id="email"
+											type="email"
+											value={this.state.email}
+											onChange={(e) => this.setState({ email: e.target.value })}
+											placeholder="Informe o seu email"
+											className="form-control form-control-sm"
+										/>
+									</div>
+								</div>
 
-									<div className="row">
-										<div className="col-sm-10">
-											<h3>
-												<FaUserGraduate /> Orientações
-											</h3>
-										</div>
-										<div className="col-sm-2">
-											{/* Botão para Cadastrar Nova Orientação */}
-											<button
-												className="btn btn-primary"
-												onClick={() =>
-													this.handlerShowModalCadastrarEAtualizarOrientacao({
-														id_orientacao: 0,
-													})
-												}
-											>
-												<FaPlus /> Nova Orientação
-											</button>
-										</div>
+								<div className="row">
+									{/* Curso */}
+									<div className="col-sm-6">
+										<FormField
+											label="Curso:*"
+											id="selectCurso"
+											value={this.state.id_curso}
+											onChange={(e) => this.setState({ id_curso: e.target.value })}
+											isSelect
+											className="form-control form-control-sm"
+											options={[
+												<option key="0" value="0">
+													Selecione
+												</option>,
+												this.state.array_cursos.length > 0
+													? this.state.array_cursos.map((curso) =>
+														this.state.idAreaConcentracao === curso.id_areaConcentracao ? (
+															<option key={curso.id} value={curso.id}>
+																{curso.nome}
+															</option>
+														) : null
+													)
+													: [
+														<option key="0" value="0">
+															Nenhum curso encontrado
+														</option>,
+													],
+											]}
+										/>
 									</div>
 
-									<hr />
+									{/* Fase do processo */}
+									<div className="col-sm-6">
+										<FormField
+											label="Fase do processo:*"
+											id="selectFaseProcesso"
+											value={this.state.fase_processo}
+											onChange={(e) => this.setState({ fase_processo: e.target.value })}
+											isSelect
+											className="form-control form-control-sm"
+											options={[
+												<option key="0" value="0">
+													Selecione
+												</option>,
+												this.state.array_tiposBanca.length > 0
+													? this.state.array_tiposBanca.map((tipo) => (
+														<option key={tipo.id} value={tipo.id}>
+															{tipo.nome}
+														</option>
+													))
+													: [
+														<option key="0" value="0">
+															Nenhum resultado encontrado
+														</option>,
+													],
+											]}
+										/>
+									</div>
+								</div>
 
-									{/* Tabela de Orientações */}
-									<div className="table-responsive table-sm text-center">
-										<div className="table-wrapper">
-											<table className="table table-bordered table-striped table-hover bg-white text-center">
-												<thead
-													className="thead-light"
-													style={{ position: 'sticky', top: 0, zIndex: 1 }}
+								{/* Senha */}
+								<div className="row">
+									<div className="col-md-6">
+										<FormField
+											label="Senha"
+											id="senha"
+											type="password"
+											value={this.state.senha}
+											onChange={(e) => this.setState({ senha: e.target.value })}
+											placeholder="Informe sua senha"
+											className="form-control form-control-sm"
+										/>
+									</div>
+
+									{/* Repetir Senha */}
+									<div className="col-md-6">
+										<FormField
+											label="Repetir Senha"
+											id="confirmarSenha"
+											type="password"
+											value={this.state.confirmarSenha}
+											onChange={(e) => this.setState({ confirmarSenha: e.target.value })}
+											placeholder="Informe sua senha novamente"
+											className="form-control form-control-sm"
+										/>
+									</div>
+								</div>
+
+								{/* Informações adicionais */}
+								<FormField
+									label="Informações adicionais"
+									id="informacoes_adicionais"
+									value={this.state.informacoes_adicionais}
+									onChange={(e) => this.setState({ informacoes_adicionais: e.target.value })}
+									isTextarea
+									className="form-control form-control-sm"
+								/>
+
+								{/* Datas */}
+								<div className="row">
+									{/* Data/hora inicial do processo */}
+									<div className="col-sm-4">
+										<FormField
+											label="Data/hora inicial do processo:"
+											id="dataHoraInicialFaseProcesso"
+											type="datetime-local"
+											value={this.state.dataHoraInicialFaseProcesso}
+											onChange={(e) => this.setState({ dataHoraInicialFaseProcesso: e.target.value })}
+											additionalProps={{ min: '2022-01' }}
+											className="form-control form-control-sm"
+										/>
+									</div>
+
+									{/* Data/hora final do processo */}
+									<div className="col-sm-4">
+										<FormField
+											label="Data/hora final do processo:"
+											id="dataHoraFinalFaseProcesso"
+											type="datetime-local"
+											value={this.state.dataHoraFinalFaseProcesso}
+											onChange={(e) => this.setState({ dataHoraFinalFaseProcesso: e.target.value })}
+											additionalProps={{ min: '2022-01' }}
+											className="form-control form-control-sm"
+										/>
+									</div>
+
+									{/* Data/hora de conclusão */}
+									<div className="col-sm-4">
+										<FormField
+											label="Data/hora de conclusão:"
+											id="dataHoraConclusao"
+											type="datetime-local"
+											value={this.state.dataHoraConclusao}
+											onChange={(e) => this.setState({ dataHoraConclusao: e.target.value })}
+											additionalProps={{ min: '2022-01' }}
+											className="form-control form-control-sm"
+										/>
+									</div>
+								</div>
+
+								{/* Mensagens de Sucesso ou Erro */}
+								<SuccessErrorMessage success={this.state.success} error={this.state.error} />
+
+								{/* Botão de Salvar */}
+								<div className="float-right">
+									<button className="button">
+										<FaRegSave /> Salvar
+									</button>
+								</div>
+
+								{/* Orientações */}
+								<hr />
+
+								<div className="row">
+									<div className="col-sm-10">
+										<h3>
+											<FaUserGraduate /> Orientações
+										</h3>
+									</div>
+									<div className="col-sm-2">
+										{/* Botão para Cadastrar Nova Orientação */}
+										<button
+											className="btn btn-primary"
+											onClick={() =>
+												this.handlerShowModalCadastrarEAtualizarOrientacao({
+													id_orientacao: 0,
+												})
+											}
+										>
+											<FaPlus /> Nova Orientação
+										</button>
+									</div>
+								</div>
+
+								<hr />
+
+								{/* Tabela de Orientações */}
+								<DataTable
+									headers={[
+										'N° da orientação',
+										'Link',
+										'Orientando',
+										'Observação',
+										'Data/hora prevista',
+										'Ações',
+									]}
+									data={this.state.arrayOrientacao}
+									renderRow={(orientacao) => (
+										<tr
+											key={orientacao.id}
+											title="Clique aqui para obter mais informações sobre a orientação"
+										>
+											<td>{orientacao.id}</td>
+											<td>
+												{orientacao.link ? (
+													<a href={orientacao.link}>Link da orientação</a>
+												) : (
+													'Nenhum link anexado'
+												)}
+											</td>
+											<td>{orientacao.orientando}</td>
+											<td>{orientacao.observacao}</td>
+											<td>{orientacao.dataHoraPrevistaTb}</td>
+											<td>
+												<button
+													className="btn btn-sm btn-outline-primary"
+													onClick={() =>
+														this.handlerShowModalCadastrarEAtualizarOrientacao(orientacao)
+													}
 												>
-													<tr>
-														<th>N° da orientação</th>
-														<th scope="col">Link</th>
-														<th>Orientando</th>
-														<th>Observação</th>
-														<th>Data/hora prevista</th>
-														<th>Ações</th>
-													</tr>
-												</thead>
-												<tbody>
-													{this.state.arrayOrientacao.length > 0 ? (
-														this.state.arrayOrientacao.map((orientacao) => (
-															<tr
-																key={orientacao.id}
-																title="Clique aqui para obter mais informações sobre a orientação"
-															>
-																<td>{orientacao.id}</td>
-																<td>
-																	{orientacao.link ? (
-																		<a href={orientacao.link}>Link da orientação</a>
-																	) : (
-																		'Nenhum link anexado'
-																	)}
-																</td>
-																<td>{orientacao.orientando}</td>
-																<td>{orientacao.observacao}</td>
-																<td>{orientacao.dataHoraPrevistaTb}</td>
-																<td>
-																	<button
-																		className="btn btn-sm btn-outline-primary"
-																		onClick={() =>
-																			this.handlerShowModalCadastrarEAtualizarOrientacao(
-																				orientacao
-																			)
-																		}
-																	>
-																		<FaRegEdit /> Atualizar
-																	</button>
-																</td>
-															</tr>
-														))
-													) : (
-														<tr className="text-center">
-															<td colSpan="6">Nenhum resultado encontrado</td>
-														</tr>
-													)}
-												</tbody>
-											</table>
-										</div>
-									</div>
+													<FaRegEdit /> Atualizar
+												</button>
+											</td>
+										</tr>
+									)}
+									noDataText="Nenhum resultado encontrado"
+								/>
 
-									{/* Total de Registros */}
-									<div className="text-center font-weight-bold mt-3 mb-5">
-										Total de Registros: {this.state.arrayOrientacao.length}
-									</div>
-								</Modal.Body>
-							</Modal>
+								{/* Total de Registros */}
+								<div className="text-center font-weight-bold mt-3 mb-5">
+									Total de Registros: {this.state.arrayOrientacao.length}
+								</div>
+							</FormModal>
 
+							{/* Modal para Excluir Banca */}
 
-							<Modal
+							<ConfirmationModal
 								show={this.state.modalShowExcluirBanca}
 								onHide={this.handlerCloseModalExcluirBanca}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size="sm"
-								centered
-							>
-								<Form onSubmit={this.handleExcluirBanca}>
-									<Modal.Header closeButton>
-										<h4 className="titulo">
-											<FaUserGraduate /> Excluir banca
-										</h4>
-									</Modal.Header>
-									<Modal.Body className="text-center">
-										<p>
-											Confirmar a exclusão da banca de {this.state.tipo_banca} do orientando{' '}
-											{this.state.nome}
-										</p>
-										<button className="btn btn-outline-success">Confirmar</button>
-										<div className="row mt-2">
-											<div className="col-sm-12">
-												{this.state.success && (
-													<div className="alert alert-success text-center" role="alert">
-														{this.state.success}
-													</div>
-												)}
-												{this.state.error && (
-													<div className="alert alert-danger text-center" role="alert">
-														{this.state.error}
-													</div>
-												)}
-											</div>
-										</div>
-									</Modal.Body>
-								</Form>
-							</Modal>
-							<Modal
+								title={
+									<>
+										<FaUserGraduate /> Excluir banca
+									</>
+								}
+								message={
+									<>
+										Confirmar a exclusão da banca de {this.state.tipo_banca} do orientando{' '}
+										{this.state.nome}
+									</>
+								}
+								onConfirm={this.handleExcluirBanca}
+								successMessage={this.state.success}
+								errorMessage={this.state.error}
+							/>
+
+							{/* Modal para Emitir ATA */}
+
+							<FormModal
 								show={this.state.modalShowEmitirAta}
 								onHide={this.handlerCloseModalEmitirAta}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
+								title={
+									<>
+										<FaUserGraduate /> Emitir ata de {this.state.tipo_banca.toLowerCase()}
+									</>
+								}
 								size="md"
-								centered
+								onSubmit={this.handleCadastrarATA}
 							>
-								<Form onSubmit={this.handleCadastrarATA}>
-									<Modal.Header closeButton>
-										<h4 className="titulo">
-											<FaUserGraduate /> Emitir ata de {this.state.tipo_banca.toLowerCase()}
-										</h4>
-									</Modal.Header>
-									<Modal.Body>
-										<div className="form-group">
-											<label htmlFor="selectStatusAta">Status:</label>
-											<select
-												className="form-control form-control-sm"
-												id="selectStatusAta"
-												value={this.state.status_ata}
-												onChange={(e) => this.setState({ status_ata: e.target.value })}
-											>
-												<option value="0">Selecionar</option>
-												{this.state.array_status.length > 0 ? (
-													this.state.array_status.map((item) =>
-														parseInt(item.id) > 2 ? (
-															<option key={item.id} value={item.id}>
-																{item.nome}
-															</option>
-														) : null
-													)
-												) : (
-													<option value="0">Nenhum resultado encontrado</option>
-												)}
-											</select>
-										</div>
+								<FormField
+									label="Status:"
+									id="selectStatusAta"
+									value={this.state.status_ata}
+									onChange={(e) => this.setState({ status_ata: e.target.value })}
+									isSelect
+									className="form-control form-control-sm"
+									options={[
+										<option key="0" value="0">
+											Selecionar
+										</option>,
+										this.state.array_status.length > 0
+											? this.state.array_status.map((item) =>
+												parseInt(item.id) > 2 ? (
+													<option key={item.id} value={item.id}>
+														{item.nome}
+													</option>
+												) : null
+											)
+											: [
+												<option key="0" value="0">
+													Nenhum resultado encontrado
+												</option>,
+											],
+									]}
+								/>
 
-										<div className="row mt-2">
-											<div className="col-sm-12">
-												{this.state.success && (
-													<div className="alert alert-success text-center" role="alert">
-														{this.state.success}
-													</div>
-												)}
-												{this.state.error && (
-													<div className="alert alert-danger text-center" role="alert">
-														{this.state.error}
-													</div>
-												)}
-											</div>
-										</div>
-									</Modal.Body>
-									<Modal.Footer>
-										<button className="button">
-											<FaRegSave /> Salvar
-										</button>
-									</Modal.Footer>
-								</Form>
-							</Modal>
+								{/* Mensagens de Sucesso ou Erro */}
+								<SuccessErrorMessage success={this.state.success} error={this.state.error} />
 
+								{/* Botão de Salvar */}
+								<div className="d-flex justify-content-end">
+									<button className="button">
+										<FaRegSave /> Salvar
+									</button>
+								</div>
+							</FormModal>
 
+							{/* Modal para Atualizar ATA */}
 
-							<Modal
+							<FormModal
 								show={this.state.modalShowAtualizarAta}
 								onHide={this.handlerCloseModalAtualizarAta}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
+								title={
+									<>
+										<FaUserGraduate /> Atualizar ata de {this.state.tipo_banca}
+									</>
+								}
 								size="md"
-								centered
+								onSubmit={this.handleAtualizarATA}
 							>
-								<Form onSubmit={this.handleAtualizarATA}>
-									<Modal.Header closeButton>
-										<h4 className="titulo">
-											<FaUserGraduate /> Atualizar ata de {this.state.tipo_banca}
-										</h4>
-									</Modal.Header>
-									<Modal.Body>
-										<div className="form-group">
-											<label htmlFor="selectStatusAta">Status:</label>
-											<select
-												className="form-control"
-												id="selectStatusAta"
-												value={this.state.id_statusAta}
-												onChange={(e) => this.setState({ id_statusAta: e.target.value })}
-											>
-												<option value="0">Selecionar</option>
-												{this.state.array_status.length > 0 ? (
-													this.state.array_status.map((item) =>
-														parseInt(item.id) > 2 ? (
-															<option key={item.id} value={item.id}>
-																{item.nome}
-															</option>
-														) : null
-													)
-												) : (
-													<option value="0">Nenhum resultado encontrado</option>
-												)}
-											</select>
-										</div>
+								<FormField
+									label="Status:"
+									id="selectStatusAta"
+									value={this.state.id_statusAta}
+									onChange={(e) => this.setState({ id_statusAta: e.target.value })}
+									isSelect
+									className="form-control"
+									options={[
+										<option key="0" value="0">
+											Selecionar
+										</option>,
+										this.state.array_status.length > 0
+											? this.state.array_status.map((item) =>
+												parseInt(item.id) > 2 ? (
+													<option key={item.id} value={item.id}>
+														{item.nome}
+													</option>
+												) : null
+											)
+											: [
+												<option key="0" value="0">
+													Nenhum resultado encontrado
+												</option>,
+											],
+									]}
+								/>
 
-										<div className="row mt-2">
-											<div className="col-sm-12">
-												{this.state.success && (
-													<div className="alert alert-success text-center" role="alert">
-														{this.state.success}
-													</div>
-												)}
-												{this.state.error && (
-													<div className="alert alert-danger text-center" role="alert">
-														{this.state.error}
-													</div>
-												)}
-											</div>
-										</div>
-									</Modal.Body>
-									<Modal.Footer>
-										<button className="button">
-											<FaRegSave /> Salvar
-										</button>
-									</Modal.Footer>
-								</Form>
-							</Modal>
+								{/* Mensagens de Sucesso ou Erro */}
+								<SuccessErrorMessage success={this.state.success} error={this.state.error} />
 
+								{/* Botão de Salvar */}
+								<div className="d-flex justify-content-end">
+									<button className="button">
+										<FaRegSave /> Salvar
+									</button>
+								</div>
+							</FormModal>
 
-							<Modal
+							{/* Modal para Visualizar ATA */}
+
+							<CustomModal
 								show={this.state.modalShowVisualizarAta}
 								onHide={this.handlerCloseModalVisualizarAta}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
+								title={
+									<>
+										<FaUserGraduate /> Visualizar ata de {this.state.tipo_banca}
+									</>
+								}
 								size="lg"
 							>
-								<Modal.Header closeButton>
-									<h4 className="titulo">
-										<FaUserGraduate /> Visualizar ata de {this.state.tipo_banca}
-									</h4>
-								</Modal.Header>
-								<Modal.Body>
-									<div id="ata">
-										<div className="container">
-											<AtaDefesa
-												nome={this.state.nome}
-												id_curso={this.state.id_curso}
-												titulo={this.state.titulo}
-												data_horaPrevista={this.state.data_horaPrevista}
-												status_ata={this.state.status_ata}
-												arrayMembrosDaAtaDeDefesa={this.state.arrayMembrosDaAtaDeDefesa}
-												dataFormatAmericano={this.state.dataFormatAmericano}
-											/>
-										</div>
+								<div id="ata">
+									<div className="container">
+										{/* Se necessário, você pode envolver AtaDefesa com DocumentContainer */}
+										{/* <DocumentContainer> */}
+										<AtaDefesa
+											nome={this.state.nome}
+											id_curso={this.state.id_curso}
+											titulo={this.state.titulo}
+											data_horaPrevista={this.state.data_horaPrevista}
+											status_ata={this.state.status_ata}
+											arrayMembrosDaAtaDeDefesa={this.state.arrayMembrosDaAtaDeDefesa}
+											dataFormatAmericano={this.state.dataFormatAmericano}
+										/>
+										{/* </DocumentContainer> */}
 									</div>
-								</Modal.Body>
-								<Modal.Footer>
+								</div>
+								<div className="modal-footer">
 									<button className="button" onClick={() => print('ata')}>
 										Imprimir
 									</button>
-								</Modal.Footer>
-							</Modal>
+								</div>
+							</CustomModal>
 
-							<Modal
+							{/* cadastrar ficha de avaliação */}
+
+							<FormModal
 								show={this.state.modalShowEmitirFichaDeAvaliacao}
 								onHide={this.handlerCloseModalEmitirFichaDeAvaliacao}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
+								title={
+									<>
+										<FaWpforms /> Cadastrar ficha de avaliação
+									</>
+								}
 								size="lg"
-								centered
+								onSubmit={this.handleCadastrarFichaDeAvaliacao}
 							>
-								<Form onSubmit={this.handleCadastrarFichaDeAvaliacao}>
-									<Modal.Header closeButton>
-										<h4 className="titulo">
-											<FaWpforms /> Cadastrar ficha de avaliação
-										</h4>
-									</Modal.Header>
-									<Modal.Body>
-										{/* ... (Outros campos do formulário, como Orientando, Curso, etc.) */}
+								{/* Outros campos do formulário, como Orientando, Curso, etc. */}
+								{/* Exemplo de um campo adicional */}
+								<FormField
+									label="Orientando:"
+									id="selectOrientando"
+									value={this.state.id_orientando}
+									onChange={(e) => this.setState({ id_orientando: e.target.value })}
+									isSelect
+									options={[
+										<option key="0" value="0">
+											Selecione
+										</option>,
+										this.state.array_orientandos.map((orientando) => (
+											<option key={orientando.id} value={orientando.id}>
+												{orientando.nome}
+											</option>
+										)),
+									]}
+								/>
 
-										{/* Renderização das perguntas utilizando o componente PerguntaAvaliacao */}
-										{perguntas.map((pergunta) => (
-											<PerguntaAvaliacao
-												key={pergunta.numeroPergunta}
-												numeroPergunta={pergunta.numeroPergunta}
-												textoPergunta={pergunta.textoPergunta}
-												nomeEstadoResposta={pergunta.nomeEstadoResposta}
-												nomeEstadoResumo={pergunta.nomeEstadoResumo}
-												valorSelecionado={pergunta.valorSelecionado}
-												valorResumo={pergunta.valorResumo}
-												aoAlterarResposta={this.handleOptionChange}
-												aoAlterarResumo={this.handleResumoChange}
-												opcoes={pergunta.opcoes} // Isso permitirá passar opções personalizadas
-											/>
-										))}
+								{/* Renderização das perguntas utilizando o componente PerguntaAvaliacao */}
+								{perguntas.map((pergunta) => (
+									<PerguntaAvaliacao
+										key={pergunta.numeroPergunta}
+										numeroPergunta={pergunta.numeroPergunta}
+										textoPergunta={pergunta.textoPergunta}
+										nomeEstadoResposta={pergunta.nomeEstadoResposta}
+										nomeEstadoResumo={pergunta.nomeEstadoResumo}
+										valorSelecionado={this.state[pergunta.nomeEstadoResposta]}
+										valorResumo={this.state[pergunta.nomeEstadoResumo]}
+										aoAlterarResposta={this.handleOptionChange}
+										aoAlterarResumo={this.handleResumoChange}
+										opcoes={pergunta.opcoes}
+									/>
+								))}
 
-										{/* ... (Campos adicionais, se houver) */}
+								{/* Mensagens de sucesso ou erro */}
+								<SuccessErrorMessage success={this.state.success} error={this.state.error} />
 
-										{/* Mensagens de sucesso ou erro */}
-										<div className="row mt-2">
-											<div className="col-sm-12">
-												{this.state.success && (
-													<div className="alert alert-success text-center" role="alert">
-														{this.state.success}
-													</div>
-												)}
-												{this.state.error && (
-													<div className="alert alert-danger text-center" role="alert">
-														{this.state.error}
-													</div>
-												)}
-											</div>
-										</div>
-									</Modal.Body>
-									<Modal.Footer>
-										<button className="button">
-											<FaRegSave /> Salvar
-										</button>
-									</Modal.Footer>
-								</Form>
-							</Modal>
+								{/* Botão de Salvar */}
+								<div className="d-flex justify-content-end">
+									<button className="button">
+										<FaRegSave /> Salvar
+									</button>
+								</div>
+							</FormModal>
 
-							<Modal
+							{/* Atualizar ficha de avaliação */}
+
+							<FormModal
 								show={this.state.modalShowEditarFichaDeAvaliacao}
 								onHide={this.handlerCloseModalEditarFichaDeAvaliacao}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
+								title="Atualizar ficha de avaliação"
 								size="lg"
-								centered
+								onSubmit={this.handleAtualizarFichaDeAvaliacao}
 							>
-								<Form onSubmit={this.handleAtualizarFichaDeAvaliacao}>
-									<Modal.Header closeButton>
-										<h4 className="titulo">Atualizar ficha de avaliação</h4>
-									</Modal.Header>
-									<Modal.Body>
-										{/* Outros campos do formulário, como Orientando, Curso, etc. */}
-										<div className="row">
-											<div className="col-sm-6">
-												<div className="form-group">
-													<label>Orientando:*</label>
-													<select
-														className="form-control"
-														id="selectOrientando"
-														value={this.state.id_orientando}
-														onChange={(e) => this.setState({ id_orientando: e.target.value })}
-													>
-														{this.state.array_orientandos.length > 0 ? (
-															this.state.array_orientandos.map((orientando) =>
-																this.state.id_orientando === orientando.id ? (
-																	<option key={orientando.id} value={orientando.id}>
-																		{orientando.nome}
-																	</option>
-																) : null
-															)
-														) : (
-															<option value="0">Nenhum orientando encontrado</option>
-														)}
-													</select>
-												</div>
-											</div>
-											<div className="col-sm-6">
-												<div className="form-group">
-													<label>Curso:*</label>
-													<select
-														className="form-control"
-														id="selectCurso"
-														value={this.state.id_curso}
-														onChange={(e) => this.setState({ id_curso: e.target.value })}
-													>
-														{this.state.array_cursos.length > 0 ? (
-															this.state.array_cursos.map((curso) =>
-																this.state.id_curso === curso.id ? (
-																	<option key={curso.id} value={curso.id}>
-																		{curso.nome}
-																	</option>
-																) : null
-															)
-														) : (
-															<option value="0">Nenhum curso encontrado</option>
-														)}
-													</select>
-												</div>
-											</div>
-										</div>
-
-										{/* Renderização das perguntas utilizando o componente PerguntaAvaliacao */}
-										{perguntas.map((pergunta) => (
-											<PerguntaAvaliacao
-												key={pergunta.numeroPergunta}
-												numeroPergunta={pergunta.numeroPergunta}
-												textoPergunta={pergunta.textoPergunta}
-												nomeEstadoResposta={pergunta.nomeEstadoResposta}
-												nomeEstadoResumo={pergunta.nomeEstadoResumo}
-												valorSelecionado={pergunta.valorSelecionado}
-												valorResumo={pergunta.valorResumo}
-												aoAlterarResposta={this.handleOptionChange}
-												aoAlterarResumo={this.handleResumoChange}
-												opcoes={pergunta.opcoes} // Passa as opções personalizadas se houver
-											/>
-										))}
-
-										{/* Mensagens de sucesso ou erro */}
-										<div className="row mt-2">
-											<div className="col-sm-12">
-												{this.state.success && (
-													<div className="alert alert-success text-center" role="alert">
-														{this.state.success}
-													</div>
-												)}
-												{this.state.error && (
-													<div className="alert alert-danger text-center" role="alert">
-														{this.state.error}
-													</div>
-												)}
-											</div>
-										</div>
-									</Modal.Body>
-									<Modal.Footer>
-										<button className="button">
-											<FaRegSave /> Salvar
-										</button>
-									</Modal.Footer>
-								</Form>
-							</Modal>
-
-							<Modal
-								show={this.state.modalShowVisualizarFichaDeAvaliacao}
-								onHide={() => this.handlerCloseModalVisualizarFichaDeAvaliacao()}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size='xl'
-								centered>
-								<Modal.Header closeButton>
-								</Modal.Header>
-								<Modal.Body>
-									<div id="ficha_avaliacao" className='page'>
-										<img style={{ width: '100%', marginBottom: '20px' }} src={Logo_ATA} />
-										<h6 className='text-center font-weight-bold'>IVY ENBER CHRISTIAN UNIVERSITY</h6>
-										<h6 className='text-center font-weight-bold mb-3'>FICHA DE AVALIAÇÃO DA QUALIFICAÇÃO DO PROJETO</h6>
-
-										<p>ALUNO(A): {this.state.nome}</p>
-										<p>NÍVEL:  {this.state.id_curso === 1 || this.state.id_curso === 3 ? `(x) MESTRADO  ( ) DOUTORADO}` : `( ) MESTRADO  (x) DOUTORADO`}</p>
-										<p>ÁREA DE CONCENTRAÇÃO: {this.state.areaConcentracao}</p>
-										<p>LINHA DE PESQUISA: {this.state.linha_pesquisa}</p>
-										<p>TÍTULO DO PROJETO DE DISSERTAÇÃO/TESE: {this.state.titulo_teseOuDissertacao}</p>
-										<p>ORIENTADOR(A): {this.state.orientador}</p>
-										<p>AVALIADOR(A): {this.state.membro_interno}</p>
-										<p>{this.state.membro_interno}</p>
-
-										<p>1 - O título do projeto reflete o estudo a ser realizado</p>
-										<p>{this.state.titulo_projeto === "SIM" ? "(X)" : "()"} SIM</p>
-										<p>{this.state.titulo_projeto === "PARCIALMENTE" ? "(X)" : "()"} PARCIALMENTE</p>
-										<p>{this.state.titulo_projeto === "NÃO" ? "(X)" : "()"} NÃO</p>
-										<p>Resumo: {this.state.resumoQ1}</p>
-
-										<p>2 - A pergunta condutora está explicitada?</p>
-										<p>{this.state.pergunta_condutora === "SIM" ? "(X)" : "()"} SIM</p>
-										<p>{this.state.pergunta_condutora === "PARCIALMENTE" ? "(X)" : "()"} PARCIALMENTE</p>
-										<p>{this.state.pergunta_condutora === "NÃO" ? "(X)" : "()"} NÃO</p>
-
-										<p>Resumo: {this.state.resumoQ2}</p>
-
-										<p>3 - A hipótese (não responder quando o desenho do estudo não couber a formulação de hipótese) está
-											redigida de forma clara e o estudo proposto permite testá-la?</p>
-										<p>{this.state.hipotese === "SIM" ? "(X)" : "()"} SIM</p>
-										<p>{this.state.hipotese === "PARCIALMENTE" ? "(X)" : "()"} PARCIALMENTE</p>
-										<p>{this.state.hipotese === "NÃO" ? "(X)" : "()"} NÃO</p>
-
-										<p>Resumo: {this.state.resumoQ3}</p>
-
-										<p>4 - A fundamentação teórica e empírica (revisão da literatura) dá sustentação ao estudo tanto nos aspectos
-											teóricos quanto metodológicos?</p>
-
-										<p>7350 FUTURES DRIVE •
-											ORLANDO • FL 32819 WWW.ENBER.EDUCATION • TEL.:
-											+1 (321) 300-9710</p>
-
-										<p>{this.state.fundamentacao_teorica === "SIM" ? "(X)" : "()"} SIM</p>
-										<p>{this.state.fundamentacao_teorica === "PARCIALMENTE" ? "(X)" : "()"} PARCIALMENTE</p>
-										<p>{this.state.fundamentacao_teorica === "NÃO" ? "(X)" : "()"} NÃO</p>
-
-										<p>Sugestão: {this.state.resumoQ4}</p>
-
-										<p>5 - Os objetivos estão redigidos de forma clara e poderão ser atingidos a partir do estudo empírico
-											delineado?</p>
-										<p>{this.state.objetivo === "SIM" ? "(X)" : "()"} SIM</p>
-										<p>{this.state.objetivo === "PARCIALMENTE" ? "(X)" : "()"} PARCIALMENTE</p>
-										<p>{this.state.objetivo === "NÃO" ? "(X)" : "()"} NÃO</p>
-
-										<p>Sugestão: {this.state.resumoQ5}</p>
-
-										<p>6 - O método contempla os passos necessários para garantir a validação interna da pesquisa?</p>
-										<p>{this.state.metodo === "SIM" ? "(X)" : "()"} SIM</p>
-										<p>{this.state.metodo === "PARCIALMENTE" ? "(X)" : "()"} PARCIALMENTE</p>
-										<p>{this.state.metodo === "NÃO" ? "(X)" : "()"} NÃO</p>
-
-										<p>Sugestão: {this.state.resumoQ6}</p>
-
-										<p>7 - O cronograma proposto é compatível com a proposta?</p>
-										<p>{this.state.cronograma === "SIM" ? "(X)" : "()"} SIM</p>
-										<p>{this.state.cronograma === "PARCIALMENTE" ? "(X)" : "()"} PARCIALMENTE</p>
-										<p>{this.state.cronograma === "NÃO" ? "(X)" : "()"} NÃO</p>
-
-										<p>Sugestão: {this.state.resumoQ7}</p>
-
-										<p>7 - CONCLUSÃO DA AVALIAÇÃO</p>
-
-										<p>{this.state.conclusao_avaliacao === "APROVADO SEM MODIFICAÇÕES" ? "(X)" : "()"} APROVADO SEM MODIFICAÇÕES</p>
-										<p>{this.state.conclusao_avaliacao === "APROVADO COM NECESSIDADE DE OBSERVAR AS ALTERAÇÕES SUGERIDAS E LIBERAÇÃO DO ORIENTADOR" ? "(X)" : "()"} APROVADO COM NECESSIDADE DE OBSERVAR AS ALTERAÇÕES SUGERIDAS E
-											LIBERAÇÃO DO ORIENTADOR</p>
-										<p>{this.state.conclusao_avaliacao === "ENCAMINHADO PARA NOVA QUALIFICAÇÃO DE PROJETO APÓS OBSERVADAS AS ALTERAÇÕES SUGERIDAS COM OS MESMOS COMPONENETES DA BANCA QUE FEZ A AVALIAÇÃO INICIAL" ? "(X)" : "()"} ENCAMINHADO PARA NOVA QUALIFICAÇÃO DE PROJETO APÓS OBSERVADAS AS
-											ALTERAÇÕES SUGERIDAS COM OS MESMOS COMPONENETES DA BANCA QUE FEZ A
-											AVALIAÇÃO INICIAL</p>
-
-										<p>Sugestão: {this.state.resumoQ8}</p>
-
-										<p>7350 FUTURES DRIVE •
-											ORLANDO • FL 32819 WWW.ENBERUNIVERSITY.COM • TEL.:
-											+1 (321) 300-9710</p>
-
-										<p>Orientações:</p>
-										<p>A orientanda terá o tempo de 20 min para fazer a sua exposição da sua pesquisa
-											Cada um dos membros da banca terá 20 min para fazer as suas considerações a respeito do texto enviado
-											para avaliação;</p>
-										<p>Em seguida, a banca reunir-se á em uma outra sala do Meet a fim de que possa redigir o seu parecer final
-											referente a qualificação/defesa.</p>
-										<p>Link do Meet: meet.google.com/hvf-khsa-cfq</p>
-
-										<p>ENCAMINHADO A COORDENAÇÃO / COLEGIADO PARA PROVIDÊNCIAS ADMINISTRATIVAS
-											CABÍVEIS</p>
-
-										<p>Orlando Flórida, {this.state.dataFichaAvaliacaoPtBr}</p>
-
-										<hr />
-										<div className="row mt-5 text-center">
-											<div className="col border-bottom border-dark  mr-1">
-												<img className="img-fluid" src={this.state.assinatura_presidente} />
-											</div>
-
-										</div>
-
-										<p className='text-center'>Assinatura do Examinador</p>
+								{/* Outros campos do formulário, como Orientando, Curso, etc. */}
+								<div className="row">
+									<div className="col-sm-6">
+										<FormField
+											label="Orientando:*"
+											id="selectOrientando"
+											value={this.state.id_orientando}
+											onChange={(e) => this.setState({ id_orientando: e.target.value })}
+											isSelect
+											options={
+												this.state.array_orientandos.length > 0
+													? this.state.array_orientandos.map((orientando) =>
+														this.state.id_orientando === orientando.id ? (
+															<option key={orientando.id} value={orientando.id}>
+																{orientando.nome}
+															</option>
+														) : null
+													)
+													: [
+														<option key="0" value="0">
+															Nenhum orientando encontrado
+														</option>,
+													]
+											}
+										/>
 									</div>
-								</Modal.Body>
-								<Modal.Footer>
-									<button className='button' onClick={() => print('ficha_avaliacao')}>Imprimir</button>
-								</Modal.Footer>
-							</Modal>
+									<div className="col-sm-6">
+										<FormField
+											label="Curso:*"
+											id="selectCurso"
+											value={this.state.id_curso}
+											onChange={(e) => this.setState({ id_curso: e.target.value })}
+											isSelect
+											options={
+												this.state.array_cursos.length > 0
+													? this.state.array_cursos.map((curso) =>
+														this.state.id_curso === curso.id ? (
+															<option key={curso.id} value={curso.id}>
+																{curso.nome}
+															</option>
+														) : null
+													)
+													: [
+														<option key="0" value="0">
+															Nenhum curso encontrado
+														</option>,
+													]
+											}
+										/>
+									</div>
+								</div>
+
+								{/* Renderização das perguntas utilizando o componente PerguntaAvaliacao */}
+								{perguntas.map((pergunta) => (
+									<PerguntaAvaliacao
+										key={pergunta.numeroPergunta}
+										numeroPergunta={pergunta.numeroPergunta}
+										textoPergunta={pergunta.textoPergunta}
+										nomeEstadoResposta={pergunta.nomeEstadoResposta}
+										nomeEstadoResumo={pergunta.nomeEstadoResumo}
+										valorSelecionado={this.state[pergunta.nomeEstadoResposta]}
+										valorResumo={this.state[pergunta.nomeEstadoResumo]}
+										aoAlterarResposta={this.handleOptionChange}
+										aoAlterarResumo={this.handleResumoChange}
+										opcoes={pergunta.opcoes} // Passa as opções personalizadas se houver
+									/>
+								))}
+
+								{/* Mensagens de sucesso ou erro */}
+								<SuccessErrorMessage success={this.state.success} error={this.state.error} />
+
+								{/* Botão de Salvar */}
+								<div className="d-flex justify-content-end">
+									<button className="button">
+										<FaRegSave /> Salvar
+									</button>
+								</div>
+							</FormModal>
+
+							<CustomModal
+								show={this.state.modalShowVisualizarFichaDeAvaliacao}
+								onHide={this.handlerCloseModalVisualizarFichaDeAvaliacao}
+								size="xl"
+							>
+								<FichaDeAvaliacao
+									nome={this.state.nome}
+									id_curso={this.state.id_curso}
+									areaConcentracao={this.state.areaConcentracao}
+									linha_pesquisa={this.state.linha_pesquisa}
+									titulo_teseOuDissertacao={this.state.titulo_teseOuDissertacao}
+									orientador={this.state.orientador}
+									membro_interno={this.state.membro_interno}
+									titulo_projeto={this.state.titulo_projeto}
+									resumoQ1={this.state.resumoQ1}
+									pergunta_condutora={this.state.pergunta_condutora}
+									resumoQ2={this.state.resumoQ2}
+									hipotese={this.state.hipotese}
+									resumoQ3={this.state.resumoQ3}
+									fundamentacao_teorica={this.state.fundamentacao_teorica}
+									resumoQ4={this.state.resumoQ4}
+									objetivo={this.state.objetivo}
+									resumoQ5={this.state.resumoQ5}
+									metodo={this.state.metodo}
+									resumoQ6={this.state.resumoQ6}
+									cronograma={this.state.cronograma}
+									resumoQ7={this.state.resumoQ7}
+									conclusao_avaliacao={this.state.conclusao_avaliacao}
+									resumoQ8={this.state.resumoQ8}
+									dataFichaAvaliacaoPtBr={this.state.dataFichaAvaliacaoPtBr}
+									assinatura_presidente={this.state.assinatura_presidente}
+									Logo_ATA={Logo_ATA}
+								/>
+							</CustomModal>
+
+							{/* modal de declaração de participação */}
 
 							<Modal
 								show={this.state.modalShowVisualizarDeclaracao}
@@ -2437,10 +1973,12 @@ export default class Index extends Component {
 														{this.state.sexo === 'M' ? 'o ' : 'a '}
 														{this.state.sexo === 'M' ? 'Prof. Dr. ' : 'Prof(a). Dr(a). '}
 														<b>{this.state.membro.toUpperCase()}</b>, participou em{' '}
-														{this.state.data_horaPrevistaPtBr}, como {this.getMemberRolePortuguese(this.state.membro)} da
-														Comissão Examinadora da {this.getBancaTypePortuguese()}
-														{this.getCourseTypePortuguese()} de <b>{this.state.orientando.toUpperCase()}</b>,
-														discente regular do {this.getProgramNamePortuguese()}, Curso de{' '}
+														{this.state.data_horaPrevistaPtBr}, como{' '}
+														{this.getMemberRolePortuguese(this.state.membro)} da Comissão Examinadora da{' '}
+														{this.getBancaTypePortuguese()}
+														{this.getCourseTypePortuguese()} de{' '}
+														<b>{this.state.orientando.toUpperCase()}</b>, discente regular do{' '}
+														{this.getProgramNamePortuguese()}, Curso de{' '}
 														{this.state.curso ? this.state.curso.split(' ', 1)[0] : ''}, cujo trabalho se
 														intitula <b>{this.state.titulo_banca.toUpperCase()}</b>. A Comissão Examinadora foi
 														constituída pelos seguintes membros:
@@ -2453,7 +1991,13 @@ export default class Index extends Component {
 													isEnglish={this.state.documentoEmIngles}
 												/>
 
-												<p className={this.state.documentoEmIngles ? 'text-right p-3' : 'mt-2 text-right p-4'}>
+												<p
+													className={
+														this.state.documentoEmIngles
+															? 'text-right p-3'
+															: 'mt-2 text-right p-4'
+													}
+												>
 													{this.state.documentoEmIngles
 														? this.state.dataDeclaracaoEnUs
 														: `Orlando, ${this.state.data_horaPrevistaPtBr}`}
@@ -2488,6 +2032,8 @@ export default class Index extends Component {
 								</Modal.Footer>
 							</Modal>
 
+							{/* Modal Visualizar Declaração de Orientação */}
+
 							<Modal
 								show={this.state.modalShowVisualizarDeclaracaoDeOrientacao}
 								onHide={this.handlerCloseModalVisualizarDeclaracaoDeOrientacao}
@@ -2515,31 +2061,20 @@ export default class Index extends Component {
 														style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '12pt', textAlign: 'justify' }}
 														className="p-3"
 													>
-														{/* Conteúdo em Inglês */}
 														&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;We hereby declare that{' '}
-														{this.state.sexo === 'M' ? ' Prof. Dr. ' : ' Prof. Dr. '}
-														<b>{this.state.orientador}</b> from the{' '}
-														{/* Aqui você pode ajustar conforme necessário */}
-														supervised the thesis of {this.state.orientando}, a regular student in the Master's
-														course titled: <b>{this.state.title.toUpperCase()}</b>.
+														{this.state.sexo === 'M' ? 'Prof. Dr. ' : 'Prof(a). Dr(a). '}
+														<b>{this.state.orientador}</b>, from the {this.getProgramNameEnglish()}, supervised the{' '}
+														{this.getCourseTypeEnglish()} of {this.state.orientando.toUpperCase()}, a regular student in the{' '}
+														{this.getProgramNameEnglish()}, titled <b>{this.state.title.toUpperCase()}</b>.
 													</p>
 												) : (
 													<p style={{ fontSize: '12pt', textAlign: 'justify' }} className="p-3">
-														{/* Conteúdo em Português */}
-														&nbsp;&nbsp;&nbsp;&nbsp;Declaramos que o(a){' '}
-														{this.state.sexo === 'M' ? ' Prof. Dr. ' : ' Prof(a). Dr(a). '}{' '}
-														<b>{this.state.orientador}</b> do(a){' '}
-														{this.state.id_curso === 1
-															? ' Programa de Pós-Graduação em Ciências da Educação'
-															: ' Programa de Pós-Graduação em Teologia'}
-														, realizou a orientação da{' '}
-														{this.state.id_curso === 1 ? 'dissertação' : 'tese'} de{' '}
-														{this.state.orientando.toUpperCase()}, discente regular do
-														{this.state.id_curso === 1
-															? ' Programa de Pós-Graduação em Ciências da Educação'
-															: ' Programa de Pós-Graduação em Teologia'}
-														, no curso de {this.state.curso.split(' ', 1)[0]} cujo trabalho se intitula:{' '}
-														<b>{this.state.titulo}</b>
+														&nbsp;&nbsp;&nbsp;&nbsp;Declaramos que {this.state.sexo === 'M' ? 'o ' : 'a '}
+														{this.state.sexo === 'M' ? 'Prof. Dr. ' : 'Prof(a). Dr(a). '}
+														<b>{this.state.orientador}</b>, do(a) {this.getProgramNamePortuguese()}, realizou a orientação da{' '}
+														{this.getCourseTypePortuguese()} de {this.state.orientando.toUpperCase()}, discente regular do{' '}
+														{this.getProgramNamePortuguese()}, no curso de {this.state.curso.split(' ', 1)[0]}, cujo trabalho se
+														intitula: <b>{this.state.titulo}</b>.
 													</p>
 												)}
 
@@ -2569,9 +2104,11 @@ export default class Index extends Component {
 									</div>
 								</Modal.Body>
 								<Modal.Footer>
-									<Button onClick={() => print('declaracao_participacao')}>Imprimir</Button>
+									<Button onClick={() => this.print('declaracao_participacao')}>Imprimir</Button>
 								</Modal.Footer>
 							</Modal>
+
+							{/* Modal Visualizar Certificado de Aprovacao */}
 
 							<Modal
 								show={this.state.modalShowVisualizarCertificadoDeAprovacao}
@@ -2603,19 +2140,8 @@ export default class Index extends Component {
 												Sociais, pela Comissão Examinadora:
 											</p>
 
-											{this.state.arrayMembrosDaDeclaracaoDeParticipacao.length > 0 &&
-												this.state.arrayMembrosDaDeclaracaoDeParticipacao.map((membro) => (
-													<div key={membro.id}>
-														<img
-															className="img-fluid"
-															style={{ width: '220px', display: 'block', margin: '0 auto' }}
-															src={membro.assinatura}
-															alt={`Assinatura de ${membro.nome}`}
-														/>
-														<hr />
-														<p className="text-center">{membro.nome.toUpperCase()}</p>
-													</div>
-												))}
+											{/* Utilizando o componente MemberSignatures */}
+											<MemberSignatures membros={this.state.arrayMembrosDaDeclaracaoDeParticipacao} />
 
 											<DocumentFooter />
 										</DocumentContainer>
@@ -2623,44 +2149,35 @@ export default class Index extends Component {
 								</Modal.Body>
 							</Modal>
 
-							<Modal
-								show={this.state.modalShowFinalizarBanca}
-								onHide={() => this.handlerCloseModalFinalizarBanca()}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size='sm'
-								centered>
-								<Form onSubmit={this.atualizarBanca}>
-									<Modal.Header closeButton>
-										<h4 className='titulo'><FaCalendarWeek /> Finalizar banca</h4>
-									</Modal.Header>
-									<Modal.Body className='text-center'>
-										<p>Confirmar a finalização da banca de {this.state.tipo_banca} do orientando {this.state.nome}</p>
-										<button className='btn btn-outline-success'>Confirmar</button>
+							{/* Modal Finalizar Banca */}
 
-										<div className="row mt-2">
-											<div className="col-sm-12">
-												{this.state.success && (
-													<div
-														className="alert alert-success text-center"
-														role="alert"
-													>
-														{this.state.success}
-													</div>
-												)}
-												{this.state.error && (
-													<div
-														className="alert alert-danger text-center"
-														role="alert"
-													>
-														{this.state.error}
-													</div>
-												)}
-											</div>
-										</div>
-									</Modal.Body>
+							<CustomModal
+								show={this.state.modalShowFinalizarBanca}
+								onHide={this.handlerCloseModalFinalizarBanca}
+								title={
+									<>
+										<FaCalendarWeek /> Finalizar banca
+									</>
+								}
+								size="sm"
+							>
+								<Form onSubmit={this.atualizarBanca}>
+									<div className="text-center">
+										<p>
+											Confirmar a finalização da banca de {this.state.tipo_banca} do orientando{' '}
+											{this.state.nome}
+										</p>
+										<ConfirmButton>Confirmar</ConfirmButton>
+
+										<SuccessErrorMessage
+											success={this.state.success}
+											error={this.state.error}
+										/>
+									</div>
 								</Form>
-							</Modal>
+							</CustomModal>
+
+							{/* Modal Visualizar Folha de Aprovacao */}
 
 							<Modal
 								show={this.state.modalShowVisualizarFolhaDeAprovacao}
@@ -2687,6 +2204,8 @@ export default class Index extends Component {
 									</div>
 								</Modal.Body>
 							</Modal>
+
+							{/* Modal Emitir Folha de Aprovacao */}
 
 							<Modal
 								show={this.state.modalShowCadastrarEAtualizarFolhaDeAprovacao}
@@ -2738,6 +2257,8 @@ export default class Index extends Component {
 								</Modal.Body>
 							</Modal>
 
+							{/* Modal Emitir Declaração de Orientação */}
+
 							<Modal
 								show={this.state.modalShowEmitirDeclaracaoDeOrientacao}
 								onHide={() => this.handlerCloseModalEmitirDeclaracaoDeOrientacao()}
@@ -2786,6 +2307,8 @@ export default class Index extends Component {
 									</Modal.Body>
 								</Form>
 							</Modal>
+
+							{/* Modal Visualizar Declaração de Orientação */}
 
 							<Modal
 								show={this.state.modalShowVisualizarDeclaracaoDeOrientacao}
@@ -2947,6 +2470,8 @@ export default class Index extends Component {
 								</Modal.Footer>
 							</Modal>
 
+							{/* Modal Visualizar Certificado de Aprovacao */}
+
 							<Modal
 								show={this.state.modalShowVisualizarCertificadoDeAprovacao}
 								onHide={() => this.handlerCloseModalVisualizarCertificadoDeAprovacao()}
@@ -2989,6 +2514,8 @@ export default class Index extends Component {
 									</div>
 								</Modal.Body>
 							</Modal>
+
+							{/* Modal Atualizar Banca */}
 
 							<Modal
 								show={this.state.modalShowAtualizarBanca}

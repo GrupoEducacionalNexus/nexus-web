@@ -10,39 +10,40 @@ const PerguntaAvaliacao = ({
   valorResumo,
   aoAlterarResposta,
   aoAlterarResumo,
-  opcoes = ['SIM', 'PARCIALMENTE', 'NÃO'],
+  opcoes,
 }) => (
-  <>
-    <p>{numeroPergunta} - {textoPergunta}</p>
-    {opcoes.map((opcao) => (
-      <div className="form-check" key={opcao}>
-        <label className="form-check-label">
-          <input
-            type="radio"
-            className="form-check-input"
-            name={`radioQ${numeroPergunta}Option`}
-            value={opcao}
-            checked={valorSelecionado === opcao}
-            onChange={() => aoAlterarResposta(nomeEstadoResposta, opcao)}
-          />
-          {opcao}
-        </label>
+  <div className="pergunta-avaliacao">
+    <p>
+      <strong>
+        {numeroPergunta}. {textoPergunta}
+      </strong>
+    </p>
+    {/* Opções de resposta */}
+    {opcoes.map((opcao, index) => (
+      <div key={index} className="form-check">
+        <input
+          className="form-check-input"
+          type="radio"
+          name={nomeEstadoResposta}
+          value={opcao.valor}
+          checked={valorSelecionado === opcao.valor}
+          onChange={(e) => aoAlterarResposta(nomeEstadoResposta, e.target.value)}
+        />
+        <label className="form-check-label">{opcao.label}</label>
       </div>
     ))}
-    <hr />
-    <div className="form-group">
-      <label>Resumo:*</label>
+    {/* Campo de resumo, se aplicável */}
+    <div className="form-group mt-2">
+      <label htmlFor={nomeEstadoResumo}>Resumo:</label>
       <textarea
-        className="form-control form-control-sm"
-        id={`textareaResumoQ${numeroPergunta}`}
-        placeholder="Digite o resumo"
-        onChange={(e) => aoAlterarResumo(nomeEstadoResumo, e.target.value)}
+        className="form-control"
+        id={nomeEstadoResumo}
+        rows="3"
         value={valorResumo}
-        rows="4"
-        cols="100"
+        onChange={(e) => aoAlterarResumo(nomeEstadoResumo, e.target.value)}
       ></textarea>
     </div>
-  </>
+  </div>
 );
 
 export default PerguntaAvaliacao;
