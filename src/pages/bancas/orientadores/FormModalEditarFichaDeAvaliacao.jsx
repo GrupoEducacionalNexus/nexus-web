@@ -57,15 +57,15 @@ const FormModalEditarFichaDeAvaliacao = ({
             options={
               array_orientandos.length > 0
                 ? array_orientandos.map((orientando) => (
-                    <option key={orientando.id} value={orientando.id}>
-                      {orientando.nome}
-                    </option>
-                  ))
+                  <option key={orientando.id} value={orientando.id}>
+                    {orientando.nome}
+                  </option>
+                ))
                 : [
-                    <option key="0" value="0">
-                      Nenhum orientando encontrado
-                    </option>,
-                  ]
+                  <option key="0" value="0">
+                    Nenhum orientando encontrado
+                  </option>,
+                ]
             }
           />
         </div>
@@ -79,21 +79,34 @@ const FormModalEditarFichaDeAvaliacao = ({
             options={
               array_cursos.length > 0
                 ? array_cursos.map((curso) => (
-                    <option key={curso.id} value={curso.id}>
-                      {curso.nome}
-                    </option>
-                  ))
+                  <option key={curso.id} value={curso.id}>
+                    {curso.nome}
+                  </option>
+                ))
                 : [
-                    <option key="0" value="0">
-                      Nenhum curso encontrado
-                    </option>,
-                  ]
+                  <option key="0" value="0">
+                    Nenhum curso encontrado
+                  </option>,
+                ]
             }
           />
         </div>
       </div>
-
-      {getPerguntas({
+      {getPerguntas.map((pergunta) => (
+        <PerguntaAvaliacao
+          key={pergunta.numeroPergunta}
+          numeroPergunta={pergunta.numeroPergunta}
+          textoPergunta={pergunta.textoPergunta}
+          nomeEstadoResposta={pergunta.nomeEstadoResposta}
+          nomeEstadoResumo={pergunta.nomeEstadoResumo}
+          valorSelecionado={pergunta.valorSelecionado}
+          valorResumo={pergunta.valorResumo}
+          aoAlterarResposta={(e) => handleOptionChange(pergunta.nomeEstadoResposta, e.target.value)}
+          aoAlterarResumo={(e) => handleResumoChange(pergunta.nomeEstadoResumo, e.target.value)}
+          opcoes={pergunta.opcoes}
+        />
+      ))}
+      {/* {getPerguntas({
         titulo_projeto,
         pergunta_condutora,
         hipotese,
@@ -123,7 +136,7 @@ const FormModalEditarFichaDeAvaliacao = ({
           aoAlterarResumo={(e) => handleResumoChange(pergunta.nomeEstadoResumo, e.target.value)}
           opcoes={pergunta.opcoes}
         />
-      ))}
+      ))} */}
 
       <SuccessErrorMessage success={success} error={error} />
 

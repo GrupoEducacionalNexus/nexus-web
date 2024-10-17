@@ -1,4 +1,4 @@
-// apiServices.js
+// nexus-web/src/pages/bancas/orientadores/apiServices.js
 
 import api from '../../../services/api';
 import { getToken } from '../../../services/auth';
@@ -26,7 +26,6 @@ export const listaDeCursos = async (token) => {
     return [];
   }
 };
-
 
 // Função para excluir banca
 export const excluirBanca = async (id_banca, id_tipoBanca, id_orientando) => {

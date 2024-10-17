@@ -27,7 +27,7 @@ function FilterForm({ nome, linhasDePesquisas, tiposDeBanca, onNomeChange, onLin
             onChange={onLinhaPesquisaChange}
           >
             <option value="0">Selecione</option>
-            {linhasDePesquisas.length > 0
+            {linhasDePesquisas?.length > 0
               ? linhasDePesquisas.map(linha => (
                   <option key={linha.id} value={linha.id}>{linha.linha_pesquisa}</option>
                 ))
