@@ -1,7 +1,7 @@
 // apiServices.js
 
-import api from '../../services/api';
-import { getToken } from '../../services/auth';
+import api from '../../../services/api';
+import { getToken } from '../../../services/auth';
 
 // Função para listar cursos
 export const listaDeCursos = async (token) => {
@@ -489,28 +489,3 @@ export const cadastrarEatualizarDeclaracaoDeOrientacao = async (declaracaoData, 
     return { status: 500, msg: 'Erro ao cadastrar ou atualizar declaração de orientação' };
   }
 };
-
-
-const listaDeAreasConcentracao = async () => {
-  try {
-      const response = await fetch(`${api.baseURL}/areas_concentracao`, {
-          method: 'GET',
-          headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-          }
-      });
-
-      const data = await response.json();
-      console.log(data);
-      
-      if (data.status === 200) {
-          return data.resultados;
-      }
-  } catch (error) {
-      return error;
-  }
-};
-
-export { listaDeAreasConcentracao };
-

@@ -9,8 +9,8 @@ import Logo from '../../assets/enber.png';
 import Backgroud_enber from '../../assets/background_enber.jpg';
 import { listaDeOrientadores } from '../../services/getListaDeOrientadores';
 import { listaTipoDeDocumentos } from '../../services/getListaTipoDeDocumentos';
+import { listaDeAreasConcentracao } from '../../services/getListaDeAreasConcentracao';
 import { listaDeLinhasDePesquisas } from '../../services/getListaDeLinhasDePesquisas';
-import { listaDeAreasConcentracao } from '../bancas/apiServices';
 
 export default class Index extends Component {
 	constructor(props) {
