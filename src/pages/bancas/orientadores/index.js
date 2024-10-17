@@ -4,47 +4,65 @@ import styled from 'styled-components';
 import { getToken } from '../../../services/auth';
 import Logo_ATA from '../../../assets/logo_ata.jpg';
 import { Button, Col, Container, Row } from 'react-bootstrap';
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
 import Modal from 'react-bootstrap/Modal';
-import FormInput from './FormInput';
-import FormSelect from './FormSelect';
-import FormTextarea from './FormTextarea';
-import DocumentHeader from './DocumentHeader';
-import DocumentFooter from './DocumentFooter';
-import SignatureBlock from './SignatureBlock';
-import DocumentContainer from './DocumentContainer';
-
-import {
-	FaUserGraduate,
-	FaLayerGroup,
-	FaCalendarWeek,
-	FaRegEdit,
-	FaRegPlusSquare,
-	FaRegSave,
-	FaWpforms,
-	FaPlus,
-} from 'react-icons/fa';
-
-import { listaDeAreasConcentracao } from '../../../services/getListaDeAreasConcentracao';
+import { FaUserGraduate, FaCalendarWeek, FaRegSave, FaWpforms } from 'react-icons/fa';
+import Menu from '../../../components/Menu';
+import AdminNavbar from '../../../components/Navbar';
+import MainContent from '../../../components/MainContent';
+import UserContext from '../../../UserContext';
+import FormModalOrientando from './FormModalOrientando';
+import ModalVisualizarDeclaracaoDeOrientacao from './ModalVisualizarDeclaracaoDeOrientacao';
+import ModalVisualizarCertificadoDeAprovacao from './ModalVisualizarCertificadoDeAprovacao';
+import ModalEmitirDeclaracaoDeOrientacao from './ModalEmitirDeclaracaoDeOrientacao';
+import ModalEmitirFolhaDeAprovacao from './ModalEmitirFolhaDeAprovacao';
+import ModalAtualizarBanca from './ModalAtualizarBanca';
 import { listaDeLinhasDePesquisas } from '../../../services/getListaDeLinhasDePesquisas';
-import { listaDeOrientadores } from '../../../services/getListaDeOrientadores';
-import { listaDeMembrosExternos } from '../../../services/getListaDeMembrosExternos';
 import { print } from '../../../services/print';
 import { AtaDefesa } from '../../../components/AtaDefesa';
 import { FolhaDeAprovacao } from '../../../components/FolhaDeAprovacao';
-import Menu from '../../../components/Menu';
 import backgroundImage from '../../../assets/sistema_chamados.png';
-import MainContent from '../../../components/MainContent';
-import FloatingMenu from '../../../components/FloatingMenu';
-import UserContext from '../../../UserContext';
-import Select from 'react-select';
-import RODAPE1 from '../../../assets/rodape1.png';
-import RODAPE2 from '../../../assets/rodape2.png';
-import RODAPE3 from '../../../assets/rodape3.png';
-import RODAPE4 from '../../../assets/rodape4.png';
-import BACKGROUND_ENBER from '../../../assets/background_enber.png';
-import ASSINATURA_JOSUE from '../../../assets/assinatura_josue.png';
+import PerguntaAvaliacao from './PerguntaAvaliacao';
+import MemberList from './MemberList';
+import CustomModal from './CustomModal';
+import FichaDeAvaliacao from './FichaAvaliacao';
+import SuccessErrorMessage from './SuccessErrorMessage';
+import FormMultiSelect from './FormMultiSelect';
+import MemberSignatures from './MemberSignatures';
+import ConfirmButton from './ConfirmeButton';
+import FormField from './FormField';
+import FormModal from './FormModal';
+import ConfirmationModal from './ConfirmationModal';
+import DataTable from './DataTable';
+import OrientandosTab from './OrientandosTab';
+import StatisticsPanel from './StatisticsPanel';
+import BancasTab from './BancasTab';
+import { MenuFlutuante } from './MenuFlutuante';
+import { getPerguntas } from './perguntas';
+import RegisterBancaModal from './RegisterBancaModal';
+import StatisticsTabsPanel from './StatisticsTabPanel';
+import FormModalEditarOrientando from './FormModalEditarOrientando';
+import ModalDeclaracaoParticipacao from './ModalDeclaracaoParticipacao';
+import FormModalEditarFichaDeAvaliacao from './FormModalEditarFichaDeAvaliacao';
+import {
+	handlerMostrarModalCadastrarBanca,
+	handlerFecharModalCadastrarBanca,
+	handlerMostrarModalAtualizarBanca,
+	handlerFecharModalAtualizarBanca,
+	handlerMostrarModalExcluirBanca,
+	handlerFecharModalExcluirBanca,
+	carregarMembrosDaDeclaracaoDeParticipacao,
+	handleCadastrarOrientando,
+	handleAtualizarOrientando,
+	handleCadastrarBanca,
+	handleAtualizarBanca,
+	handleExcluirBanca,
+	getMemberRoleEnglish,
+	getCourseTypeEnglish,
+	getBancaTypeEnglish,
+	getBancaTypePortuguese,
+	getProgramNameEnglish,
+	handleResumoChange,
+} from './funcoesBanca';
 
 import {
 	listaDeCursos,
@@ -69,24 +87,12 @@ import {
 	buscaInformacoesDoOrientador,
 	cadastrarEatualizarFolhaDeAprovacao,
 	cadastrarEatualizarDeclaracaoDeOrientacao,
-} from './apiServices';
-import AdminNavbar from '../../../components/Navbar';
-import PerguntaAvaliacao from './PerguntaAvaliacao';
-import MemberList from './MemberList';
-import CustomModal from './CustomModal';
-import FichaDeAvaliacao from './FichaAvaliacao';
-import SuccessErrorMessage from './SuccessErrorMessage';
-import FormMultiSelect from './FormMultiSelect';
-import MemberSignatures from './MemberSignatures';
-import ConfirmButton from './ConfirmButton';
-import FormField from './FormField';
-import FormModal from './FormModal';
-import ConfirmationModal from './ConfirmationModal';
-import DataTable from './DataTable';
-import OrientandosTab from './OrientandosTab';
-import StatisticsPanel from './StatisticsPanel';
-import BancasTab from './BancasTab';
-import { MenuFlutuante } from './MenuFlutuante';
+} from '../apiServices';
+import ConfirmationModalExcluirBanca from './ConfirmationModalExcluirBanca';
+import FormModalEmitirAta from './FormModalEmitirAta';
+import DocumentFooter from './DocumentFooter';
+
+
 
 export default class Index extends Component {
 	static contextType = UserContext;
@@ -231,7 +237,110 @@ export default class Index extends Component {
 
 	}
 
+	// Métodos que chamam as funções importadas
+	handlerFecharModalCadastrarBanca = () => {
+		handlerFecharModalCadastrarBanca(this);
+	};
+
+	// Modais de Atualizar Banca
+	handlerMostrarModalAtualizarBanca = (banca) => {
+		handlerMostrarModalAtualizarBanca(this, banca);
+	};
+
+	handlerFecharModalAtualizarBanca = () => {
+		handlerFecharModalAtualizarBanca(this);
+	};
+
+	// Modais de Excluir Banca
+	handlerMostrarModalExcluirBanca = (banca) => {
+		handlerMostrarModalExcluirBanca(this, banca);
+	};
+
+	handlerFecharModalExcluirBanca = () => {
+		handlerFecharModalExcluirBanca(this);
+	};
+
+	// Modais de Finalizar Banca
+	handlerMostrarModalFinalizarBanca = (banca) => {
+		this.handlerMostrarModalFinalizarBanca(this, banca);
+	};
+
+	handlerFecharModalFinalizarBanca = () => {
+		this.handlerFecharModalFinalizarBanca(this);
+	};
+
+	// Manipulação de Formulários
+	handleCadastrarOrientando = (e) => {
+		handleCadastrarOrientando(this, e);
+	};
+
+	handleAtualizarOrientando = (e) => {
+		handleAtualizarOrientando(this, e);
+	};
+
+	handleCadastrarBanca = (e) => {
+		handleCadastrarBanca(this, e);
+	};
+
+	handleAtualizarBanca = (e) => {
+		handleAtualizarBanca(this, e);
+	};
+
+	handleExcluirBanca = (e) => {
+		handleExcluirBanca(this, e);
+	};
+
+	// Manipulação de Opções e Resumos
+	handleOptionChange = (nomeEstadoResposta, valor) => {
+		this.handleOptionChange(this, nomeEstadoResposta, valor);
+	};
+
+	handleResumoChange = (nomeEstadoResumo, valor) => {
+		this.handleResumoChange(this, nomeEstadoResumo, valor);
+	};
+
+	// Funções Utilitárias
+	obterPapelMembroEmInglês = (membroNome) => {
+		return getMemberRoleEnglish(this, membroNome);
+	};
+
+	obterPapelMembroEmPortuguês = (membroNome) => {
+		return this.getMemberRolePortuguese(this, membroNome);
+	};
+
+	obterTipoCursoEmInglês = () => {
+		return getCourseTypeEnglish(this);
+	};
+
+	obterTipoCursoEmPortuguês = () => {
+		// return getCourseTypePortuguese(this);
+	};
+
+	obterTipoBancaEmInglês = () => {
+		return getBancaTypeEnglish(this);
+	};
+
+	obterTipoBancaEmPortuguês = () => {
+		return getBancaTypePortuguese(this);
+	};
+
+	obterNomeProgramaEmInglês = () => {
+		return getProgramNameEnglish(this);
+	};
+
+	obterNomeProgramaEmPortuguês = () => {
+		// return getProgramNamePortuguese(this);
+	};
+
+	// Fechar Modal de Visualizar Declaração
+	handlerFecharModalVisualizarDeclaracao = () => {
+		this.handlerFecharModalVisualizarDeclaracao(this);
+	};
 	componentDidMount() {
+		// Carregar membros da declaração de participação
+		carregarMembrosDaDeclaracaoDeParticipacao(this);
+
+		// Carregar outras informações necessárias
 		this.loadInformacoesDoOrientador();
 		this.loadOrientandos();
 		this.loadBancas(1);
@@ -265,472 +374,6 @@ export default class Index extends Component {
 		}
 	};
 
-	loadTiposDeBanca = async () => {
-		const tiposBancaData = await listaDeTiposDeBanca(getToken());
-		this.setState({ array_tiposBanca: tiposBancaData });
-	};
-
-	loadCursos = async () => {
-		const cursosData = await listaDeCursos(getToken());
-		this.setState({ array_cursos: cursosData });
-	};
-
-	// Funções para manipular modais e eventos
-
-	// Modal Cadastrar Banca
-	setModalShowCadastrarBanca = (valor) => {
-		this.setState({ modalShowCadastrarBanca: valor });
-	};
-
-	handlerShowModalCadastrarBanca = async () => {
-		this.setModalShowCadastrarBanca(true);
-		await this.loadTiposDeBanca();
-		const areasConcentracaoData = await listaDeAreasConcentracao();
-		this.setState({ arrayAreaConcentracao: areasConcentracaoData });
-
-		const linhasDePesquisasData = await listaDeLinhasDePesquisas(this.state.idAreaConcentracao);
-		this.setState({ arrayLinhasDePesquisas: linhasDePesquisasData });
-
-		const orientadoresData = await listaDeOrientadores(0);
-		let arrayMembrosInternos = [];
-		if (orientadoresData.length > 0) {
-			orientadoresData.forEach((item) => {
-				if (item.id_usuario !== this.context.user.id) {
-					arrayMembrosInternos.push({ value: item.id_usuario, label: item.nome });
-				}
-			});
-			this.setState({ arrayMembrosInternos });
-		}
-
-		const membrosExternosData = await listaDeMembrosExternos();
-		let arrayMembrosExternos = [];
-		if (membrosExternosData.length > 0) {
-			membrosExternosData.forEach((item) => {
-				arrayMembrosExternos.push({ value: item.id_usuario, label: item.nome });
-			});
-			this.setState({ arrayMembrosExternos });
-		}
-	};
-
-	handlerCloseModalCadastrarBanca = () => {
-		this.setModalShowCadastrarBanca(false);
-		this.setState({
-			success: '',
-			error: '',
-			id_orientando: '',
-			id_tipoBanca: '',
-			data_horaPrevista: '',
-			arraySelectedMembrosInternos: [],
-			arraySelectedMembrosExternos: [],
-			titulo: '',
-			title: '',
-			resumo: '',
-			palavra_chave: '',
-		});
-	};
-
-	// Modal Atualizar Banca
-	setModalShowAtualizarBanca = (valor) => {
-		this.setState({ modalShowAtualizarBanca: valor });
-	};
-
-	handlerShowModalAtualizarBanca = async (banca) => {
-		this.setModalShowAtualizarBanca(true);
-		this.setState({
-			id_banca: banca.id,
-			id_orientador: banca.id_orientador,
-			id_orientando: banca.id_orientando,
-			id_tipoBanca: banca.id_tipoBanca,
-			idAreaConcentracao: banca.id_areaConcentracao,
-			idLinhaPesquisa: banca.id_linhaPesquisa,
-			data_horaPrevista: banca.dataHoraPrevista,
-			titulo: banca.titulo,
-			title: banca.title,
-			resumo: banca.resumo,
-			palavra_chave: banca.palavra_chave,
-		});
-
-		// Carregar membros da banca
-		const membrosDaBancaData = await listaDeMembrosDaBanca(banca.id);
-		let arraySelectedMembrosInternos = [];
-		let arraySelectedMembrosExternos = [];
-
-		membrosDaBancaData.forEach((membro) => {
-			if (membro.id_tipo === 2) {
-				arraySelectedMembrosInternos.push({ value: membro.id, label: membro.nome });
-			}
-			if (membro.id_tipo === 3) {
-				arraySelectedMembrosExternos.push({ value: membro.id, label: membro.nome });
-			}
-		});
-
-		this.setState({ arraySelectedMembrosInternos, arraySelectedMembrosExternos });
-
-		await this.loadTiposDeBanca();
-		const areasConcentracaoData = await listaDeAreasConcentracao();
-		this.setState({ arrayAreaConcentracao: areasConcentracaoData });
-
-		const linhasDePesquisasData = await listaDeLinhasDePesquisas(this.state.idAreaConcentracao);
-		this.setState({ arrayLinhasDePesquisas: linhasDePesquisasData });
-
-		const orientadoresData = await listaDeOrientadores(0);
-		let arrayMembrosInternos = [];
-		if (orientadoresData.length > 0) {
-			orientadoresData.forEach((item) => {
-				if (item.id_usuario !== this.context.user.id) {
-					arrayMembrosInternos.push({ value: item.id_usuario, label: item.nome });
-				}
-			});
-			this.setState({ arrayMembrosInternos });
-		}
-
-		const membrosExternosData = await listaDeMembrosExternos();
-		let arrayMembrosExternos = [];
-		if (membrosExternosData.length > 0) {
-			membrosExternosData.forEach((item) => {
-				arrayMembrosExternos.push({ value: item.id_usuario, label: item.nome });
-			});
-			this.setState({ arrayMembrosExternos });
-		}
-	};
-
-	handlerCloseModalAtualizarBanca = () => {
-		this.setModalShowAtualizarBanca(false);
-		this.setState({
-			success: '',
-			error: '',
-			id_orientando: '',
-			id_tipoBanca: '',
-			data_horaPrevista: '',
-			arraySelectedMembrosInternos: [],
-			arraySelectedMembrosExternos: [],
-			titulo: '',
-			title: '',
-			resumo: '',
-			palavra_chave: '',
-		});
-	};
-
-	// Modal Excluir Banca
-	setModalShowExcluirBanca = (valor) => {
-		this.setState({ modalShowExcluirBanca: valor });
-	};
-
-	handlerShowModalExcluirBanca = (banca) => {
-		this.setState({
-			id_banca: banca.id,
-			tipo_banca: banca.tipo_banca,
-			nome: banca.orientando,
-			id_tipoBanca: banca.id_tipoBanca,
-			id_orientando: banca.id_orientando,
-		});
-		this.setModalShowExcluirBanca(true);
-	};
-
-	handlerCloseModalExcluirBanca = () => {
-		this.setModalShowExcluirBanca(false);
-		this.setState({
-			success: '',
-			error: '',
-			id_banca: '',
-			tipo_banca: '',
-			nome: '',
-		});
-	};
-
-	// Modal Finalizar Banca
-	setModalShowFinalizarBanca = (valor) => {
-		this.setState({ modalShowFinalizarBanca: valor });
-	};
-
-	handlerShowModalFinalizarBanca = (banca) => {
-		this.setState({
-			id_banca: banca.id,
-			tipo_banca: banca.tipo_banca,
-			nome: banca.orientando,
-			id_tipoBanca: banca.id_tipoBanca,
-			id_orientando: banca.id_orientando,
-		});
-		this.setModalShowFinalizarBanca(true);
-	};
-
-	handlerCloseModalFinalizarBanca = () => {
-		this.setModalShowFinalizarBanca(false);
-		this.setState({
-			success: '',
-			error: '',
-			id_banca: '',
-			tipo_banca: '',
-			nome: '',
-		});
-	};
-
-	// Funções de manipulação de formulários
-
-	// Cadastrar Orientando
-	handleCadastrarOrientando = async (e) => {
-		e.preventDefault();
-
-		const {
-			nome,
-			email,
-			senha,
-			confirmarSenha,
-			id_curso,
-			informacoes_adicionais,
-			fase_processo,
-			dataHoraInicialFaseProcesso,
-			dataHoraFinalFaseProcesso,
-			dataHoraConclusao,
-		} = this.state;
-
-		if (
-			!nome ||
-			!email ||
-			!senha ||
-			!confirmarSenha ||
-			!id_curso ||
-			!informacoes_adicionais ||
-			!fase_processo ||
-			!dataHoraInicialFaseProcesso ||
-			!dataHoraFinalFaseProcesso ||
-			!dataHoraConclusao
-		) {
-			this.setState({ error: 'Por favor, preencher todos os campos!' });
-			return;
-		}
-
-		if (senha !== confirmarSenha) {
-			this.setState({ error: 'Por favor, informe senhas iguais!' });
-			return;
-		}
-
-		const orientandoData = {
-			nome,
-			email,
-			senha,
-			id_curso: parseInt(id_curso),
-			informacoes_adicionais,
-			fase_processo,
-			dataHoraInicialFaseProcesso,
-			dataHoraFinalFaseProcesso,
-			dataHoraConclusao,
-		};
-
-		const result = await cadastrarOrientando(orientandoData);
-
-		if (result.status === 200) {
-			this.setState({ success: result.msg });
-			this.loadOrientandos();
-			this.handlerCloseModalCadastrarOrientando();
-		} else {
-			this.setState({ error: result.msg || 'Erro ao cadastrar orientando' });
-		}
-	};
-
-	// Atualizar Orientando
-	handleAtualizarOrientando = async (e) => {
-		e.preventDefault();
-
-		const {
-			id_usuario,
-			id_orientando,
-			nome,
-			email,
-			senha,
-			confirmarSenha,
-			id_curso,
-			informacoes_adicionais,
-			fase_processo,
-			dataHoraInicialFaseProcesso,
-			dataHoraFinalFaseProcesso,
-			dataHoraConclusao,
-		} = this.state;
-
-		if (!nome || !email || !senha || !confirmarSenha || !id_curso) {
-			this.setState({ error: 'Por favor, preencher todos os campos!' });
-			return;
-		}
-
-		if (senha !== confirmarSenha) {
-			this.setState({ error: 'Por favor, informe senhas iguais!' });
-			return;
-		}
-
-		const orientandoData = {
-			id_usuario,
-			nome,
-			email,
-			senha,
-			id_curso: parseInt(id_curso),
-			informacoes_adicionais,
-			fase_processo,
-			dataHoraInicialFaseProcesso,
-			dataHoraFinalFaseProcesso,
-			dataHoraConclusao,
-		};
-
-		const result = await atualizarOrientando(id_orientando, orientandoData);
-
-		if (result.status === 200) {
-			this.setState({ success: result.msg });
-			this.loadOrientandos();
-			this.handlerCloseModalEditarOrientando();
-		} else {
-			this.setState({ error: result.msg || 'Erro ao atualizar orientando' });
-		}
-	};
-
-	// Cadastrar Banca
-	handleCadastrarBanca = async (e) => {
-		e.preventDefault();
-
-		const {
-			id_orientando,
-			id_tipoBanca,
-			data_horaPrevista,
-			idLinhaPesquisa,
-			arraySelectedMembrosInternos,
-			arraySelectedMembrosExternos,
-			titulo,
-			title,
-			resumo,
-			palavra_chave,
-		} = this.state;
-
-		if (
-			!id_orientando ||
-			!id_tipoBanca ||
-			!idLinhaPesquisa ||
-			!data_horaPrevista ||
-			arraySelectedMembrosInternos.length === 0 ||
-			arraySelectedMembrosExternos.length === 0
-		) {
-			this.setState({ error: 'Por favor, preencher todos os campos!' });
-			return;
-		}
-
-		const bancaData = {
-			id_orientando,
-			id_tipoBanca,
-			id_linhaPesquisa: idLinhaPesquisa,
-			arraySelectedMembrosInternos,
-			arraySelectedMembrosExternos,
-			data_horaPrevista,
-			titulo,
-			title,
-			resumo,
-			palavra_chave,
-		};
-
-		const result = await cadastrarBanca(bancaData);
-
-		if (result.status === 200) {
-			this.setState({ success: result.msg });
-			this.loadBancas(1);
-			this.loadBancas(2);
-			this.handlerCloseModalCadastrarBanca();
-		} else {
-			this.setState({ error: result.msg || 'Erro ao cadastrar banca' });
-		}
-	};
-
-	// Atualizar Banca
-	handleAtualizarBanca = async (e) => {
-		e.preventDefault();
-
-		const {
-			id_banca,
-			id_orientador,
-			id_orientando,
-			id_tipoBanca,
-			data_horaPrevista,
-			idLinhaPesquisa,
-			arraySelectedMembrosInternos,
-			arraySelectedMembrosExternos,
-			titulo,
-			title,
-			resumo,
-			palavra_chave,
-		} = this.state;
-
-		if (
-			!id_orientando ||
-			!id_tipoBanca ||
-			!idLinhaPesquisa ||
-			!data_horaPrevista ||
-			arraySelectedMembrosInternos.length === 0 ||
-			arraySelectedMembrosExternos.length === 0
-		) {
-			this.setState({ error: 'Por favor, preencher todos os campos!' });
-			return;
-		}
-
-		const bancaData = {
-			id_orientador,
-			id_orientando,
-			id_tipoBanca,
-			idLinhaPesquisa,
-			arraySelectedMembrosInternos,
-			arraySelectedMembrosExternos,
-			data_horaPrevista,
-			titulo,
-			title,
-			resumo,
-			palavra_chave,
-		};
-
-		const result = await atualizarBanca(id_banca, bancaData);
-
-		if (result.status === 200) {
-			this.setState({ success: result.msg });
-			this.loadBancas(1);
-			this.loadBancas(2);
-			this.handlerCloseModalAtualizarBanca();
-		} else {
-			this.setState({ error: result.msg || 'Erro ao atualizar banca' });
-		}
-	};
-
-	// Excluir Banca
-	handleExcluirBanca = async (e) => {
-		e.preventDefault();
-		const { id_banca, id_tipoBanca, id_orientando } = this.state;
-
-		const result = await excluirBanca(id_banca, id_tipoBanca, id_orientando);
-
-		if (result.status === 200) {
-			this.setState({ success: result.msg });
-			this.loadBancas(1);
-			this.loadBancas(2);
-			this.handlerCloseModalExcluirBanca();
-		} else {
-			this.setState({ error: result.msg || 'Erro ao excluir banca' });
-		}
-	};
-
-	handleOptionChange = (nomeEstadoResposta, valor) => {
-		this.setState({ [nomeEstadoResposta]: valor });
-	};
-
-	handleResumoChange = (nomeEstadoResumo, valor) => {
-		this.setState({ [nomeEstadoResumo]: valor });
-	};
-
-	// Função para obter o tipo de membro em inglês
-	getMemberRoleEnglish = (membroNome) => {
-		const membro = this.state.arrayMembrosDaDeclaracaoDeParticipacao.find(
-			(membro) => membro.nome.slice(0, membro.nome.indexOf(' -')) === membroNome
-		);
-		if (membro) {
-			const tipo = membro.nome.slice(membro.nome.indexOf('-') + 1).trim();
-			if (tipo === 'presidente') return 'President';
-			if (tipo === 'membro externo') return 'External Member';
-			if (tipo === 'membro interno') return 'Internal Member';
-		}
-		return '';
-	};
-
 	// Função para obter o tipo de membro em português
 	getMemberRolePortuguese = (membroNome) => {
 		const membro = this.state.arrayMembrosDaDeclaracaoDeParticipacao.find(
@@ -738,130 +381,93 @@ export default class Index extends Component {
 		);
 		return membro ? membro.tipo : '';
 	};
-
-	// Função para obter o tipo de curso em inglês
-	getCourseTypeEnglish = () => {
-		const { id_curso } = this.state;
-		if (id_curso === 1 || id_curso === 3) return 'DISSERTATION';
-		if (id_curso === 2 || id_curso === 4) return 'THESIS';
-		return '';
+	loadTiposDeBanca = async () => {
+		const tiposBancaData = await listaDeTiposDeBanca(getToken());
+		this.setState({ array_tiposBanca: tiposBancaData });
+	};
+	loadCursos = async () => {
+		const cursosData = await listaDeCursos(getToken());
+		this.setState({ array_cursos: cursosData });
 	};
 
-	// Função para obter o tipo de curso em português
-	getCourseTypePortuguese = () => {
-		const { id_curso } = this.state;
-		if (id_curso === 1 || id_curso === 3) return ' DA DISSERTAÇÃO';
-		if (id_curso === 2 || id_curso === 4) return ' DE TESE';
-		return '';
+	// Define as funções como métodos da classe, chamando as funções importadas
+	handlerMostrarModalCadastrarBanca = () => {
+		handlerMostrarModalCadastrarBanca(this);
 	};
 
-	// Função para obter o tipo de banca em inglês
-	getBancaTypeEnglish = () => {
-		return this.state.id_tipoBanca === 1 ? 'QUALIFICATION' : 'DEFENSE';
+	handlerFecharModalCadastrarBanca = () => {
+		handlerFecharModalCadastrarBanca(this);
 	};
 
-	// Função para obter o tipo de banca em português
-	getBancaTypePortuguese = () => {
-		return this.state.id_tipoBanca === 1 ? 'QUALIFICAÇÃO' : 'DEFESA';
+	handlerMostrarModalAtualizarBanca = (banca) => {
+		handlerMostrarModalAtualizarBanca(this, banca);
 	};
 
-	// Função para obter o nome do programa em inglês
-	getProgramNameEnglish = () => {
-		const { id_curso } = this.state;
-		if (id_curso === 1) return "Master's Program in EDUCATION SCIENCES";
-		if (id_curso === 2) return 'Doctoral Program in EDUCATIONAL SCIENCES';
-		if (id_curso === 3) return "Master's Program in THEOLOGY";
-		if (id_curso === 4) return 'Doctoral Program in THEOLOGY';
-		return '';
+	handlerFecharModalAtualizarBanca = () => {
+		handlerFecharModalAtualizarBanca(this);
 	};
 
-	// Função para obter o nome do programa em português
-	getProgramNamePortuguese = () => {
-		const { id_curso } = this.state;
-		if (id_curso === 1 || id_curso === 2) return 'Programa de Pós-Graduação em Ciências da Educação';
-		if (id_curso === 3 || id_curso === 4) return 'Programa de Pós-Graduação em Teologia';
-		return '';
+	handleOptionChange = (nomeEstadoResposta, valor) => {
+		this.handleOptionChange(this, nomeEstadoResposta, valor);
 	};
 
-	handlerCloseModalVisualizarDeclaracao = () => {
-		this.setState({ modalShowVisualizarDeclaracao: false });
+	handleResumoChange = (nomeEstadoResumo, valor) => {
+		handleResumoChange(this, nomeEstadoResumo, valor);
+	};
+
+	handleInputChange = (nomeEstado, valor) => {
+		this.setState({ [nomeEstado]: valor });
+	};
+
+	handleSelectChange = (nomeEstado, valores) => {
+		this.setState({ [nomeEstado]: valores });
+	};
+
+	// Definindo a função para abrir o modal
+	handlerMostrarModalEmitirDeclaracaoDeOrientacao = () => {
+		this.setState({ modalShowEmitirDeclaracaoDeOrientacao: true });
+	};
+
+	// Definindo a função para fechar o modal
+	handlerCloseModalEmitirDeclaracaoDeOrientacao = () => {
+		this.setState({ modalShowEmitirDeclaracaoDeOrientacao: false });
+	};
+
+	// Funções para abrir e fechar o modal
+	setModalShowCadastrarEAtualizarFolhaDeAprovacao = (value) => {
+		this.setState({ modalShowCadastrarEAtualizarFolhaDeAprovacao: value });
+	};
+
+	setDataAprovacao = (value) => {
+		this.setState({ dataAprovacao: value });
+	};
+
+	handlerMostrarModalCadastrarEAtualizarFolhaDeAprovacao = (banca) => {
+		this.setState({ modalShowCadastrarEAtualizarFolhaDeAprovacao: true, id_banca: banca.id });
+	};
+
+	handlerCloseModalCadastrarEAtualizarFolhaDeAprovacao = () => {
+		this.setState({ modalShowCadastrarEAtualizarFolhaDeAprovacao: false });
+	};
+
+	handlerMostrarModalEmitirDeclaracaoDeOrientacao = (banca) => {
+		this.setState({
+			modalShowEmitirDeclaracaoDeOrientacao: true,
+			// outras propriedades relacionadas
+		});
+	};
+
+	handlerMostrarModalVisualizarDeclaracaoDeOrientacao = (banca) => {
+		this.setState({
+			modalShowVisualizarDeclaracaoDeOrientacao: true,
+			documentoEmIngles: banca.documentoEmIngles,
+			orientador: banca.orientador,
+			// outras propriedades relacionadas
+		});
 	};
 
 	// Renderização
 	render() {
-		// const perguntas = [
-		const perguntas = [
-			{
-				numeroPergunta: 1,
-				textoPergunta: 'O título do projeto reflete o estudo a ser realizado',
-				nomeEstadoResposta: 'titulo_projeto',
-				nomeEstadoResumo: 'resumoQ1',
-				valorSelecionado: this.state.titulo_projeto,
-				valorResumo: this.state.resumoQ1,
-			},
-			{
-				numeroPergunta: 2,
-				textoPergunta: 'A pergunta condutora está explicitada?',
-				nomeEstadoResposta: 'pergunta_condutora',
-				nomeEstadoResumo: 'resumoQ2',
-				valorSelecionado: this.state.pergunta_condutora,
-				valorResumo: this.state.resumoQ2,
-			},
-			// Adicione as demais perguntas seguindo o mesmo padrão
-			{
-				numeroPergunta: 3,
-				textoPergunta: 'A hipótese está redigida de forma clara e o estudo proposto permite testá-la?',
-				nomeEstadoResposta: 'hipotese',
-				nomeEstadoResumo: 'resumoQ3',
-				valorSelecionado: this.state.hipotese,
-				valorResumo: this.state.resumoQ3,
-			},
-			{
-				numeroPergunta: 4,
-				textoPergunta: 'A fundamentação teórica e empírica dá sustentação ao estudo?',
-				nomeEstadoResposta: 'fundamentacao_teorica',
-				nomeEstadoResumo: 'resumoQ4',
-				valorSelecionado: this.state.fundamentacao_teorica,
-				valorResumo: this.state.resumoQ4,
-			},
-			{
-				numeroPergunta: 5,
-				textoPergunta: 'Os objetivos estão redigidos de forma clara e poderão ser atingidos?',
-				nomeEstadoResposta: 'objetivo',
-				nomeEstadoResumo: 'resumoQ5',
-				valorSelecionado: this.state.objetivo,
-				valorResumo: this.state.resumoQ5,
-			},
-			{
-				numeroPergunta: 6,
-				textoPergunta: 'O método contempla os passos necessários para garantir a validação interna da pesquisa?',
-				nomeEstadoResposta: 'metodo',
-				nomeEstadoResumo: 'resumoQ6',
-				valorSelecionado: this.state.metodo,
-				valorResumo: this.state.resumoQ6,
-			},
-			{
-				numeroPergunta: 7,
-				textoPergunta: 'O cronograma proposto é compatível com a proposta?',
-				nomeEstadoResposta: 'cronograma',
-				nomeEstadoResumo: 'resumoQ7',
-				valorSelecionado: this.state.cronograma,
-				valorResumo: this.state.resumoQ7,
-			},
-			{
-				numeroPergunta: 8,
-				textoPergunta: 'Conclusão da avaliação',
-				nomeEstadoResposta: 'conclusao_avaliacao',
-				nomeEstadoResumo: 'resumoQ8',
-				valorSelecionado: this.state.conclusao_avaliacao,
-				valorResumo: this.state.resumoQ8,
-				opcoes: [
-					'APROVADO SEM MODIFICAÇÕES',
-					'APROVADO COM NECESSIDADE DE OBSERVAR AS ALTERAÇÕES SUGERIDAS E LIBERAÇÃO DO ORIENTADOR',
-					'ENCAMINHADO PARA NOVA QUALIFICAÇÃO DE PROJETO APÓS OBSERVADAS AS ALTERAÇÕES SUGERIDAS COM OS MESMOS COMPONENTES DA BANCA QUE FEZ A AVALIAÇÃO INICIAL',
-				],
-			},
-		];
 
 		const {
 			array_orientandos,
@@ -878,6 +484,7 @@ export default class Index extends Component {
 			arrayAnexosDaOrientacao,
 			arrayAnexosDoOrientando,
 			nome,
+			modalShowCadastrarEAtualizarFolhaDeAprovacao,
 		} = this.state;
 
 		return (
@@ -889,7 +496,7 @@ export default class Index extends Component {
 				minHeight: '100vh'
 			}}>
 
-				<Menu />
+				<Menu /> ...
 				<Row>
 					<Col xs={12}>
 						<AdminNavbar id_usuario={this.state.id_usuario}
@@ -907,691 +514,97 @@ export default class Index extends Component {
 								id_orientando={this.state.id_orientando}
 							>
 							</MenuFlutuante>
-							<div className="content">
-								<div className="content">
-									{/* Painel de Estatísticas */}
-									<StatisticsPanel
-										array_orientandos={array_orientandos}
-										array_bancasQ={array_bancasQ}
-										array_bancasD={array_bancasD}
-									/>
-
-									{/* Abas */}
-									<Tabs
-										variant="pills"
-										defaultActiveKey="bancas"
-										transition={false}
-										id="panel-admin"
-										className="justify-content-center"
-									>
-										<Tab eventKey="orientandos" title="Orientandos">
-											<OrientandosTab
-												nome={nome}
-												array_orientandos={array_orientandos}
-												arrayLinhasDePesquisas={arrayLinhasDePesquisas}
-												array_tiposBanca={array_tiposBanca}
-												handlerShowModalEditarOrientando={
-													this.handlerShowModalEditarOrientando
-												}
-												loadOrientandos={this.loadOrientandos}
-												setState={this.setState.bind(this)}
-											/>
-										</Tab>
-
-										<Tab eventKey="bancas" title="Bancas">
-											<BancasTab
-												array_bancasQ={array_bancasQ}
-												array_bancasD={array_bancasD}
-												handlerShowModalAtualizarBanca={this.handlerShowModalAtualizarBanca}
-												handlerShowModalEmitirDeclaracao={this.handlerShowModalEmitirDeclaracao}
-												handlerShowModalEmitirAta={this.handlerShowModalEmitirAta}
-												handlerShowModalAtualizarAta={this.handlerShowModalAtualizarAta}
-												handlerShowModalVisualizarAta={this.handlerShowModalVisualizarAta}
-												handlerShowModalEmitirFichaDeAvaliacao={
-													this.handlerShowModalEmitirFichaDeAvaliacao
-												}
-												handlerShowModalEditarFichaDeAvaliacao={
-													this.handlerShowModalEditarFichaDeAvaliacao
-												}
-												handlerShowModalVisualizarFichaDeAvaliacao={
-													this.handlerShowModalVisualizarFichaDeAvaliacao
-												}
-												handlerShowModalExcluirBanca={this.handlerShowModalExcluirBanca}
-												handlerShowModalFinalizarBanca={this.handlerShowModalFinalizarBanca}
-												handlerShowModalEmitirDeclaracaoDeOrientacao={
-													this.handlerShowModalEmitirDeclaracaoDeOrientacao
-												}
-												handlerShowModalVisualizarDeclaracaoDeOrientacao={
-													this.handlerShowModalVisualizarDeclaracaoDeOrientacao
-												}
-												handlerShowModalCadastrarEAtualizarFolhaDeAprovacao={
-													this.handlerShowModalCadastrarEAtualizarFolhaDeAprovacao
-												}
-												handlerShowModalVisualizarFolhaDeAprovacao={
-													this.handlerShowModalVisualizarFolhaDeAprovacao
-												}
-												handlerShowModalVisualizarCertificadoDeAprovacao={
-													this.handlerShowModalVisualizarCertificadoDeAprovacao
-												}
-											/>
-										</Tab>
-									</Tabs>
-								</div>
-								{/* /.content */}
-								<br />
+							<div>
+								<StatisticsTabsPanel
+									array_orientandos={this.state.array_orientandos}
+									array_bancasQ={this.state.array_bancasQ}
+									array_bancasD={this.state.array_bancasD}
+									arrayLinhasDePesquisas={this.state.arrayLinhasDePesquisas}
+									array_tiposBanca={this.state.array_tiposBanca}
+									nome={this.state.nome}
+									handlerShowModalEditarOrientando={this.handlerShowModalEditarOrientando}
+									loadOrientandos={this.loadOrientandos}
+									handlerShowModalAtualizarBanca={this.handlerShowModalAtualizarBanca}
+									handlerShowModalEmitirDeclaracao={this.handlerShowModalEmitirDeclaracao}
+									handlerShowModalEmitirAta={this.handlerShowModalEmitirAta}
+									handlerShowModalAtualizarAta={this.handlerShowModalAtualizarAta}
+									handlerShowModalVisualizarAta={this.handlerShowModalVisualizarAta}
+									handlerShowModalEmitirFichaDeAvaliacao={this.handlerShowModalEmitirFichaDeAvaliacao}
+									handlerShowModalEditarFichaDeAvaliacao={this.handlerShowModalEditarFichaDeAvaliacao}
+									handlerShowModalVisualizarFichaDeAvaliacao={this.handlerShowModalVisualizarFichaDeAvaliacao}
+									handlerShowModalExcluirBanca={this.handlerShowModalExcluirBanca}
+									handlerShowModalFinalizarBanca={this.handlerShowModalFinalizarBanca}
+									handlerShowModalEmitirDeclaracaoDeOrientacao={this.handlerShowModalEmitirDeclaracaoDeOrientacao}
+									handlerShowModalVisualizarDeclaracaoDeOrientacao={this.handlerShowModalVisualizarDeclaracaoDeOrientacao}
+									handlerShowModalCadastrarEAtualizarFolhaDeAprovacao={this.handlerShowModalCadastrarEAtualizarFolhaDeAprovacao}
+									handlerShowModalVisualizarFolhaDeAprovacao={this.handlerShowModalVisualizarFolhaDeAprovacao}
+									handlerShowModalVisualizarCertificadoDeAprovacao={this.handlerShowModalVisualizarCertificadoDeAprovacao}
+								/>
 							</div>
 
 							{/* Modal Cadastrar Banca */}
 
-							<CustomModal
+							<RegisterBancaModal
 								show={this.state.modalShowCadastrarBanca}
 								onHide={this.handlerCloseModalCadastrarBanca}
-								title={
-									<>
-										<FaLayerGroup /> Registrar uma nova banca
-									</>
-								}
-								size="xl"
-							>
-								<Form onSubmit={this.handleCadastrarBanca}>
-									<div className="row" style={{ maxHeight: '380px', overflowY: 'scroll' }}>
-										<div className="col-sm-6">
-											{/* Orientando */}
-											<FormSelect
-												label="Orientando:*"
-												id="selectOrientando"
-												value={this.state.id_orientando}
-												onChange={(e) => this.setState({ id_orientando: e.target.value })}
-												options={[
-													<option key="0" value="0">
-														Selecione
-													</option>,
-													this.state.array_orientandos.length > 0
-														? this.state.array_orientandos.map((orientando) => (
-															<option key={orientando.id} value={orientando.id}>
-																{orientando.nome.toUpperCase()}
-															</option>
-														))
-														: <option key="0" value="0">Nenhum orientando encontrado</option>,
-												]}
-											/>
-
-											{/* Tipo da banca */}
-											<FormSelect
-												label="Tipo da banca:*"
-												id="selectTipoBanca"
-												value={this.state.id_tipoBanca}
-												onChange={(e) => this.setState({ id_tipoBanca: e.target.value })}
-												options={[
-													<option key="0" value="0">
-														Selecione
-													</option>,
-													this.state.array_tiposBanca.length > 0
-														? this.state.array_tiposBanca.map((tipo) =>
-															parseInt(tipo.id) < 3 ? (
-																<option key={tipo.id} value={tipo.id}>
-																	{tipo.nome}
-																</option>
-															) : null
-														)
-														: <option key="0" value="0">Nenhum resultado encontrado</option>,
-												]}
-											/>
-
-											{/* Área de concentração */}
-											<FormSelect
-												label="Área de concentração:*"
-												id="selectAreaConcentracao"
-												value={this.state.idAreaConcentracao}
-												onChange={() => { }}
-												options={
-													this.state.arrayAreaConcentracao.length > 0
-														? this.state.arrayAreaConcentracao.map((area) =>
-															area.id === this.state.idAreaConcentracao ? (
-																<option key={area.id} value={area.id}>
-																	{area.nome}
-																</option>
-															) : null
-														)
-														: [
-															<option key="0" value="0">
-																Nenhuma área encontrada
-															</option>,
-														]
-												}
-												readOnly
-											/>
-
-											{/* Linha de pesquisa */}
-											<FormSelect
-												label="Linha de pesquisa:*"
-												id="selectLinhaPesquisa"
-												value={this.state.idLinhaPesquisa}
-												onChange={(e) => this.setState({ idLinhaPesquisa: e.target.value })}
-												options={[
-													<option key="0" value="0">
-														Selecione
-													</option>,
-													this.state.arrayLinhasDePesquisas.length > 0
-														? this.state.arrayLinhasDePesquisas.map((linha) => (
-															<option key={linha.id} value={linha.id}>
-																{linha.linha_pesquisa}
-															</option>
-														))
-														: <option key="0" value="0">Nenhuma linha de pesquisa encontrada</option>,
-												]}
-											/>
-
-											{/* Data e hora prevista */}
-											<FormInput
-												label="Data e hora prevista:"
-												id="dataHoraPrevista"
-												type="datetime-local"
-												value={this.state.data_horaPrevista}
-												onChange={(e) => this.setState({ data_horaPrevista: e.target.value })}
-												min="2022-01"
-											/>
-
-											{/* Membros internos */}
-											<FormMultiSelect
-												label="Membros internos:*"
-												options={this.state.arrayMembrosInternos}
-												value={this.state.arraySelectedMembrosInternos}
-												onChange={(e) => this.setState({ arraySelectedMembrosInternos: e })}
-											/>
-										</div>
-										<div className="col-sm-6">
-											{/* Membros externos */}
-											<FormMultiSelect
-												label="Membros externos:*"
-												options={this.state.arrayMembrosExternos}
-												value={this.state.arraySelectedMembrosExternos}
-												onChange={(e) => this.setState({ arraySelectedMembrosExternos: e })}
-											/>
-
-											{/* Título */}
-											<FormTextarea
-												label="Título:"
-												id="titulo"
-												rows="3"
-												value={this.state.titulo}
-												onChange={(e) => this.setState({ titulo: e.target.value })}
-											/>
-
-											{/* Título em inglês */}
-											<FormTextarea
-												label="Título em inglês:"
-												id="title"
-												rows="3"
-												value={this.state.title}
-												onChange={(e) => this.setState({ title: e.target.value })}
-											/>
-
-											{/* Resumo */}
-											<FormTextarea
-												label="Resumo:"
-												id="resumo"
-												rows="3"
-												value={this.state.resumo}
-												onChange={(e) => this.setState({ resumo: e.target.value })}
-											/>
-
-											{/* Palavra-chave */}
-											<FormTextarea
-												label="Palavra-chave:"
-												id="palavra_chave"
-												rows="3"
-												value={this.state.palavra_chave}
-												onChange={(e) => this.setState({ palavra_chave: e.target.value })}
-											/>
-										</div>
-									</div>
-
-									{/* Mensagens de Sucesso ou Erro */}
-									<SuccessErrorMessage
-										success={this.state.success}
-										error={this.state.error}
-									/>
-
-									{/* Botão de Salvar */}
-									<div className="d-flex justify-content-center">
-										<button className="button">
-											<FaRegSave /> Salvar
-										</button>
-									</div>
-								</Form>
-							</CustomModal>
+								handleSubmit={this.handleCadastrarBanca}
+								state={this.state}
+								handleChange={this.handleChange}
+								handleMultiSelectChange={this.handleMultiSelectChange}
+							/>
 
 							{/* Modal Cadastrar Orientando */}
-							<FormModal
+							<FormModalOrientando
 								show={this.state.modalShowCadastrarOrientando}
 								onHide={this.handlerCloseModalCadastrarOrientando}
-								title={
-									<>
-										<FaUserGraduate /> Cadastrar um novo orientando
-									</>
-								}
-								size="md"
-								onSubmit={this.handleCadastrarOrientando}
-							>
-								<p className="text-danger">
-									As informações cadastrais serão utilizadas pelo aluno para acessar a plataforma.
-								</p>
-								<div className="row">
-									<div className="col-sm-6">
-										{/* Nome */}
-										<FormField
-											label="Nome"
-											id="nome"
-											value={this.state.nome}
-											onChange={(e) => this.setState({ nome: e.target.value })}
-											placeholder="Digite seu nome completo"
-										/>
-
-										{/* Email */}
-										<FormField
-											label="Email"
-											id="email"
-											type="email"
-											value={this.state.email}
-											onChange={(e) => this.setState({ email: e.target.value })}
-											placeholder="Informe o seu email"
-										/>
-
-										{/* Curso */}
-										<FormField
-											label="Curso:*"
-											id="selectCurso"
-											value={this.state.id_curso}
-											onChange={(e) => this.setState({ id_curso: e.target.value })}
-											isSelect
-											options={[
-												<option key="0" value="0">
-													Selecione
-												</option>,
-												this.state.array_cursos.length > 0
-													? this.state.array_cursos.map((curso) => (
-														<option key={curso.id} value={curso.id}>
-															{curso.nome}
-														</option>
-													))
-													: [
-														<option key="0" value="0">
-															Nenhum curso encontrado
-														</option>,
-													],
-											]}
-										/>
-
-										{/* Senha */}
-										<div className="row" style={{ marginBottom: 20 }}>
-											<div className="col-md-6">
-												<FormField
-													label="Senha"
-													id="senha"
-													type="password"
-													value={this.state.senha}
-													onChange={(e) => this.setState({ senha: e.target.value })}
-													placeholder="Informe sua senha"
-												/>
-											</div>
-
-											{/* Repetir Senha */}
-											<div className="col-md-6">
-												<FormField
-													label="Repetir Senha"
-													id="confirmarSenha"
-													type="password"
-													value={this.state.confirmarSenha}
-													onChange={(e) => this.setState({ confirmarSenha: e.target.value })}
-													placeholder="Informe sua senha novamente"
-												/>
-											</div>
-										</div>
-
-										{/* Fase do processo */}
-										<FormField
-											label="Fase do processo:*"
-											id="selectFaseProcesso"
-											value={this.state.fase_processo}
-											onChange={(e) => this.setState({ fase_processo: e.target.value })}
-											isSelect
-											options={[
-												<option key="0" value="0">
-													Selecione
-												</option>,
-												this.state.array_tiposBanca.length > 0
-													? this.state.array_tiposBanca.map((tipo) => (
-														<option key={tipo.id} value={tipo.id}>
-															{tipo.nome}
-														</option>
-													))
-													: [
-														<option key="0" value="0">
-															Nenhum resultado encontrado
-														</option>,
-													],
-											]}
-										/>
-									</div>
-
-									<div className="col-sm-6">
-										{/* Informações adicionais */}
-										<FormField
-											label="Informações adicionais"
-											id="informacoes_adicionais"
-											value={this.state.informacoes_adicionais}
-											onChange={(e) => this.setState({ informacoes_adicionais: e.target.value })}
-											isTextarea
-										/>
-
-										{/* Data/hora inicial do processo */}
-										<FormField
-											label="Data/hora inicial do processo:"
-											id="dataHoraInicialFaseProcesso"
-											type="datetime-local"
-											value={this.state.dataHoraInicialFaseProcesso}
-											onChange={(e) => this.setState({ dataHoraInicialFaseProcesso: e.target.value })}
-											additionalProps={{ min: '2022-01' }}
-										/>
-
-										{/* Data/hora final do processo */}
-										<FormField
-											label="Data/hora final do processo:"
-											id="dataHoraFinalFaseProcesso"
-											type="datetime-local"
-											value={this.state.dataHoraFinalFaseProcesso}
-											onChange={(e) => this.setState({ dataHoraFinalFaseProcesso: e.target.value })}
-											additionalProps={{ min: '2022-01' }}
-										/>
-
-										{/* Data/hora de conclusão */}
-										<FormField
-											label="Data/hora de conclusão:"
-											id="dataHoraConclusao"
-											type="datetime-local"
-											value={this.state.dataHoraConclusao}
-											onChange={(e) => this.setState({ dataHoraConclusao: e.target.value })}
-											additionalProps={{ min: '2022-01' }}
-										/>
-									</div>
-								</div>
-
-								{/* Mensagens de Sucesso ou Erro */}
-								<SuccessErrorMessage success={this.state.success} error={this.state.error} />
-							</FormModal>
+								handleCadastrarOrientando={this.handleCadastrarOrientando}
+								nome={this.stateNome}
+								email={this.stateEmail}
+								id_curso={this.stateId_curso}
+								senha={this.stateSenha}
+								confirmarSenha={this.stateConfirmarSenha}
+								fase_processo={this.stateFase_processo}
+								informacoes_adicionais={this.stateInformacoes_adicionais}
+								dataHoraInicialFaseProcesso={this.stateDataHoraicialFaseProcesso}
+								dataHoraFinalFaseProcesso={this.stateDataHoraFinalFaseProcesso}
+								dataHoraConclusao={this.stateDataHoraConclusao}
+								array_cursos={this.stateArray_cursos}
+								array_tiposBanca={this.stateArray_tiposBanca}
+								success={this.stateSuccess}
+								error={this.stateError}
+								setState={this.setState}
+							/>
 
 							{/* Modal Editar Orientando */}
-							<FormModal
+							<FormModalEditarOrientando
 								show={this.state.modalShowEditarOrientando}
 								onHide={this.handlerCloseModalEditarOrientando}
-								title={
-									<>
-										<FaUserGraduate /> Atualizar as informações do orientando - {this.state.nome}
-									</>
+								handleAtualizarOrientando={this.handleAtualizarOrientando}
+								nome={this.state.nome}
+								email={this.state.email}
+								id_curso={this.state.id_curso}
+								senha={this.state.senha}
+								confirmarSenha={this.state.confirmarSenha}
+								fase_processo={this.state.fase_processo}
+								informacoes_adicionais={this.state.informacoes_adicionais}
+								dataHoraInicialFaseProcesso={this.state.dataHoraInicialFaseProcesso}
+								dataHoraFinalFaseProcesso={this.state.dataHoraFinalFaseProcesso}
+								dataHoraConclusao={this.state.dataHoraConclusao}
+								array_cursos={this.state.array_cursos}
+								array_tiposBanca={this.state.array_tiposBanca}
+								arrayOrientacao={this.state.arrayOrientacao}
+								success={this.state.success}
+								error={this.state.error}
+								setState={(updatedState) => this.setState(updatedState)}
+								handlerShowModalCadastrarEAtualizarOrientacao={
+									this.handlerShowModalCadastrarEAtualizarOrientacao
 								}
-								size="lg"
-								onSubmit={this.handleAtualizarOrientando}
-							>
-								<p className="text-danger">
-									As informações cadastrais serão utilizadas pelo aluno para acessar a plataforma.
-								</p>
-
-								<div className="row">
-									<div className="col-sm-6">
-										{/* Nome */}
-										<FormField
-											label="Nome"
-											id="nome"
-											value={this.state.nome}
-											onChange={(e) => this.setState({ nome: e.target.value })}
-											placeholder="Digite seu nome completo"
-											className="form-control form-control-sm"
-										/>
-									</div>
-									<div className="col-sm-6">
-										{/* Email */}
-										<FormField
-											label="Email"
-											id="email"
-											type="email"
-											value={this.state.email}
-											onChange={(e) => this.setState({ email: e.target.value })}
-											placeholder="Informe o seu email"
-											className="form-control form-control-sm"
-										/>
-									</div>
-								</div>
-
-								<div className="row">
-									{/* Curso */}
-									<div className="col-sm-6">
-										<FormField
-											label="Curso:*"
-											id="selectCurso"
-											value={this.state.id_curso}
-											onChange={(e) => this.setState({ id_curso: e.target.value })}
-											isSelect
-											className="form-control form-control-sm"
-											options={[
-												<option key="0" value="0">
-													Selecione
-												</option>,
-												this.state.array_cursos.length > 0
-													? this.state.array_cursos.map((curso) =>
-														this.state.idAreaConcentracao === curso.id_areaConcentracao ? (
-															<option key={curso.id} value={curso.id}>
-																{curso.nome}
-															</option>
-														) : null
-													)
-													: [
-														<option key="0" value="0">
-															Nenhum curso encontrado
-														</option>,
-													],
-											]}
-										/>
-									</div>
-
-									{/* Fase do processo */}
-									<div className="col-sm-6">
-										<FormField
-											label="Fase do processo:*"
-											id="selectFaseProcesso"
-											value={this.state.fase_processo}
-											onChange={(e) => this.setState({ fase_processo: e.target.value })}
-											isSelect
-											className="form-control form-control-sm"
-											options={[
-												<option key="0" value="0">
-													Selecione
-												</option>,
-												this.state.array_tiposBanca.length > 0
-													? this.state.array_tiposBanca.map((tipo) => (
-														<option key={tipo.id} value={tipo.id}>
-															{tipo.nome}
-														</option>
-													))
-													: [
-														<option key="0" value="0">
-															Nenhum resultado encontrado
-														</option>,
-													],
-											]}
-										/>
-									</div>
-								</div>
-
-								{/* Senha */}
-								<div className="row">
-									<div className="col-md-6">
-										<FormField
-											label="Senha"
-											id="senha"
-											type="password"
-											value={this.state.senha}
-											onChange={(e) => this.setState({ senha: e.target.value })}
-											placeholder="Informe sua senha"
-											className="form-control form-control-sm"
-										/>
-									</div>
-
-									{/* Repetir Senha */}
-									<div className="col-md-6">
-										<FormField
-											label="Repetir Senha"
-											id="confirmarSenha"
-											type="password"
-											value={this.state.confirmarSenha}
-											onChange={(e) => this.setState({ confirmarSenha: e.target.value })}
-											placeholder="Informe sua senha novamente"
-											className="form-control form-control-sm"
-										/>
-									</div>
-								</div>
-
-								{/* Informações adicionais */}
-								<FormField
-									label="Informações adicionais"
-									id="informacoes_adicionais"
-									value={this.state.informacoes_adicionais}
-									onChange={(e) => this.setState({ informacoes_adicionais: e.target.value })}
-									isTextarea
-									className="form-control form-control-sm"
-								/>
-
-								{/* Datas */}
-								<div className="row">
-									{/* Data/hora inicial do processo */}
-									<div className="col-sm-4">
-										<FormField
-											label="Data/hora inicial do processo:"
-											id="dataHoraInicialFaseProcesso"
-											type="datetime-local"
-											value={this.state.dataHoraInicialFaseProcesso}
-											onChange={(e) => this.setState({ dataHoraInicialFaseProcesso: e.target.value })}
-											additionalProps={{ min: '2022-01' }}
-											className="form-control form-control-sm"
-										/>
-									</div>
-
-									{/* Data/hora final do processo */}
-									<div className="col-sm-4">
-										<FormField
-											label="Data/hora final do processo:"
-											id="dataHoraFinalFaseProcesso"
-											type="datetime-local"
-											value={this.state.dataHoraFinalFaseProcesso}
-											onChange={(e) => this.setState({ dataHoraFinalFaseProcesso: e.target.value })}
-											additionalProps={{ min: '2022-01' }}
-											className="form-control form-control-sm"
-										/>
-									</div>
-
-									{/* Data/hora de conclusão */}
-									<div className="col-sm-4">
-										<FormField
-											label="Data/hora de conclusão:"
-											id="dataHoraConclusao"
-											type="datetime-local"
-											value={this.state.dataHoraConclusao}
-											onChange={(e) => this.setState({ dataHoraConclusao: e.target.value })}
-											additionalProps={{ min: '2022-01' }}
-											className="form-control form-control-sm"
-										/>
-									</div>
-								</div>
-
-								{/* Mensagens de Sucesso ou Erro */}
-								<SuccessErrorMessage success={this.state.success} error={this.state.error} />
-
-								{/* Botão de Salvar */}
-								<div className="float-right">
-									<button className="button">
-										<FaRegSave /> Salvar
-									</button>
-								</div>
-
-								{/* Orientações */}
-								<hr />
-
-								<div className="row">
-									<div className="col-sm-10">
-										<h3>
-											<FaUserGraduate /> Orientações
-										</h3>
-									</div>
-									<div className="col-sm-2">
-										{/* Botão para Cadastrar Nova Orientação */}
-										<button
-											className="btn btn-primary"
-											onClick={() =>
-												this.handlerShowModalCadastrarEAtualizarOrientacao({
-													id_orientacao: 0,
-												})
-											}
-										>
-											<FaPlus /> Nova Orientação
-										</button>
-									</div>
-								</div>
-
-								<hr />
-
-								{/* Tabela de Orientações */}
-								<DataTable
-									headers={[
-										'N° da orientação',
-										'Link',
-										'Orientando',
-										'Observação',
-										'Data/hora prevista',
-										'Ações',
-									]}
-									data={this.state.arrayOrientacao}
-									renderRow={(orientacao) => (
-										<tr
-											key={orientacao.id}
-											title="Clique aqui para obter mais informações sobre a orientação"
-										>
-											<td>{orientacao.id}</td>
-											<td>
-												{orientacao.link ? (
-													<a href={orientacao.link}>Link da orientação</a>
-												) : (
-													'Nenhum link anexado'
-												)}
-											</td>
-											<td>{orientacao.orientando}</td>
-											<td>{orientacao.observacao}</td>
-											<td>{orientacao.dataHoraPrevistaTb}</td>
-											<td>
-												<button
-													className="btn btn-sm btn-outline-primary"
-													onClick={() =>
-														this.handlerShowModalCadastrarEAtualizarOrientacao(orientacao)
-													}
-												>
-													<FaRegEdit /> Atualizar
-												</button>
-											</td>
-										</tr>
-									)}
-									noDataText="Nenhum resultado encontrado"
-								/>
-
-								{/* Total de Registros */}
-								<div className="text-center font-weight-bold mt-3 mb-5">
-									Total de Registros: {this.state.arrayOrientacao.length}
-								</div>
-							</FormModal>
+							/>
 
 							{/* Modal para Excluir Banca */}
-
-							<ConfirmationModal
+							<ConfirmationModalExcluirBanca
 								show={this.state.modalShowExcluirBanca}
-								onHide={this.handlerCloseModalExcluirBanca}
+								onHide={this.handlerFecharModalExcluirBanca}
 								title={
 									<>
 										<FaUserGraduate /> Excluir banca
@@ -1599,18 +612,16 @@ export default class Index extends Component {
 								}
 								message={
 									<>
-										Confirmar a exclusão da banca de {this.state.tipo_banca} do orientando{' '}
-										{this.state.nome}
+										Confirmar a exclusão da banca de {this.state.tipo_banca} do orientando {this.state.nome}
 									</>
 								}
-								onConfirm={this.handleExcluirBanca}
+								onConfirm={this.handlerMostrarModalExcluirBanca}
 								successMessage={this.state.success}
 								errorMessage={this.state.error}
 							/>
 
 							{/* Modal para Emitir ATA */}
-
-							<FormModal
+							<FormModalEmitirAta
 								show={this.state.modalShowEmitirAta}
 								onHide={this.handlerCloseModalEmitirAta}
 								title={
@@ -1620,44 +631,12 @@ export default class Index extends Component {
 								}
 								size="md"
 								onSubmit={this.handleCadastrarATA}
-							>
-								<FormField
-									label="Status:"
-									id="selectStatusAta"
-									value={this.state.status_ata}
-									onChange={(e) => this.setState({ status_ata: e.target.value })}
-									isSelect
-									className="form-control form-control-sm"
-									options={[
-										<option key="0" value="0">
-											Selecionar
-										</option>,
-										this.state.array_status.length > 0
-											? this.state.array_status.map((item) =>
-												parseInt(item.id) > 2 ? (
-													<option key={item.id} value={item.id}>
-														{item.nome}
-													</option>
-												) : null
-											)
-											: [
-												<option key="0" value="0">
-													Nenhum resultado encontrado
-												</option>,
-											],
-									]}
-								/>
-
-								{/* Mensagens de Sucesso ou Erro */}
-								<SuccessErrorMessage success={this.state.success} error={this.state.error} />
-
-								{/* Botão de Salvar */}
-								<div className="d-flex justify-content-end">
-									<button className="button">
-										<FaRegSave /> Salvar
-									</button>
-								</div>
-							</FormModal>
+								status_ata={this.state.status_ata}
+								setStatusAta={(value) => this.setState({ status_ata: value })}
+								array_status={this.state.array_status}
+								successMessage={this.state.success}
+								errorMessage={this.state.error}
+							/>
 
 							{/* Modal para Atualizar ATA */}
 
@@ -1779,7 +758,7 @@ export default class Index extends Component {
 								/>
 
 								{/* Renderização das perguntas utilizando o componente PerguntaAvaliacao */}
-								{perguntas.map((pergunta) => (
+								{getPerguntas(this.state).map((pergunta) => (
 									<PerguntaAvaliacao
 										key={pergunta.numeroPergunta}
 										numeroPergunta={pergunta.numeroPergunta}
@@ -1807,91 +786,21 @@ export default class Index extends Component {
 
 							{/* Atualizar ficha de avaliação */}
 
-							<FormModal
+							<FormModalEditarFichaDeAvaliacao
 								show={this.state.modalShowEditarFichaDeAvaliacao}
 								onHide={this.handlerCloseModalEditarFichaDeAvaliacao}
-								title="Atualizar ficha de avaliação"
-								size="lg"
-								onSubmit={this.handleAtualizarFichaDeAvaliacao}
-							>
-								{/* Outros campos do formulário, como Orientando, Curso, etc. */}
-								<div className="row">
-									<div className="col-sm-6">
-										<FormField
-											label="Orientando:*"
-											id="selectOrientando"
-											value={this.state.id_orientando}
-											onChange={(e) => this.setState({ id_orientando: e.target.value })}
-											isSelect
-											options={
-												this.state.array_orientandos.length > 0
-													? this.state.array_orientandos.map((orientando) =>
-														this.state.id_orientando === orientando.id ? (
-															<option key={orientando.id} value={orientando.id}>
-																{orientando.nome}
-															</option>
-														) : null
-													)
-													: [
-														<option key="0" value="0">
-															Nenhum orientando encontrado
-														</option>,
-													]
-											}
-										/>
-									</div>
-									<div className="col-sm-6">
-										<FormField
-											label="Curso:*"
-											id="selectCurso"
-											value={this.state.id_curso}
-											onChange={(e) => this.setState({ id_curso: e.target.value })}
-											isSelect
-											options={
-												this.state.array_cursos.length > 0
-													? this.state.array_cursos.map((curso) =>
-														this.state.id_curso === curso.id ? (
-															<option key={curso.id} value={curso.id}>
-																{curso.nome}
-															</option>
-														) : null
-													)
-													: [
-														<option key="0" value="0">
-															Nenhum curso encontrado
-														</option>,
-													]
-											}
-										/>
-									</div>
-								</div>
-
-								{/* Renderização das perguntas utilizando o componente PerguntaAvaliacao */}
-								{perguntas.map((pergunta) => (
-									<PerguntaAvaliacao
-										key={pergunta.numeroPergunta}
-										numeroPergunta={pergunta.numeroPergunta}
-										textoPergunta={pergunta.textoPergunta}
-										nomeEstadoResposta={pergunta.nomeEstadoResposta}
-										nomeEstadoResumo={pergunta.nomeEstadoResumo}
-										valorSelecionado={this.state[pergunta.nomeEstadoResposta]}
-										valorResumo={this.state[pergunta.nomeEstadoResumo]}
-										aoAlterarResposta={this.handleOptionChange}
-										aoAlterarResumo={this.handleResumoChange}
-										opcoes={pergunta.opcoes} // Passa as opções personalizadas se houver
-									/>
-								))}
-
-								{/* Mensagens de sucesso ou erro */}
-								<SuccessErrorMessage success={this.state.success} error={this.state.error} />
-
-								{/* Botão de Salvar */}
-								<div className="d-flex justify-content-end">
-									<button className="button">
-										<FaRegSave /> Salvar
-									</button>
-								</div>
-							</FormModal>
+								handleAtualizarFichaDeAvaliacao={this.handleAtualizarFichaDeAvaliacao}
+								id_orientando={this.state.id_orientando}
+								setIdOrientando={(value) => this.setState({ id_orientando: value })}
+								array_orientandos={this.state.array_orientandos}
+								id_curso={this.state.id_curso}
+								setIdCurso={(value) => this.setState({ id_curso: value })}
+								array_cursos={this.state.array_cursos}
+								success={this.state.success}
+								error={this.state.error}
+								handleOptionChange={this.handleOptionChange}
+								handleResumoChange={this.handleResumoChange}
+							/>
 
 							<CustomModal
 								show={this.state.modalShowVisualizarFichaDeAvaliacao}
@@ -1929,184 +838,31 @@ export default class Index extends Component {
 							</CustomModal>
 
 							{/* modal de declaração de participação */}
-
-							<Modal
+							<ModalDeclaracaoParticipacao
 								show={this.state.modalShowVisualizarDeclaracao}
 								onHide={this.handlerCloseModalVisualizarDeclaracao}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size="lg"
-								centered
-							>
-								<Modal.Header closeButton>
-									<h4 className="titulo">
-										<FaUserGraduate /> Declaração de {this.state.membro}
-									</h4>
-								</Modal.Header>
-								<Modal.Body>
-									<div id="declaracao">
-										<DocumentContainer>
-											<DocumentHeader logoSrc={Logo_ATA} />
-											<div style={{ padding: '50px' }}>
-												<h4 className="text-center font-weight-bold mb-3">
-													{this.state.documentoEmIngles
-														? 'CERTIFICATE OF PARTICIPATION'
-														: 'DECLARAÇÃO DE PARTICIPAÇÃO'}
-												</h4>
-
-												{this.state.documentoEmIngles ? (
-													<p className="text-justify p-4">
-														&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;We hereby certify that{' '}
-														{this.state.sexo === 'M' ? 'Prof. Dr. ' : 'Prof(a). Dr(a). '}
-														<b>{this.state.membro.toUpperCase()}</b> participated on{' '}
-														{this.state.data_horaPrevistaEnUs}, as an{' '}
-														{this.getMemberRoleEnglish(this.state.membro)} of the Examination Committee for the
-														{this.getCourseTypeEnglish()} {this.getBancaTypeEnglish()} of{' '}
-														<b>{this.state.orientando.toUpperCase()}</b>, a regular student in the Graduate{' '}
-														<strong>{this.getProgramNameEnglish()}</strong>, titled{' '}
-														<b>{this.state.title.toUpperCase()}</b>. The Examination Committee was composed of
-														the following members:
-													</p>
-												) : (
-													<p className="text-justify p-4">
-														&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Atestamos que{' '}
-														{this.state.sexo === 'M' ? 'o ' : 'a '}
-														{this.state.sexo === 'M' ? 'Prof. Dr. ' : 'Prof(a). Dr(a). '}
-														<b>{this.state.membro.toUpperCase()}</b>, participou em{' '}
-														{this.state.data_horaPrevistaPtBr}, como{' '}
-														{this.getMemberRolePortuguese(this.state.membro)} da Comissão Examinadora da{' '}
-														{this.getBancaTypePortuguese()}
-														{this.getCourseTypePortuguese()} de{' '}
-														<b>{this.state.orientando.toUpperCase()}</b>, discente regular do{' '}
-														{this.getProgramNamePortuguese()}, Curso de{' '}
-														{this.state.curso ? this.state.curso.split(' ', 1)[0] : ''}, cujo trabalho se
-														intitula <b>{this.state.titulo_banca.toUpperCase()}</b>. A Comissão Examinadora foi
-														constituída pelos seguintes membros:
-													</p>
-												)}
-
-												{/* Lista de Membros */}
-												<MemberList
-													membros={this.state.arrayMembrosDaDeclaracaoDeParticipacao}
-													isEnglish={this.state.documentoEmIngles}
-												/>
-
-												<p
-													className={
-														this.state.documentoEmIngles
-															? 'text-right p-3'
-															: 'mt-2 text-right p-4'
-													}
-												>
-													{this.state.documentoEmIngles
-														? this.state.dataDeclaracaoEnUs
-														: `Orlando, ${this.state.data_horaPrevistaPtBr}`}
-												</p>
-
-												<SignatureBlock isEnglish={this.state.documentoEmIngles} />
-
-												<div className="row">
-													<div className="col-sm-6">
-														<p className="text-center" style={{ fontSize: '8pt' }}>
-															{this.state.documentoEmIngles
-																? `Proof Control Code: ${this.state.codigo_validacao}`
-																: `Código de controle do comprovante: ${this.state.codigo_validacao}`}
-														</p>
-													</div>
-													<div className="col-sm-6">
-														<p className="text-center" style={{ fontSize: '8pt' }}>
-															{this.state.documentoEmIngles
-																? 'The authenticity of this certificate can be verified at https://www.gestorgruponexus.com.br/validacao'
-																: 'A autenticidade desta declaração poderá ser confirmada no endereço https://www.gestorgruponexus.com.br/validacao'}
-														</p>
-													</div>
-												</div>
-
-												<DocumentFooter />
-											</div>
-										</DocumentContainer>
-									</div>
-								</Modal.Body>
-								<Modal.Footer>
-									<Button onClick={() => this.print('declaracao')}>Imprimir</Button>
-								</Modal.Footer>
-							</Modal>
-
-							{/* Modal Visualizar Declaração de Orientação */}
-
-							<Modal
-								show={this.state.modalShowVisualizarDeclaracaoDeOrientacao}
-								onHide={this.handlerCloseModalVisualizarDeclaracaoDeOrientacao}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size="lg"
-								centered
-							>
-								<Modal.Header closeButton>
-									<h4 className="titulo mb-3">
-										<FaUserGraduate /> Declaração de orientação
-									</h4>
-								</Modal.Header>
-								<Modal.Body>
-									<div id="declaracao_participacao">
-										<DocumentContainer>
-											<DocumentHeader logoSrc={Logo_ATA} />
-											<div style={{ padding: '50px' }}>
-												<h4 className="text-center font-weight-bold mb-3">
-													{this.state.documentoEmIngles ? 'Guidance Statement' : 'DECLARAÇÃO DE ORIENTAÇÃO'}
-												</h4>
-
-												{this.state.documentoEmIngles ? (
-													<p
-														style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '12pt', textAlign: 'justify' }}
-														className="p-3"
-													>
-														&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;We hereby declare that{' '}
-														{this.state.sexo === 'M' ? 'Prof. Dr. ' : 'Prof(a). Dr(a). '}
-														<b>{this.state.orientador}</b>, from the {this.getProgramNameEnglish()}, supervised the{' '}
-														{this.getCourseTypeEnglish()} of {this.state.orientando.toUpperCase()}, a regular student in the{' '}
-														{this.getProgramNameEnglish()}, titled <b>{this.state.title.toUpperCase()}</b>.
-													</p>
-												) : (
-													<p style={{ fontSize: '12pt', textAlign: 'justify' }} className="p-3">
-														&nbsp;&nbsp;&nbsp;&nbsp;Declaramos que {this.state.sexo === 'M' ? 'o ' : 'a '}
-														{this.state.sexo === 'M' ? 'Prof. Dr. ' : 'Prof(a). Dr(a). '}
-														<b>{this.state.orientador}</b>, do(a) {this.getProgramNamePortuguese()}, realizou a orientação da{' '}
-														{this.getCourseTypePortuguese()} de {this.state.orientando.toUpperCase()}, discente regular do{' '}
-														{this.getProgramNamePortuguese()}, no curso de {this.state.curso.split(' ', 1)[0]}, cujo trabalho se
-														intitula: <b>{this.state.titulo}</b>.
-													</p>
-												)}
-
-												<p className="text-right p-3">
-													{this.state.documentoEmIngles
-														? `Orlando, ${this.state.dataDeclaracaoEnUs}`
-														: `Orlando, ${this.state.dataDeclaracaoPtBr}`}
-												</p>
-
-												<SignatureBlock isEnglish={this.state.documentoEmIngles} />
-
-												<p className="text-center" style={{ marginTop: '100px' }}>
-													{this.state.documentoEmIngles
-														? `Proof Control Code: ${this.state.codigo_validacao}`
-														: `Código de controle do comprovante: ${this.state.codigo_validacao}`}
-												</p>
-
-												<p className="text-center">
-													{this.state.documentoEmIngles
-														? 'The authenticity of this statement can be confirmed at https://www.gestorgruponexus.com.br/validacao'
-														: 'A autenticidade desta declaração poderá ser confirmada no endereço https://www.gestorgruponexus.com.br/validacao'}
-												</p>
-
-												<DocumentFooter />
-											</div>
-										</DocumentContainer>
-									</div>
-								</Modal.Body>
-								<Modal.Footer>
-									<Button onClick={() => this.print('declaracao_participacao')}>Imprimir</Button>
-								</Modal.Footer>
-							</Modal>
+								membro={this.state.membro}
+								documentoEmIngles={this.state.documentoEmIngles}
+								sexo={this.state.sexo}
+								data_horaPrevistaEnUs={this.state.data_horaPrevistaEnUs}
+								data_horaPrevistaPtBr={this.state.data_horaPrevistaPtBr}
+								getMemberRoleEnglish={this.getMemberRoleEnglish}
+								getMemberRolePortuguese={this.getMemberRolePortuguese}
+								getCourseTypeEnglish={this.getCourseTypeEnglish}
+								// // getCourseTypePortuguese={this.getCourseTypePortuguese}
+								getBancaTypeEnglish={this.getBancaTypeEnglish}
+								getBancaTypePortuguese={this.getBancaTypePortuguese}
+								getProgramNameEnglish={this.getProgramNameEnglish}
+								// // getProgramNamePortuguese={getProgramNamePortuguese || null}
+								orientando={this.state.orientando}
+								title={this.state.title}
+								curso={this.state.curso}
+								titulo_banca={this.state.titulo_banca}
+								arrayMembrosDaDeclaracaoDeParticipacao={this.state.arrayMembrosDaDeclaracaoDeParticipacao}
+								dataDeclaracaoEnUs={this.state.dataDeclaracaoEnUs}
+								codigo_validacao={this.state.codigo_validacao}
+								print={this.print}
+							/>
 
 							{/* Modal Visualizar Certificado de Aprovacao */}
 
@@ -2141,13 +897,18 @@ export default class Index extends Component {
 											</p>
 
 											{/* Utilizando o componente MemberSignatures */}
-											<MemberSignatures membros={this.state.arrayMembrosDaDeclaracaoDeParticipacao} />
+											<MemberSignatures
+												membros={
+													arrayMembrosDaDeclaracaoDeParticipacao
+												}
+											/>
 
 											<DocumentFooter />
 										</DocumentContainer>
 									</div>
 								</Modal.Body>
 							</Modal>
+							
 
 							{/* Modal Finalizar Banca */}
 
@@ -2195,7 +956,9 @@ export default class Index extends Component {
 											nome={this.state.nome}
 											id_curso={this.state.idAreaConcentracao}
 											titulo={this.state.titulo}
-											arrayMembrosDaDeclaracaoDeParticipacao={this.state.arrayMembrosDaDeclaracaoDeParticipacao}
+											arrayMembrosDaDeclaracaoDeParticipacao={
+												this.state.arrayMembrosDaDeclaracaoDeParticipacao
+											}
 											dtFolhaAprovacaoFormatada={this.state.dtFolhaAprovacaoFormatada}
 										/>
 									</div>
@@ -2206,507 +969,88 @@ export default class Index extends Component {
 							</Modal>
 
 							{/* Modal Emitir Folha de Aprovacao */}
-
-							<Modal
-								show={this.state.modalShowCadastrarEAtualizarFolhaDeAprovacao}
-								onHide={() => this.handlerCloseModalCadastrarEAtualizarFolhaDeAprovacao()}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size='md'
-								centered>
-								<Modal.Header closeButton>
-									<h4 className='titulo'><FaUserGraduate />Emitir folha de aprovação</h4>
-								</Modal.Header>
-								<Modal.Body>
-									<Form onSubmit={this.cadastrarEatualizarFolhaDeAprovacao}>
-										<div className="form-group">
-											<label for="dataHoraPrevista">Data de aprovação:</label>
-											<input class="form-control form-control-sm" type="date" id="dataAprovacao" name="start"
-												min="2022-01"
-												onChange={e => this.setState({ dataAprovacao: e.target.value })}
-												value={this.state.dataAprovacao}
-											/>
-										</div>
-
-										<div className="row mt-2">
-											<div className="col-sm-12">
-												{this.state.success && (
-													<div
-														className="alert alert-success text-center"
-														role="alert"
-													>
-														{this.state.success}
-													</div>
-												)}
-												{this.state.error && (
-													<div
-														className="alert alert-danger text-center"
-														role="alert"
-													>
-														{this.state.error}
-													</div>
-												)}
-											</div>
-										</div>
-
-										<div className='d-flex justify-content-center'>
-											<button className='button'><FaRegSave /> Salvar</button>
-										</div>
-									</Form>
-
-								</Modal.Body>
-							</Modal>
+							<ModalEmitirFolhaDeAprovacao
+								show={modalShowCadastrarEAtualizarFolhaDeAprovacao}
+								onHide={() =>
+									this.setModalShowCadastrarEAtualizarFolhaDeAprovacao(false)
+								}
+								dataAprovacao={this.state.dataAprovacao}
+								setDataAprovacao={this.setDataAprovacao}
+								success={this.state.success}
+								error={this.state.error}
+								cadastrarEatualizarFolhaDeAprovacao={cadastrarEatualizarFolhaDeAprovacao}
+							/>
 
 							{/* Modal Emitir Declaração de Orientação */}
 
-							<Modal
+							<ModalEmitirDeclaracaoDeOrientacao
 								show={this.state.modalShowEmitirDeclaracaoDeOrientacao}
-								onHide={() => this.handlerCloseModalEmitirDeclaracaoDeOrientacao()}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size='md'
-								centered>
-								<Form onSubmit={this.cadastrarEatualizarDeclaracaoDeOrientacao}>
-									<Modal.Header closeButton>
-										<h4 className='titulo'><FaCalendarWeek /> Emitir declaração de orientação</h4>
-									</Modal.Header>
-									<Modal.Body>
-										<div className="form-group">
-											<label for="dataHoraPrevista">Data:</label>
-											<input class="form-control form-control-sm" type="date" id="dataOrientacao" name="start"
-												min="2023-01"
-												onChange={e => this.setState({ dataDeOrientacao: e.target.value })}
-												value={this.state.dataDeOrientacao}
-											/>
-										</div>
-
-										<div className="row mt-2">
-											<div className="col-sm-12">
-												{this.state.success && (
-													<div
-														className="alert alert-success text-center"
-														role="alert"
-													>
-														{this.state.success}
-													</div>
-												)}
-												{this.state.error && (
-													<div
-														className="alert alert-danger text-center"
-														role="alert"
-													>
-														{this.state.error}
-													</div>
-												)}
-											</div>
-										</div>
-
-										<div className='d-flex justify-content-center'>
-											<button className='btn btn-outline-success'>Salvar</button>
-										</div>
-									</Modal.Body>
-								</Form>
-							</Modal>
+								onHide={this.handlerCloseModalEmitirDeclaracaoDeOrientacao}
+								dataDeOrientacao={this.state.dataDeOrientacao}
+								setDataDeOrientacao={(data) => this.setState({ dataDeOrientacao: data })}
+								success={this.state.success}
+								error={this.state.error}
+								cadastrarEatualizarDeclaracaoDeOrientacao={this.cadastrarEatualizarDeclaracaoDeOrientacao}
+							/>
 
 							{/* Modal Visualizar Declaração de Orientação */}
 
-							<Modal
+							<ModalVisualizarDeclaracaoDeOrientacao
 								show={this.state.modalShowVisualizarDeclaracaoDeOrientacao}
-								onHide={() => this.handlerCloseModalVisualizarDeclaracaoDeOrientacao()}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size='lg'
-								centered>
-								<Modal.Header closeButton>
-									<h4 className='titulo mb-3'><FaUserGraduate /> Declaração de orientação</h4>
-								</Modal.Header>
-								<Modal.Body>
-									<div id='declaracao_participacao' className='container' style={{
-										background: `url(${BACKGROUND_ENBER})`,
-										backgroundRepeat: "no-repeat",
-										backgroundPosition: "center",
-										backgroundSize: "600px 600px"
-									}}>
-										{this.state.documentoEmIngles ? (
-											<div className='container' style={{
-												background: `url(${BACKGROUND_ENBER})`,
-												backgroundRepeat: "no-repeat",
-												backgroundPosition: "center",
-												backgroundSize: "600px 600px"
-											}}>
-
-												<img style={{ minWidth: '100%', marginBottom: '10px', }} src={Logo_ATA} />
-												<div style={{ padding: "50px" }}>
-													<h4 className='text-center font-weight-bold mb-3'>Guidance statement</h4>
-													<p style={{ fontFamily: "Montserrat, sans-serif", fontSize: "12pt", textAlign: "justify" }} className='p-3'>
-														&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;We hereby declare that {this.state.sexo === "M" ? " Prof.° Dr°. " : " Profa.° Dra°. "}
-														<b>{this.state.orientador}</b> from the
-														{this.state.id_curso === 1 ? ` Postgraduate Program in Educational Sciences` : ``}
-														{this.state.id_curso === 2 ? ` Postgraduate Program in Educational Sciences` : ``}
-														{this.state_curso === 3 ? ` Postgraduate Program in Theology` : ``}
-														{this.state.id_curso === 4 ? ` Postgraduate Program in Theology` : ``} supervised the
-														{this.state.id_curso === 1 ? ` Dissertation ` : ``}
-														{this.state.id_curso === 2 ? ` Dissertation ` : ``}
-														{this.state.id_curso === 3 ? ` Thesis ` : ``}
-														{this.state.id_curso === 4 ? ` Thesis ` : ``}
-														of {this.state.orientando}, a regular student
-														of the {this.state.id_curso === 1 ? ` Postgraduate Program in Educational Sciences` : ``}
-														{this.state.id_curso === 2 ? ` Postgraduate Program in Educational Sciences` : ``}
-														{this.state_curso === 3 ? ` Postgraduate Program in Theology` : ``}
-														{this.state.id_curso === 4 ? ` Postgraduate Program in Theology` : ``},
-														in the Master's course titled: <b>{this.state.title.toUpperCase()}</b>.
-													</p>
-
-													<p className='text-right p-3'>Orlando, {this.state.dataDeclaracaoEnUs}</p>
-
-													<div class="row d-flex justify-content-center mt-2 mb-2">
-														<div class="col-lg-6 col-lg-offset-6 text-center">
-															<div className="ml-auto">
-																<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
-
-																<p className='border-top border-dark'>Ivy Enber Christian University<br />Alcimar José da Silva<br />President</p>
-
-																<img style={{ width: "100px", height: "100px", display: "block", margin: "0 auto" }} src={ASSINATURA_JOSUE} />
-
-																<p className='border-top border-dark'>Ivy Enber Christian University<br />Josué Claudio Dantas<br />Chancellor</p>
-															</div>
-														</div>
-													</div>
-
-													<p className='text-center'>Proof Control Code: {this.state.codigo_validacao}</p>
-
-													<p className='text-center' style={{ marginTop: "100px" }}>The authenticity of this statement can be
-														confirmed at
-														https://www.gestorgruponexus.com.br/validacao</p>
-
-													<div className="row" style={{ marginTop: "80px" }}>
-														<div className="col-sm-6">
-															<p style={{ fontSize: "8pt" }}>Register at the Secretoy of State of Florida - USA P19000042160 - EIN# 38-4120047
-																Section 1005.06 (1)(f). Florida Comission for independent Education</p>
-														</div>
-														<div className="col-sm-6 d-flex justify-content-center">
-															<img style={{ width: '50px', height: '50px' }} src={RODAPE1} />
-															<img style={{ width: '50px', height: '50px' }} src={RODAPE2} />
-															<img style={{ width: '50px', height: '50px' }} src={RODAPE3} />
-															<img style={{ width: '120px', height: '40px' }} src={RODAPE4} />
-														</div>
-													</div>
-													<p className='text-center mt-3' style={{ fontSize: "9pt" }}>7350 FUTURES DRIVE • ORLANDO • FL 32819 WWW.ENBER.EDUCATION • TEL.: +1 (321) 300-9710</p>
-												</div>
-											</div>
-										) : (
-											<div className='container' style={{
-												background: `url(${BACKGROUND_ENBER})`,
-												backgroundRepeat: "no-repeat",
-												backgroundPosition: "center",
-												backgroundSize: "600px 600px"
-											}}>
-												<img style={{ minWidth: '100%', marginBottom: '10px', }} src={Logo_ATA} />
-												<div style={{ padding: "50px" }}>
-													<h4 className='text-center font-weight-bold mb-3'>DECLARAÇÃO DE ORIENTAÇÃO</h4>
-
-													<p style={{ fontSize: "12pt", textAlign: "justify" }} className='p-3'>
-														&nbsp;&nbsp;&nbsp;&nbsp;Declaramos que a {this.state.sexo === "M" ? " Prof. Dr. " : " Prof(a). Dr(a). "} <b>{this.state.orientador +
-															' '}</b>
-														do(a) {this.state.id_curso === 1 ? ` Programa de Pós Graduação em  Ciências da Educação` : ``}
-														{this.state.id_curso === 2 ? ` Programa de Pós Graduação em  Ciências da Educação` : ``}
-														{this.state.id_curso === 3 ? ` Programa de Pós Graduação em Teologia` : ``}
-														{this.state.id_curso === 4 ? ` Programa de Pós Graduação em Teologia` : ``}, realizou a
-														orientação {this.state.id_curso === 1 ? ` da dissertação ` : ``}
-														{this.state.id_curso === 2 ? ` de tese ` : ``}
-														{this.state.id_curso === 3 ? ` da dissertação ` : ``}
-														{this.state.id_curso === 4 ? ` de tese ` : ``} de
-														{" " + this.state.orientando.toLocaleUpperCase()}, discente regular do
-														{this.state.id_curso === 1 ? ` Programa de Pós Graduação em  Ciências da Educação` : ``}
-														{this.state.id_curso === 2 ? ` Programa de Pós Graduação em  Ciências da Educação` : ``}
-														{this.state.id_curso === 3 ? ` Programa de Pós Graduação em Teologia` : ``}
-														{this.state.id_curso === 4 ? ` Programa de Pós Graduação em Teologia` : ``}, no curso de {this.state.curso.split(" ", 1)[0] + " "}
-														cujo trabalho se intitula: <b>{this.state.titulo}</b>
-													</p>
-
-													<p className='mt-3 mb-3 text-right p-3'>Orlando, {this.state.dataDeclaracaoPtBr}</p>
-
-													<div class="row d-flex justify-content-center mt-2 mb-2">
-														<div class="col-lg-6 col-lg-offset-6 text-center">
-															<div className="ml-auto">
-																<img style={{ display: "block", margin: "0 auto" }} src='https://gestor-administrativo.s3.amazonaws.com/enber/assinaturas/Alcimar.png' />
-																<hr className='hr' />
-																<p>Ivy Enber Christian University<br />Alcimar José da Silva<br />Presidente</p>
-																<img style={{ width: "100px", height: "100px", display: "block", margin: "0 auto" }} src={ASSINATURA_JOSUE} />
-																<hr className='hr' />
-																<p className=''>Ivy Enber Christian University<br />Josué Claudio Dantas<br />Reitor</p>
-															</div>
-														</div>
-													</div>
-
-													<p className='text-center' style={{ marginTop: "100px" }}>Código de controle do comprovante:
-														{this.state.codigo_validacao}</p>
-
-													<p className='text-center'>A autenticidade desta declaração poderá ser
-														confirmada no endereço
-														https://www.gestorgruponexus.com.br/validacao
-													</p>
-
-													<div className="row" style={{ marginTop: "80px" }}>
-														<div className="col-sm-6">
-															<p style={{ fontSize: "8pt" }}>Register at the Secretoy of State of Florida - USA P19000042160 - EIN# 38-4120047
-																Section 1005.06 (1)(f). Florida Comission for independent Education</p>
-														</div>
-														<div className="col-sm-6 d-flex justify-content-center">
-															<img style={{ width: '50px', height: '50px' }} src={RODAPE1} />
-															<img style={{ width: '50px', height: '50px' }} src={RODAPE2} />
-															<img style={{ width: '50px', height: '50px' }} src={RODAPE3} />
-															<img style={{ width: '120px', height: '40px' }} src={RODAPE4} />
-														</div>
-													</div>
-													<p className='text-center mt-3' style={{ fontSize: "9pt" }}>7350 FUTURES DRIVE • ORLANDO • FL 32819 WWW.ENBER.EDUCATION • TEL.: +1 (321) 300-9710</p>
-												</div>
-											</div>
-										)}
-									</div>
-								</Modal.Body>
-								<Modal.Footer>
-									<button className='button' onClick={() => print('declaracao_participacao')}>Imprimir</button>
-								</Modal.Footer>
-							</Modal>
+								onHide={this.handlerCloseModalVisualizarDeclaracaoDeOrientacao}
+								documentoEmIngles={this.state.documentoEmIngles}
+								orientador={this.state.orientador}
+								orientando={this.state.orientando}
+								curso={this.state.curso}
+								id_curso={this.state.id_curso}
+								titulo={this.state.titulo}
+								title={this.state.title}
+								dataDeclaracaoEnUs={this.state.dataDeclaracaoEnUs}
+								dataDeclaracaoPtBr={this.state.dataDeclaracaoPtBr}
+								sexo={this.state.sexo}
+								codigo_validacao={this.state.codigo_validacao}
+								print={this.print}
+							/>
 
 							{/* Modal Visualizar Certificado de Aprovacao */}
 
-							<Modal
+							<ModalVisualizarCertificadoDeAprovacao
 								show={this.state.modalShowVisualizarCertificadoDeAprovacao}
-								onHide={() => this.handlerCloseModalVisualizarCertificadoDeAprovacao()}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size='lg'
-								centered>
-								<Modal.Header closeButton>
-									<h4 className='titulo'><FaCalendarWeek /> Certificado de Aprovação</h4>
-								</Modal.Header>
-								<Modal.Body>
-									<div id='certificado_aprovacao'>
-										<div className='container'>
-											<img style={{ minWidth: '100%', marginBottom: '10px', }} src={Logo_ATA} />
-											<h4 className='font-weight-bold text-center mt-3 mb-5 p-3'>CERTIFICADO DE APROVAÇÃO</h4>
-
-											<p className='mt-3 p-3'>TÍTULO DA TESE: {this.state.titulo}</p>
-											<p className='font-weight-bold p-3'>AUTORA: {this.state.nome}</p>
-											<p className='font-weight-bold p-3'>ORIENTADOR(A): {this.state.orientador}</p>
-
-											<p className='p-3'>Aprovada como parte das exigências para obtenção do Título de Doutora em Ciências Sociais,
-												pela Comissão Examinadora:</p>
-
-											{/* <img className="img-fluid m-auto" src={this.state.assinatura_presidente} />
-											<hr /> */}
-
-											{arrayMembrosDaDeclaracaoDeParticipacao.length > 0 ?
-												arrayMembrosDaDeclaracaoDeParticipacao.map(membro => (
-													<div>
-														<img className="img-fluid" style={{ width: "220px", display: 'block', margin: '0 auto' }} src={membro.assinatura} />
-														<hr />
-														<p className="text-center">{membro.nome.toLocaleUpperCase()}</p>
-														{/* <p className="text-center">{membro.nome.slice(membro.nome.indexOf('-') + 1, membro.nome.length).toLocaleUpperCase()}</p> */}
-													</div>
-												))
-												: ("")
-											}
-											<h6 className='text-rodape p-3'>7350 FUTURES DRIVE,ORLANDO,FL 32819 WWW.ENBERUNIVERSITY.COM TEL : +1 321-300-9710</h6>
-										</div>
-									</div>
-								</Modal.Body>
-							</Modal>
+								onHide={this.handlerCloseModalVisualizarCertificadoDeAprovacao}
+								titulo={this.state.titulo}
+								nome={this.state.nome}
+								orientador={this.state.orientador}
+								arrayMembrosDaDeclaracaoDeParticipacao={this.state.arrayMembrosDaDeclaracaoDeParticipacao}
+							/>
 
 							{/* Modal Atualizar Banca */}
 
-							<Modal
+							<ModalAtualizarBanca
 								show={this.state.modalShowAtualizarBanca}
-								onHide={this.handlerCloseModalAtualizarBanca}
-								aria-labelledby="contained-modal-title-vcenter"
-								backdrop="static"
-								size="xl"
-								centered
-							>
-								<Form onSubmit={this.atualizarBanca}>
-									<Modal.Header closeButton>
-										<h4 className="titulo">
-											<FaLayerGroup /> Atualizar Banca
-										</h4>
-									</Modal.Header>
-									<Modal.Body>
-										<div className="row" style={{ maxHeight: '400px', overflowY: 'scroll' }}>
-											<div className="col-sm-6">
-												{/* Orientando */}
-												<FormSelect
-													label="Orientando:*"
-													id="selectOrientando"
-													value={this.state.id_orientando}
-													onChange={(e) => this.setState({ id_orientando: e.target.value })}
-													options={[
-														<option key="0" value="0">
-															Selecione
-														</option>,
-														...this.state.array_orientandos.map((orientando) => (
-															<option key={orientando.id} value={orientando.id}>
-																{orientando.nome.toUpperCase()}
-															</option>
-														)),
-													]}
-												/>
-
-												{/* Tipo da banca */}
-												<FormSelect
-													label="Tipo da banca:*"
-													id="selectTipoBanca"
-													value={this.state.id_tipoBanca}
-													onChange={(e) => this.setState({ id_tipoBanca: e.target.value })}
-													options={[
-														<option key="0" value="0">
-															Selecione
-														</option>,
-														...this.state.array_tiposBanca.filter((tipo) => parseInt(tipo.id) < 3)
-															.map((tipo) => (
-																<option key={tipo.id} value={tipo.id}>
-																	{tipo.nome}
-																</option>
-															)),
-													]}
-												/>
-
-												{/* Área de concentração */}
-												<FormSelect
-													label="Área de concentração:*"
-													id="selectAreaConcentracao"
-													value={this.state.idAreaConcentracao}
-													onChange={(e) => this.setState({ idAreaConcentracao: e.target.value })}
-													options={
-														this.state.arrayAreaConcentracao.length > 0
-															? this.state.arrayAreaConcentracao.map((area) => (
-																<option key={area.id} value={area.id}>
-																	{area.nome}
-																</option>
-															))
-															: [
-																<option key="0" value="0">
-																	Nenhum resultado encontrado
-																</option>,
-															]
-													}
-												/>
-
-												{/* Linha de pesquisa */}
-												<FormSelect
-													label="Linha de pesquisa:*"
-													id="selectLinhaPesquisa"
-													value={this.state.idLinhaPesquisa}
-													onChange={(e) => this.setState({ idLinhaPesquisa: e.target.value })}
-													options={[
-														<option key="0" value="0">
-															Selecione
-														</option>,
-														...this.state.arrayLinhasDePesquisas.map((linha) => (
-															<option key={linha.id} value={linha.id}>
-																{linha.linha_pesquisa}
-															</option>
-														)),
-													]}
-												/>
-
-												{/* Data e hora prevista */}
-												<FormInput
-													label="Data e hora prevista:"
-													id="dataHoraPrevista"
-													type="datetime-local"
-													value={this.state.data_horaPrevista}
-													onChange={(e) => this.setState({ data_horaPrevista: e.target.value })}
-													min="2022-01"
-												/>
-
-												{/* Membros internos */}
-												<div className="form-group">
-													<label htmlFor="selectMembrosInternos">Membros internos:*</label>
-													<Select
-														closeMenuOnSelect={false}
-														value={this.state.arraySelectedMembrosInternos}
-														isMulti
-														options={this.state.arrayMembrosInternos}
-														onChange={(e) => this.setState({ arraySelectedMembrosInternos: e })}
-													/>
-												</div>
-											</div>
-											<div className="col-sm-6">
-												{/* Membros externos */}
-												<div className="form-group">
-													<label htmlFor="selectMembrosExternos">Membros externos:*</label>
-													<Select
-														closeMenuOnSelect={false}
-														value={this.state.arraySelectedMembrosExternos}
-														isMulti
-														options={this.state.arrayMembrosExternos}
-														onChange={(e) => this.setState({ arraySelectedMembrosExternos: e })}
-													/>
-												</div>
-
-												{/* Título */}
-												<FormTextarea
-													label="Título:"
-													id="titulo"
-													rows={3}
-													value={this.state.titulo}
-													onChange={(e) => this.setState({ titulo: e.target.value })}
-												/>
-
-												{/* Título em inglês */}
-												<FormTextarea
-													label="Título em inglês:"
-													id="title"
-													rows={3}
-													value={this.state.title}
-													onChange={(e) => this.setState({ title: e.target.value })}
-												/>
-
-												{/* Resumo */}
-												<FormTextarea
-													label="Resumo:"
-													id="resumo"
-													rows={3}
-													value={this.state.resumo}
-													onChange={(e) => this.setState({ resumo: e.target.value })}
-												/>
-
-												{/* Palavra-chave */}
-												<FormTextarea
-													label="Palavra-chave:"
-													id="palavra_chave"
-													rows={3}
-													value={this.state.palavra_chave}
-													onChange={(e) => this.setState({ palavra_chave: e.target.value })}
-												/>
-											</div>
-										</div>
-
-										{/* Mensagens de sucesso ou erro */}
-										<div className="row mt-2">
-											<div className="col-sm-12">
-												{this.state.success && (
-													<div className="alert alert-success text-center" role="alert">
-														{this.state.success}
-													</div>
-												)}
-												{this.state.error && (
-													<div className="alert alert-danger text-center" role="alert">
-														{this.state.error}
-													</div>
-												)}
-											</div>
-										</div>
-										<div className="d-flex justify-content-center">
-											<button className="button">
-												<FaRegSave /> Salvar
-											</button>
-										</div>
-									</Modal.Body>
-								</Form>
-							</Modal>
-
+								onHide={this.handlerFecharModalAtualizarBanca}
+								atualizarBanca={this.handleAtualizarBanca}
+								id_orientando={this.state.id_orientando}
+								id_tipoBanca={this.state.id_tipoBanca}
+								idAreaConcentracao={this.state.idAreaConcentracao}
+								idLinhaPesquisa={this.state.idLinhaPesquisa}
+								data_horaPrevista={this.state.data_horaPrevista}
+								arraySelectedMembrosInternos={this.state.arraySelectedMembrosInternos}
+								arraySelectedMembrosExternos={this.state.arraySelectedMembrosExternos}
+								titulo={this.state.titulo}
+								title={this.state.title}
+								resumo={this.state.resumo}
+								palavra_chave={this.state.palavra_chave}
+								array_orientandos={this.state.array_orientandos}
+								array_tiposBanca={this.state.array_tiposBanca}
+								arrayAreaConcentracao={this.state.arrayAreaConcentracao}
+								arrayLinhasDePesquisas={this.state.arrayLinhasDePesquisas}
+								arrayMembrosInternos={this.state.arrayMembrosInternos}
+								arrayMembrosExternos={this.state.arrayMembrosExternos}
+								success={this.state.success}
+								error={this.state.error}
+								handleInputChange={this.handleInputChange}
+								handleSelectChange={this.handleSelectChange}
+							/>
 						</MainContent>
 					</Col>
 				</Row>
