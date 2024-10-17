@@ -256,8 +256,9 @@ export default class Index extends Component {
 		handlerMostrarModalExcluirBanca(this, banca);
 	};
 
-	handlerFecharModalExcluirBanca = () => {
-		handlerFecharModalExcluirBanca(this);
+	loadCursos = async () => {
+		const cursosData = await listaDeCursos(getToken());
+		this.setState({ array_cursos: cursosData });
 	};
 
 	// Modais de Finalizar Banca
@@ -278,12 +279,26 @@ export default class Index extends Component {
 		handleAtualizarOrientando(this, e);
 	};
 
-	handleCadastrarBanca = (e) => {
-		handleCadastrarBanca(this, e);
+	handlerCloseModalCadastrarBanca = () => {
+		this.setModalShowCadastrarBanca(false);
+		this.setState({
+			success: '',
+			error: '',
+			id_orientando: '',
+			id_tipoBanca: '',
+			data_horaPrevista: '',
+			arraySelectedMembrosInternos: [],
+			arraySelectedMembrosExternos: [],
+			titulo: '',
+			title: '',
+			resumo: '',
+			palavra_chave: '',
+		});
 	};
 
-	handleAtualizarBanca = (e) => {
-		handleAtualizarBanca(this, e);
+	// Modal Atualizar Banca
+	setModalShowAtualizarBanca = (valor) => {
+		this.setState({ modalShowAtualizarBanca: valor });
 	};
 
 	handleExcluirBanca = (e) => {
@@ -360,18 +375,26 @@ export default class Index extends Component {
 		}
 	};
 
-	loadOrientandos = async (nome = '', idLinhaPesquisa = 0, idFaseProcesso = 0) => {
-		const orientandosData = await listaDeOrientandos(getToken(), this.context.user.id, nome, idLinhaPesquisa, idFaseProcesso);
-		this.setState({ array_orientandos: orientandosData });
+	handleOptionChange = (nomeEstadoResposta, valor) => {
+		this.setState({ [nomeEstadoResposta]: valor });
 	};
 
-	loadBancas = async (id_tipoBanca) => {
-		const bancasData = await listaDeBancas(getToken(), this.context.user.id, id_tipoBanca);
-		if (id_tipoBanca === 1) {
-			this.setState({ array_bancasQ: bancasData });
-		} else if (id_tipoBanca === 2) {
-			this.setState({ array_bancasD: bancasData });
+	handleResumoChange = (nomeEstadoResumo, valor) => {
+		this.setState({ [nomeEstadoResumo]: valor });
+	};
+
+	// Função para obter o tipo de membro em inglês
+	getMemberRoleEnglish = (membroNome) => {
+		const membro = this.state.arrayMembrosDaDeclaracaoDeParticipacao.find(
+			(membro) => membro.nome.slice(0, membro.nome.indexOf(' -')) === membroNome
+		);
+		if (membro) {
+			const tipo = membro.nome.slice(membro.nome.indexOf('-') + 1).trim();
+			if (tipo === 'presidente') return 'President';
+			if (tipo === 'membro externo') return 'External Member';
+			if (tipo === 'membro interno') return 'Internal Member';
 		}
+		return '';
 	};
 
 	// Função para obter o tipo de membro em português
@@ -395,16 +418,19 @@ export default class Index extends Component {
 		handlerMostrarModalCadastrarBanca(this);
 	};
 
-	handlerFecharModalCadastrarBanca = () => {
-		handlerFecharModalCadastrarBanca(this);
+	// Função para obter o tipo de banca em português
+	getBancaTypePortuguese = () => {
+		return this.state.id_tipoBanca === 1 ? 'QUALIFICAÇÃO' : 'DEFESA';
 	};
 
-	handlerMostrarModalAtualizarBanca = (banca) => {
-		handlerMostrarModalAtualizarBanca(this, banca);
-	};
-
-	handlerFecharModalAtualizarBanca = () => {
-		handlerFecharModalAtualizarBanca(this);
+	// Função para obter o nome do programa em inglês
+	getProgramNameEnglish = () => {
+		const { id_curso } = this.state;
+		if (id_curso === 1) return "Master's Program in EDUCATION SCIENCES";
+		if (id_curso === 2) return 'Doctoral Program in EDUCATIONAL SCIENCES';
+		if (id_curso === 3) return "Master's Program in THEOLOGY";
+		if (id_curso === 4) return 'Doctoral Program in THEOLOGY';
+		return '';
 	};
 
 	handleOptionChange = (nomeEstadoResposta, valor) => {
@@ -468,6 +494,79 @@ export default class Index extends Component {
 
 	// Renderização
 	render() {
+		// const perguntas = [
+		const perguntas = [
+			{
+				numeroPergunta: 1,
+				textoPergunta: 'O título do projeto reflete o estudo a ser realizado',
+				nomeEstadoResposta: 'titulo_projeto',
+				nomeEstadoResumo: 'resumoQ1',
+				valorSelecionado: this.state.titulo_projeto,
+				valorResumo: this.state.resumoQ1,
+			},
+			{
+				numeroPergunta: 2,
+				textoPergunta: 'A pergunta condutora está explicitada?',
+				nomeEstadoResposta: 'pergunta_condutora',
+				nomeEstadoResumo: 'resumoQ2',
+				valorSelecionado: this.state.pergunta_condutora,
+				valorResumo: this.state.resumoQ2,
+			},
+			// Adicione as demais perguntas seguindo o mesmo padrão
+			{
+				numeroPergunta: 3,
+				textoPergunta: 'A hipótese está redigida de forma clara e o estudo proposto permite testá-la?',
+				nomeEstadoResposta: 'hipotese',
+				nomeEstadoResumo: 'resumoQ3',
+				valorSelecionado: this.state.hipotese,
+				valorResumo: this.state.resumoQ3,
+			},
+			{
+				numeroPergunta: 4,
+				textoPergunta: 'A fundamentação teórica e empírica dá sustentação ao estudo?',
+				nomeEstadoResposta: 'fundamentacao_teorica',
+				nomeEstadoResumo: 'resumoQ4',
+				valorSelecionado: this.state.fundamentacao_teorica,
+				valorResumo: this.state.resumoQ4,
+			},
+			{
+				numeroPergunta: 5,
+				textoPergunta: 'Os objetivos estão redigidos de forma clara e poderão ser atingidos?',
+				nomeEstadoResposta: 'objetivo',
+				nomeEstadoResumo: 'resumoQ5',
+				valorSelecionado: this.state.objetivo,
+				valorResumo: this.state.resumoQ5,
+			},
+			{
+				numeroPergunta: 6,
+				textoPergunta: 'O método contempla os passos necessários para garantir a validação interna da pesquisa?',
+				nomeEstadoResposta: 'metodo',
+				nomeEstadoResumo: 'resumoQ6',
+				valorSelecionado: this.state.metodo,
+				valorResumo: this.state.resumoQ6,
+			},
+			{
+				numeroPergunta: 7,
+				textoPergunta: 'O cronograma proposto é compatível com a proposta?',
+				nomeEstadoResposta: 'cronograma',
+				nomeEstadoResumo: 'resumoQ7',
+				valorSelecionado: this.state.cronograma,
+				valorResumo: this.state.resumoQ7,
+			},
+			{
+				numeroPergunta: 8,
+				textoPergunta: 'Conclusão da avaliação',
+				nomeEstadoResposta: 'conclusao_avaliacao',
+				nomeEstadoResumo: 'resumoQ8',
+				valorSelecionado: this.state.conclusao_avaliacao,
+				valorResumo: this.state.resumoQ8,
+				opcoes: [
+					'APROVADO SEM MODIFICAÇÕES',
+					'APROVADO COM NECESSIDADE DE OBSERVAR AS ALTERAÇÕES SUGERIDAS E LIBERAÇÃO DO ORIENTADOR',
+					'ENCAMINHADO PARA NOVA QUALIFICAÇÃO DE PROJETO APÓS OBSERVADAS AS ALTERAÇÕES SUGERIDAS COM OS MESMOS COMPONENTES DA BANCA QUE FEZ A AVALIAÇÃO INICIAL',
+				],
+			},
+		];
 
 		const {
 			array_orientandos,
@@ -758,7 +857,7 @@ export default class Index extends Component {
 								/>
 
 								{/* Renderização das perguntas utilizando o componente PerguntaAvaliacao */}
-								{getPerguntas(this.state).map((pergunta) => (
+								{perguntas.map((pergunta) => (
 									<PerguntaAvaliacao
 										key={pergunta.numeroPergunta}
 										numeroPergunta={pergunta.numeroPergunta}
@@ -956,9 +1055,7 @@ export default class Index extends Component {
 											nome={this.state.nome}
 											id_curso={this.state.idAreaConcentracao}
 											titulo={this.state.titulo}
-											arrayMembrosDaDeclaracaoDeParticipacao={
-												this.state.arrayMembrosDaDeclaracaoDeParticipacao
-											}
+											arrayMembrosDaDeclaracaoDeParticipacao={this.state.arrayMembrosDaDeclaracaoDeParticipacao}
 											dtFolhaAprovacaoFormatada={this.state.dtFolhaAprovacaoFormatada}
 										/>
 									</div>
