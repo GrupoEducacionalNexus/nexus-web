@@ -1,271 +1,210 @@
-// nexus-web/src/pages/bancas/orientadores/index.js
-import React, { Component } from 'react';
-import styled from 'styled-components';
-import { getToken } from '../../../services/auth';
-import Logo_ATA from '../../../assets/logo_ata.jpg';
-import { Container, Row, Col } from 'react-bootstrap';
-import { FaUserGraduate, FaCalendarWeek } from 'react-icons/fa';
-import Menu from '../../../components/Menu';
-import AdminNavbar from '../../../components/Navbar';
-import MainContent from '../../../components/MainContent';
-import UserContext from '../../../UserContext';
-import FormModalOrientando from './FormModalOrientando';
-import ModalVisualizarCertificadoDeAprovacao from './ModalVisualizarCertificadoDeAprovacao';
-import ModalEmitirDeclaracaoDeOrientacao from './ModalEmitirDeclaracaoDeOrientacao';
-import ModalAtualizarBanca from './ModalAtualizarBanca';
-import { listaDeLinhasDePesquisas } from '../../../services/getListaDeLinhasDePesquisas';
-import { print } from '../../../services/print';
-import backgroundImage from '../../../assets/sistema_chamados.png';
-import StatisticsTabsPanel from './StatisticsTabPanel';
-import RegisterBancaModal from './RegistrarBancaModal';
-import ConfirmationModalExcluirBanca from './ConfirmationModalExcluirBanca';
-import FormModalEmitirAta from './FormModalEmitirAta';
-import ModalVisualizarDeclaracaoDeOrientacao from './ModalVisualizarDeclaracaoDeOrientacao';
+import React, { useEffect } from 'react';
+import { Modal, Form } from 'react-bootstrap';
+import { FaLayerGroup, FaRegSave } from 'react-icons/fa';
+import Select from 'react-select';
 
-export default class Index extends Component {
-  static contextType = UserContext;
+const ModalAtualizarBanca = (props) => {
+  const {
+    show,
+    onHide,
+    array_orientandos = [], // Inicializamos com array vazio por padrão
+    array_tiposBanca = [],
+    arrayAreaConcentracao = [],
+    arrayLinhasDePesquisas = [],
+    arraySelectedMembrosInternos = [],
+    arraySelectedMembrosExternos = [],
+    id_orientando,
+    id_tipoBanca,
+    idAreaConcentracao,
+    idLinhaPesquisa,
+    data_horaPrevista,
+    titulo,
+    title,
+    resumo,
+    palavra_chave,
+    success,
+    error,
+    setIdOrientando,
+    setIdTipoBanca,
+    setIdAreaConcentracao,
+    setIdLinhaPesquisa,
+    setDataHoraPrevista,
+    setTitulo,
+    setTitle,
+    setResumo,
+    setPalavraChave,
+    setArraySelectedMembrosInternos,
+    setArraySelectedMembrosExternos,
+    handleSubmit,
+    arrayMembrosInternos,  // Recebido via props
+    arrayMembrosExternos,  // Recebido via props
+  } = props;
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      // Modal visibility states
-      modals: {
-        modalShowCadastrarBanca: false,
-        modalShowAtualizarBanca: false,
-        modalShowExcluirBanca: false,
-        modalShowEmitirAta: false,
-        modalShowEmitirDeclaracaoDeOrientacao: false,
-        modalShowVisualizarCertificadoDeAprovacao: false,
-        modalShowVisualizarDeclaracaoDeOrientacao: false,
-      },
+  return (
+    <Modal
+      show={show}
+      onHide={onHide}
+      aria-labelledby="contained-modal-title-vcenter"
+      backdrop="static"
+      size='xl'
+      centered
+    >
+      <Form onSubmit={handleSubmit}>
+        <Modal.Header closeButton>
+          <h4 className='titulo'><FaLayerGroup /> Atualizar Banca</h4>
+        </Modal.Header>
+        <Modal.Body>
+          <div className='row' style={{ maxHeight: "400px", overflowY: "scroll" }}>
+            <div className='col-sm-6'>
+              <div className="form-group">
+                <label>Orientando:*</label>
+                <select className="form-control form-control-sm" id="selectOrientando"
+                  value={id_orientando}
+                  onChange={e => setIdOrientando(e.target.value)}
+                >
+                  <option value="0">Selecione</option>
+                  {array_orientandos.length > 0 ?
+                    array_orientandos.map(orientando => (
+                      <option key={orientando.id} value={orientando.id}>
+                        {orientando.nome.toUpperCase()}
+                      </option>
+                    ))
+                    : <option value="0">Nenhum orientando encontrado</option>
+                  }
+                </select>
+              </div>
 
-      // Data
-      array_orientandos: [],
-      array_tiposBanca: [],
-      array_bancasQ: [],
-      array_bancasD: [],
-      array_cursos: [],
-      arrayLinhasDePesquisas: [],
+              <div className="form-group">
+                <label>Tipo da banca:*</label>
+                <select className="form-control form-control-sm" id="selectTipoBanca"
+                  value={id_tipoBanca}
+                  onChange={e => setIdTipoBanca(e.target.value)}
+                >
+                  <option value="0">Selecione</option>
+                  {array_tiposBanca.length > 0 ?
+                    array_tiposBanca.map(tipo =>
+                      parseInt(tipo.id) < 3 ? (
+                        <option key={tipo.id} value={tipo.id}>{tipo.nome}</option>
+                      ) : null
+                    )
+                    : <option value="0">Nenhum tipo de banca encontrado</option>
+                  }
+                </select>
+              </div>
 
-      // Other States
-      id_usuario: 0,
-      id_banca: 0,
-      tipo_banca: '',
-      nome: '',
-      success: '',
-      error: '',
-      orientador: '',
-      arrayMembrosDaDeclaracaoDeParticipacao: [],
-    };
-  }
+              <div className="form-group">
+                <label>Área de concentração:*</label>
+                <select className="form-control form-control-sm" id="selectAreaConcentracao"
+                  value={idAreaConcentracao}
+                  onChange={e => setIdAreaConcentracao(e.target.value)}
+                >
+                  {arrayAreaConcentracao.length > 0 ?
+                    arrayAreaConcentracao.map(area => (
+                      <option key={area.id} value={area.id}>
+                        {area.nome}
+                      </option>
+                    ))
+                    : <option value="0">Nenhuma área de concentração encontrada</option>
+                  }
+                </select>
+              </div>
 
-  componentDidMount() {
-    this.loadInitialData();
-  }
+              <div className="form-group">
+                <label>Linha de pesquisa:*</label>
+                <select className="form-control form-control-sm" id="selectLinhaPesquisa"
+                  value={idLinhaPesquisa}
+                  onChange={e => setIdLinhaPesquisa(e.target.value)}
+                >
+                  <option value="0">Selecione</option>
+                  {arrayLinhasDePesquisas.length > 0 ?
+                    arrayLinhasDePesquisas.map(linha => (
+                      <option key={linha.id} value={linha.id}>{linha.linha_pesquisa}</option>
+                    ))
+                    : <option value="0">Nenhuma linha de pesquisa encontrada</option>
+                  }
+                </select>
+              </div>
 
-  loadInitialData = async () => {
-    try {
-      const orientadorData = await listaDeLinhasDePesquisas(getToken());
-      if (orientadorData && orientadorData.length > 0) {
-        this.setState({ arrayLinhasDePesquisas: orientadorData });
-      }
-      this.loadOrientandos();
-      this.loadBancas(1);
-      this.loadBancas(2);
-      this.loadTiposDeBanca();
-    } catch (error) {
-      console.error('Erro ao carregar dados iniciais:', error);
-    }
-  };
+              <div className="form-group">
+                <label>Membros internos:*</label>
+                <Select
+                  closeMenuOnSelect={false}
+                  value={arraySelectedMembrosInternos}
+                  isMulti
+                  options={arrayMembrosInternos}
+                  onChange={setArraySelectedMembrosInternos}
+                />
+              </div>
+            </div>
 
-  loadOrientandos = async () => {
-    try {
-      const orientandosData = await listaDeLinhasDePesquisas(getToken(), this.context.user?.id || 0);
-      if (orientandosData) {
-        this.setState({ array_orientandos: orientandosData });
-      }
-    } catch (error) {
-      console.error('Erro ao carregar orientandos:', error);
-    }
-  };
+            <div className='col-sm-6'>
+              <div className="form-group">
+                <label>Membros externos:*</label>
+                <Select
+                  closeMenuOnSelect={false}
+                  value={arraySelectedMembrosExternos}
+                  isMulti
+                  options={arrayMembrosExternos}
+                  onChange={setArraySelectedMembrosExternos}
+                />
+              </div>
 
-  loadBancas = async (id_tipoBanca) => {
-    try {
-      const bancasData = await listaDeLinhasDePesquisas(getToken(), this.context.user?.id || 0, id_tipoBanca);
-      if (bancasData) {
-        if (id_tipoBanca === 1) {
-          this.setState({ array_bancasQ: bancasData });
-        } else if (id_tipoBanca === 2) {
-          this.setState({ array_bancasD: bancasData });
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao carregar bancas:', error);
-    }
-  };
+              <div className="form-group">
+                <label>Título:</label>
+                <textarea className="form-control form-control-sm" rows="3"
+                  value={titulo}
+                  onChange={e => setTitulo(e.target.value)}
+                />
+              </div>
 
-  loadTiposDeBanca = async () => {
-    try {
-      const tiposBancaData = await listaDeLinhasDePesquisas(getToken());
-      if (tiposBancaData) {
-        this.setState({ array_tiposBanca: tiposBancaData });
-      }
-    } catch (error) {
-      console.error('Erro ao carregar tipos de banca:', error);
-    }
-  };
+              <div className="form-group">
+                <label>Título em inglês:</label>
+                <textarea className="form-control form-control-sm" rows="3"
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                />
+              </div>
 
-  handleModalVisibility = (modalName, visibility) => {
-    this.setState((prevState) => ({
-      modals: {
-        ...prevState.modals,
-        [modalName]: visibility,
-      },
-    }));
-  };
+              <div className="form-group">
+                <label>Resumo:</label>
+                <textarea className="form-control form-control-sm" rows="3"
+                  value={resumo}
+                  onChange={e => setResumo(e.target.value)}
+                />
+              </div>
 
-  render() {
-    const {
-      array_orientandos = [],
-      array_tiposBanca = [],
-      array_bancasQ = [],
-      array_bancasD = [],
-      array_cursos = [],
-      arrayLinhasDePesquisas = [],
-      modals,
-      nome,
-      tipo_banca,
-      success,
-      error,
-      orientador,
-      arrayMembrosDaDeclaracaoDeParticipacao,
-    } = this.state;
+              <div className="form-group">
+                <label>Palavras-chave:</label>
+                <textarea className="form-control form-control-sm" rows="3"
+                  value={palavra_chave}
+                  onChange={e => setPalavraChave(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
 
-    return (
-      <Container
-        fluid
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: '100% 100%',
-          backgroundRepeat: 'no-repeat',
-          padding: '0px',
-          minHeight: '100vh',
-        }}
-      >
-        <Menu />
-        <Row>
-          <Col xs={12}>
-            <AdminNavbar id_usuario={this.state.id_usuario} />
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={12} id="main">
-            <MainContent>
-              <StatisticsTabsPanel
-                array_orientandos={array_orientandos}
-                array_bancasQ={array_bancasQ}
-                array_bancasD={array_bancasD}
-                arrayLinhasDePesquisas={arrayLinhasDePesquisas}
-                array_tiposBanca={array_tiposBanca}
-                nome={nome}
-                handleModalVisibility={this.handleModalVisibility}
-              />
+          <div className="row mt-2">
+            <div className="col-sm-12">
+              {success && (
+                <div className="alert alert-success text-center" role="alert">
+                  {success}
+                </div>
+              )}
+              {error && (
+                <div className="alert alert-danger text-center" role="alert">
+                  {error}
+                </div>
+              )}
+            </div>
+          </div>
 
-              <RegisterBancaModal
-                show={modals.modalShowCadastrarBanca}
-                onHide={() => this.handleModalVisibility('modalShowCadastrarBanca', false)}
-                handleSubmit={() => console.log('Cadastrar Banca')}
-                state={this.state}
-                handleChange={(field, value) => this.setState({ [field]: value })}
-                handleMultiSelectChange={(field, value) => this.setState({ [field]: value })}
-              />
+          <div className='d-flex justify-content-center'>
+            <button className='button'><FaRegSave /> Salvar</button>
+          </div>
+        </Modal.Body>
+      </Form>
+    </Modal>
+  );
+};
 
-              <FormModalOrientando
-                show={modals.modalShowEmitirDeclaracaoDeOrientacao}
-                onHide={() => this.handleModalVisibility('modalShowEmitirDeclaracaoDeOrientacao', false)}
-                handleCadastrarOrientando={() => console.log('Cadastrar Orientando')}
-              />
-
-              <ModalVisualizarCertificadoDeAprovacao
-                show={modals.modalShowVisualizarCertificadoDeAprovacao}
-                onHide={() => this.handleModalVisibility('modalShowVisualizarCertificadoDeAprovacao', false)}
-                titulo={nome || 'Certificado de Aprovação'}
-                nome={nome}
-                orientador={orientador || 'Orientador não informado'}
-                arrayMembrosDaDeclaracaoDeParticipacao={arrayMembrosDaDeclaracaoDeParticipacao || []}
-              />
-
-              <ConfirmationModalExcluirBanca
-                show={modals.modalShowExcluirBanca}
-                onHide={() => this.handleModalVisibility('modalShowExcluirBanca', false)}
-                onConfirm={() => console.log('Excluir Banca')}
-              />
-
-              <FormModalEmitirAta
-                show={modals.modalShowEmitirAta}
-                onHide={() => this.handleModalVisibility('modalShowEmitirAta', false)}
-                title={<><FaUserGraduate /> Emitir Ata</>}
-                size="md"
-                onSubmit={() => console.log('Emitir Ata')}
-              />
-
-              <ModalAtualizarBanca
-                show={modals.modalShowAtualizarBanca}
-                onHide={() => this.handleModalVisibility('modalShowAtualizarBanca', false)}
-                id_orientando={this.state.id_orientando}
-                setIdOrientando={(value) => this.setState({ id_orientando: value })}
-                array_orientandos={array_orientandos}
-                id_tipoBanca={this.state.id_tipoBanca}
-                setIdTipoBanca={(value) => this.setState({ id_tipoBanca: value })}
-                array_tiposBanca={array_tiposBanca}
-                idAreaConcentracao={this.state.idAreaConcentracao}
-                setIdAreaConcentracao={(value) => this.setState({ idAreaConcentracao: value })}
-                arrayAreaConcentracao={this.state.arrayAreaConcentracao}
-                idLinhaPesquisa={this.state.idLinhaPesquisa}
-                setIdLinhaPesquisa={(value) => this.setState({ idLinhaPesquisa: value })}
-                arrayLinhasDePesquisas={arrayLinhasDePesquisas}
-                data_horaPrevista={this.state.data_horaPrevista}
-                setDataHoraPrevista={(value) => this.setState({ data_horaPrevista: value })}
-                arrayMembrosInternos={this.state.arrayMembrosInternos}
-                arraySelectedMembrosInternos={this.state.arraySelectedMembrosInternos}
-                setArraySelectedMembrosInternos={(value) => this.setState({ arraySelectedMembrosInternos: value })}
-                arrayMembrosExternos={this.state.arrayMembrosExternos}
-                arraySelectedMembrosExternos={this.state.arraySelectedMembrosExternos}
-                setArraySelectedMembrosExternos={(value) => this.setState({ arraySelectedMembrosExternos: value })}
-                titulo={this.state.titulo}
-                setTitulo={(value) => this.setState({ titulo: value })}
-                title={this.state.title}
-                setTitle={(value) => this.setState({ title: value })}
-                resumo={this.state.resumo}
-                setResumo={(value) => this.setState({ resumo: value })}
-                palavra_chave={this.state.palavra_chave}
-                setPalavraChave={(value) => this.setState({ palavra_chave: value })}
-                success={success}
-                error={error}
-                handleSubmit={() => console.log('Atualizar Banca')}
-              />
-
-              <ModalVisualizarDeclaracaoDeOrientacao
-                show={modals.modalShowVisualizarDeclaracaoDeOrientacao}
-                onHide={() => this.handleModalVisibility('modalShowVisualizarDeclaracaoDeOrientacao', false)}
-              />
-            </MainContent>
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
-}
-
-export const Form = styled.form`
-  .titulo {
-    color: #000233;
-  }
-
-  @media only screen and (min-width: 320px) and (max-width: 725px) {
-    .button {
-      display: block;
-      width: 100%;
-    }
-  }
-`
+export default ModalAtualizarBanca;

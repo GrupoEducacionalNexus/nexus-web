@@ -27,6 +27,79 @@ export const listaDeCursos = async (token) => {
   }
 };
 
+export const listaDeMembrosExternos = async () => {
+    try {
+        const response = await fetch(`${api.baseURL}/membro_externo`, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+        });
+
+        const data = await response.json();
+
+        if (data.status === 200) {
+            return data.resultados;
+        }
+    } catch (error) {
+        return error;
+    }
+};
+
+export const listaDeMembrosInternos = async (token) => {
+  try {
+    const response = await fetch(`${api.baseURL}/orientadores`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'x-access-token': token,
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.status === 200) {
+      return data.resultados;
+    } else {
+      throw new Error(data.msg || 'Erro ao buscar membros internos');
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+// listaDeTiposDeBanca = async (token) => {
+//   try {
+//     const response = await fetch(`${api.baseURL}/tipo_banca`, {
+//       method: 'GET',
+//       headers: {
+//         Accept: 'application/json',
+//         'Content-Type': 'application/json',
+//         'x-access-token': token,
+//       },
+//     });
+
+//     if (!response.ok) {
+//       throw new Error(`Erro HTTP! status: ${response.status}`);
+//     }
+
+//     const data = await response.json();
+//     console.log('Tipos de Banca:', data.resultados);
+
+//     if (data.status === 200 && data.resultados.length > 0) {
+//       this.setState({ array_tiposBanca: data.resultados });
+//     } else {
+//       console.error('Erro ao obter tipos de banca:', data);
+//     }
+//   } catch (error) {
+//     console.error('Erro ao tentar buscar tipos de banca:', error);
+//   }
+// };
+
+
 // Função para excluir banca
 export const excluirBanca = async (id_banca, id_tipoBanca, id_orientando) => {
   try {
@@ -133,7 +206,13 @@ export const atualizarBanca = async (id_banca, bancaData) => {
 };
 
 // Função para listar orientandos
-export const listaDeOrientandos = async (token, idOrientador, nome = "", idLinhaPesquisa = 0, idFaseProcesso = 0) => {
+export const listaDeOrientandos = async (
+  token,
+  idOrientador,
+  nome = "",
+  idLinhaPesquisa = 0,
+  idFaseProcesso = 0
+) => {
   try {
     const response = await fetch(
       `${api.baseURL}/orientadores/${idOrientador}/orientandos?nome=${nome}&idLinhaPesquisa=${idLinhaPesquisa}&idFaseProcesso=${idFaseProcesso}`,
